@@ -1,13 +1,11 @@
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Database, Upload, FileText, File, Check, X } from 'lucide-react';
+import { Database, Upload, FileText, File, Check, X, Activity } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import FileUpload from '@/components/FileUpload';
 
@@ -51,14 +49,8 @@ export const DatabaseManagement = () => {
   const processDocumentsMutation = useMutation({
     mutationFn: async (files: UploadedFile[]) => {
       setProcessing(true);
-      // Simulate document processing - in real implementation, this would:
-      // 1. Extract text from PDF/DOC files
-      // 2. Parse legal content
-      // 3. Insert into laws and law_articles tables
-      
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // Mock data insertion
       const { data: { user } } = await supabase.auth.getUser();
       
       for (const file of files) {
@@ -112,116 +104,147 @@ export const DatabaseManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">إدارة قاعدة البيانات</h2>
-        <p className="text-gray-600">معالجة الوثائق وإدارة المحتوى القانوني</p>
+      <div className="flex justify-between items-center">
+        <div className="flex items-center space-x-3 space-x-reverse">
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <Database className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-slate-800">إدارة قاعدة البيانات</h2>
+            <p className="text-slate-600">معالجة الوثائق وإدارة المحتوى القانوني</p>
+          </div>
+        </div>
       </div>
 
       {/* Database Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">إجمالي القوانين</p>
-                <p className="text-2xl font-bold">{laws?.length || 0}</p>
+                <p className="text-sm text-blue-600 font-medium">إجمالي القوانين</p>
+                <p className="text-2xl font-bold text-blue-800">{laws?.length || 0}</p>
               </div>
-              <Database className="h-8 w-8 text-blue-500" />
+              <Database className="h-8 w-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">إجمالي المواد</p>
-                <p className="text-2xl font-bold">{articles}</p>
+                <p className="text-sm text-green-600 font-medium">إجمالي المواد</p>
+                <p className="text-2xl font-bold text-green-800">{articles}</p>
               </div>
-              <FileText className="h-8 w-8 text-green-500" />
+              <FileText className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-r from-emerald-50 to-emerald-100 border-emerald-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">حالة النظام</p>
-                <p className="text-lg font-bold text-green-600">متصل</p>
+                <p className="text-sm text-emerald-600 font-medium">حالة النظام</p>
+                <p className="text-lg font-bold text-emerald-800">متصل</p>
               </div>
-              <Check className="h-8 w-8 text-green-500" />
+              <Activity className="h-8 w-8 text-emerald-600" />
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Document Processing */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <Card className="shadow-sm border-slate-200">
+        <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
+          <CardTitle className="flex items-center gap-2 text-purple-800">
             <Upload className="h-5 w-5" />
             معالجة الوثائق
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-purple-600">
             رفع ومعالجة ملفات PDF و DOC و TXT لاستخراج المحتوى القانوني
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <FileUpload
-            onFilesChange={handleFilesChange}
-            maxFiles={10}
-            acceptedTypes={['application/pdf', '.doc', '.docx', '.txt']}
-          />
+        <CardContent className="space-y-6 p-6">
+          <div className="border-2 border-dashed border-slate-300 rounded-lg p-8">
+            <FileUpload
+              onFilesChange={handleFilesChange}
+              maxFiles={10}
+              acceptedTypes={['application/pdf', '.doc', '.docx', '.txt']}
+            />
+          </div>
           
           {selectedFiles.length > 0 && (
-            <div className="flex justify-end">
-              <Button 
-                onClick={handleProcessDocuments}
-                disabled={processing}
-                className="flex items-center gap-2"
-              >
-                {processing ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    جاري المعالجة...
-                  </>
-                ) : (
-                  <>
-                    <FileText className="h-4 w-4" />
-                    معالجة الملفات
-                  </>
-                )}
-              </Button>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {selectedFiles.map((file) => (
+                  <div key={file.id} className="flex items-center p-3 bg-slate-50 rounded-lg border border-slate-200">
+                    <File className="h-8 w-8 text-slate-500 mr-3" />
+                    <div className="flex-1">
+                      <p className="font-medium text-slate-800">{file.name}</p>
+                      <p className="text-sm text-slate-600">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex justify-end">
+                <Button 
+                  onClick={handleProcessDocuments}
+                  disabled={processing}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-md"
+                >
+                  {processing ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent ml-2"></div>
+                      جاري المعالجة...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="h-4 w-4 ml-2" />
+                      معالجة الملفات
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>
       </Card>
 
       {/* Recent Laws */}
-      <Card>
-        <CardHeader>
-          <CardTitle>القوانين الحديثة</CardTitle>
-          <CardDescription>آخر القوانين المضافة إلى قاعدة البيانات</CardDescription>
+      <Card className="shadow-sm border-slate-200">
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
+          <CardTitle className="text-slate-800">القوانين الحديثة</CardTitle>
+          <CardDescription className="text-slate-600">آخر القوانين المضافة إلى قاعدة البيانات</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
+        <CardContent className="p-0">
+          <div className="divide-y divide-slate-100">
             {laws?.map((law) => (
-              <div key={law.id} className="flex items-center justify-between border-b pb-2">
-                <div>
-                  <p className="font-medium">{law.name}</p>
-                  <p className="text-sm text-gray-600">رقم {law.number} - {law.category}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(law.created_at).toLocaleDateString('ar-SA')}
-                  </p>
+              <div key={law.id} className="flex items-center justify-between p-6 hover:bg-slate-50 transition-colors">
+                <div className="flex items-center space-x-3 space-x-reverse">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                    <FileText className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-slate-800">{law.name}</p>
+                    <p className="text-sm text-slate-600">رقم {law.number} - {law.category}</p>
+                    <p className="text-xs text-slate-500">
+                      {new Date(law.created_at).toLocaleDateString('ar-SA')}
+                    </p>
+                  </div>
                 </div>
-                <Badge variant={law.status === 'active' ? 'default' : 'secondary'}>
+                <Badge className={law.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'}>
                   {law.status === 'active' ? 'نشط' : 'غير نشط'}
                 </Badge>
               </div>
             ))}
             {(!laws || laws.length === 0) && (
-              <p className="text-gray-500 text-center py-4">لا توجد قوانين في قاعدة البيانات</p>
+              <div className="text-center py-12 text-slate-500">
+                <Database className="h-12 w-12 mx-auto mb-4 text-slate-400" />
+                <p>لا توجد قوانين في قاعدة البيانات</p>
+              </div>
             )}
           </div>
         </CardContent>
