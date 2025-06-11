@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -151,7 +150,6 @@ export const AuthModal = ({ language, onLanguageChange }: AuthModalProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="w-full max-w-md">
-        {/* Language Switcher */}
         {onLanguageChange && (
           <div className="mb-6 flex justify-center">
             <LanguageSwitcher 
