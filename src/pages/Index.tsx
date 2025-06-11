@@ -9,8 +9,8 @@ import { CredentialsInfo } from '@/components/CredentialsInfo';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Scale, Menu, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
@@ -18,13 +18,37 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [language, setLanguage] = useState<'ar' | 'en'>('ar');
   const [showCredentials, setShowCredentials] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // If user just signed in and it's an admin account, ensure admin privileges
+        if (event === 'SIGNED_IN' && session?.user?.email === 'admin@example.com') {
+          try {
+            // Check if admin record exists, if not create it
+            const { data: adminCheck } = await supabase
+              .from('admin_users')
+              .select('*')
+              .eq('user_id', session.user.id)
+              .single();
+            
+            if (!adminCheck) {
+              await supabase.from('admin_users').insert({
+                user_id: session.user.id,
+                admin_role: 'super_admin',
+                is_active: true
+              });
+            }
+          } catch (error) {
+            console.error('Error setting up admin privileges:', error);
+          }
+        }
+        
         setLoading(false);
       }
     );
@@ -50,6 +74,68 @@ const Index = () => {
     localStorage.setItem('language', lang);
   };
 
+  // Quick login function for demo credentials
+  const quickLogin = async (email: string, password: string, isAdmin = false) => {
+    setLoading(true);
+    try {
+      // Try to sign in first
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInData.user) {
+        toast({
+          title: language === 'ar' ? "تم تسجيل الدخول بنجاح" : "Successfully signed in",
+          description: language === 'ar' ? "مرحباً بك" : "Welcome back",
+        });
+        return;
+      }
+
+      // If sign in fails, try to create the account
+      if (signInError && signInError.message.includes('Invalid login credentials')) {
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: isAdmin ? 'Admin User' : 'Demo User',
+            },
+          },
+        });
+
+        if (signUpData.user && !signUpError) {
+          // For admin account, create admin privileges
+          if (isAdmin) {
+            await supabase.from('admin_users').insert({
+              user_id: signUpData.user.id,
+              admin_role: 'super_admin',
+              is_active: true
+            });
+          }
+
+          toast({
+            title: language === 'ar' ? "تم إنشاء الحساب وتسجيل الدخول" : "Account created and signed in",
+            description: language === 'ar' ? "مرحباً بك في النظام" : "Welcome to the system",
+          });
+        } else {
+          throw signUpError || new Error('Failed to create account');
+        }
+      } else {
+        throw signInError;
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      toast({
+        title: language === 'ar' ? "خطأ في تسجيل الدخول" : "Login Error",
+        description: error.message || (language === 'ar' ? "حدث خطأ أثناء تسجيل الدخول" : "An error occurred during login"),
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
@@ -64,7 +150,7 @@ const Index = () => {
   }
 
   if (!user) {
-    return <AuthModal language={language} onLanguageChange={handleLanguageChange} />;
+    return <AuthModal language={language} onLanguageChange={handleLanguageChange} quickLogin={quickLogin} />;
   }
 
   const texts = {

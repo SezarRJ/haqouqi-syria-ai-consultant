@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -94,13 +93,16 @@ const Admin = () => {
     setIsLoggingIn(true);
 
     try {
-      if (loginData.email === 'admin@legal.com' && loginData.password === 'Admin123!') {
+      // Check if it's the demo admin credentials
+      if (loginData.email === 'admin@example.com' && loginData.password === 'admin123456') {
+        // Try to sign in first
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: loginData.email,
           password: loginData.password,
         });
 
         if (signInData.user) {
+          // Check if admin privileges exist
           const { data: adminCheck } = await supabase
             .from('admin_users')
             .select('*')
@@ -108,6 +110,7 @@ const Admin = () => {
             .single();
 
           if (!adminCheck) {
+            // Create admin privileges
             await supabase.from('admin_users').insert({
               user_id: signInData.user.id,
               admin_role: 'super_admin',
@@ -124,13 +127,20 @@ const Admin = () => {
           return;
         }
 
+        // If sign in fails, create the account
         if (signInError && signInError.message.includes('Invalid login credentials')) {
           const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             email: loginData.email,
             password: loginData.password,
+            options: {
+              data: {
+                full_name: 'Admin User',
+              },
+            },
           });
 
           if (signUpData.user && !signUpError) {
+            // Create admin privileges
             await supabase.from('admin_users').insert({
               user_id: signUpData.user.id,
               admin_role: 'super_admin',
@@ -256,7 +266,7 @@ const Admin = () => {
                     type="email"
                     value={loginData.email}
                     onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="admin@legal.com"
+                    placeholder="admin@example.com"
                     className="h-12 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-right"
                     required
                   />
@@ -269,7 +279,7 @@ const Admin = () => {
                       type={showPassword ? "text" : "password"}
                       value={loginData.password}
                       onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
-                      placeholder="Admin123!"
+                      placeholder="admin123456"
                       className="h-12 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-right pr-12"
                       required
                     />
@@ -298,11 +308,11 @@ const Admin = () => {
                 <div className="space-y-2 text-sm text-blue-700">
                   <div className="flex justify-between items-center">
                     <span className="font-medium">{t.email}:</span>
-                    <code className="bg-white px-2 py-1 rounded text-xs">admin@legal.com</code>
+                    <code className="bg-white px-2 py-1 rounded text-xs">admin@example.com</code>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="font-medium">{t.password}:</span>
-                    <code className="bg-white px-2 py-1 rounded text-xs">Admin123!</code>
+                    <code className="bg-white px-2 py-1 rounded text-xs">admin123456</code>
                   </div>
                 </div>
               </div>

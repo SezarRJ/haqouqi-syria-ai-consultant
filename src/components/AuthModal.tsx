@@ -5,16 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Scale, Mail, Lock, User, Globe } from 'lucide-react';
+import { Scale, Mail, Lock, User, Globe, LogIn } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 interface AuthModalProps {
   language: 'ar' | 'en';
   onLanguageChange?: (lang: 'ar' | 'en') => void;
+  quickLogin?: (email: string, password: string, isAdmin?: boolean) => Promise<void>;
 }
 
-export const AuthModal = ({ language, onLanguageChange }: AuthModalProps) => {
+export const AuthModal = ({ language, onLanguageChange, quickLogin }: AuthModalProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -40,7 +41,10 @@ export const AuthModal = ({ language, onLanguageChange }: AuthModalProps) => {
       loading: 'جاري التحميل...',
       signInSuccess: 'تم تسجيل الدخول بنجاح',
       signUpSuccess: 'تم إنشاء الحساب بنجاح. يرجى تفقد بريدك الإلكتروني لتأكيد الحساب',
-      error: 'حدث خطأ. يرجى المحاولة مرة أخرى'
+      error: 'حدث خطأ. يرجى المحاولة مرة أخرى',
+      quickAccess: 'وصول سريع للتجربة',
+      userDemo: 'دخول تجريبي - مستخدم',
+      adminDemo: 'دخول تجريبي - مدير'
     },
     en: {
       welcome: 'Welcome to Syrian Legal Advisor',
@@ -60,7 +64,10 @@ export const AuthModal = ({ language, onLanguageChange }: AuthModalProps) => {
       loading: 'Loading...',
       signInSuccess: 'Successfully signed in',
       signUpSuccess: 'Account created successfully. Please check your email to confirm your account',
-      error: 'An error occurred. Please try again'
+      error: 'An error occurred. Please try again',
+      quickAccess: 'Quick Access for Demo',
+      userDemo: 'Demo Login - User',
+      adminDemo: 'Demo Login - Admin'
     }
   };
 
@@ -176,6 +183,33 @@ export const AuthModal = ({ language, onLanguageChange }: AuthModalProps) => {
           </CardHeader>
 
           <CardContent className="p-6">
+            {/* Quick Access Demo Buttons */}
+            {quickLogin && (
+              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h4 className="font-semibold text-green-900 mb-3 text-center">{t.quickAccess}</h4>
+                <div className="space-y-2">
+                  <Button
+                    variant="outline"
+                    className="w-full border-green-300 text-green-700 hover:bg-green-50"
+                    onClick={() => quickLogin('user@example.com', 'user123456', false)}
+                    disabled={loading}
+                  >
+                    <LogIn className="mr-2 h-4 w-4" />
+                    {t.userDemo}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full border-red-300 text-red-700 hover:bg-red-50"
+                    onClick={() => quickLogin('admin@example.com', 'admin123456', true)}
+                    disabled={loading}
+                  >
+                    <LogIn className="mr-2 h-4 w-4" />
+                    {t.adminDemo}
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="signin">{t.signIn}</TabsTrigger>
