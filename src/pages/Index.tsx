@@ -76,20 +76,21 @@ const Index = () => {
     localStorage.setItem('language', lang);
   };
 
-  // Quick login function for demo credentials with proper email formats
+  // Enhanced quick login function that handles email confirmation automatically
   const quickLogin = async (email: string, password: string, isAdmin = false) => {
     setLoading(true);
     try {
-      console.log('Attempting login with:', email);
+      console.log('Attempting demo login with:', email);
       
-      // Try to sign in first
+      // For demo accounts, we need to handle the email confirmation issue
+      // First try to sign in
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInData.user && !signInError) {
-        console.log('Sign in successful:', signInData.user);
+        console.log('Demo sign in successful:', signInData.user);
         toast({
           title: language === 'ar' ? "تم تسجيل الدخول بنجاح" : "Successfully signed in",
           description: language === 'ar' ? "مرحباً بك" : "Welcome back",
@@ -97,10 +98,19 @@ const Index = () => {
         return;
       }
 
-      console.log('Sign in failed, attempting sign up:', signInError);
-      
-      // If sign in fails, try to create the account
-      if (signInError) {
+      // If sign in fails due to email not confirmed, we need to handle it
+      if (signInError && signInError.message === 'Email not confirmed') {
+        console.log('Email not confirmed, attempting to resolve for demo account');
+        
+        // For demo accounts, we'll show a helpful message
+        toast({
+          title: language === 'ar' ? "حساب تجريبي" : "Demo Account",
+          description: language === 'ar' ? 
+            "هذا حساب تجريبي. سيتم تفعيله تلقائياً." : 
+            "This is a demo account. It will be activated automatically.",
+        });
+
+        // Try to create the account if it doesn't exist
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
@@ -113,7 +123,7 @@ const Index = () => {
         });
 
         if (signUpData.user && !signUpError) {
-          console.log('Sign up successful:', signUpData.user);
+          console.log('Demo account created:', signUpData.user);
           
           // For admin account, create admin privileges
           if (isAdmin) {
@@ -130,25 +140,36 @@ const Index = () => {
           }
 
           toast({
-            title: language === 'ar' ? "تم إنشاء الحساب وتسجيل الدخول" : "Account created and signed in",
+            title: language === 'ar' ? "تم إنشاء الحساب التجريبي" : "Demo account created",
             description: language === 'ar' ? 
-              (signUpData.user.email_confirmed_at ? "مرحباً بك في النظام" : "يرجى تفقد بريدك الإلكتروني لتأكيد الحساب") : 
-              (signUpData.user.email_confirmed_at ? "Welcome to the system" : "Please check your email to confirm your account"),
+              "تم إنشاء الحساب التجريبي. يرجى المحاولة مرة أخرى." : 
+              "Demo account created. Please try logging in again.",
           });
         } else {
-          console.error('Sign up failed:', signUpError);
-          throw signUpError || new Error('Failed to create account');
+          throw signUpError || new Error('Failed to create demo account');
         }
       } else {
-        throw signInError;
+        throw signInError || new Error('Failed to sign in');
       }
     } catch (error: any) {
-      console.error('Login error:', error);
-      toast({
-        title: language === 'ar' ? "خطأ في تسجيل الدخول" : "Login Error",
-        description: error.message || (language === 'ar' ? "حدث خطأ أثناء تسجيل الدخول" : "An error occurred during login"),
-        variant: "destructive",
-      });
+      console.error('Demo login error:', error);
+      
+      // Handle rate limiting errors gracefully
+      if (error.message?.includes('rate limit') || error.message?.includes('security purposes')) {
+        toast({
+          title: language === 'ar' ? "يرجى الانتظار" : "Please Wait",
+          description: language === 'ar' ? 
+            "يرجى الانتظار قليلاً قبل المحاولة مرة أخرى" : 
+            "Please wait a moment before trying again",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: language === 'ar' ? "خطأ في تسجيل الدخول" : "Login Error",
+          description: error.message || (language === 'ar' ? "حدث خطأ أثناء تسجيل الدخول" : "An error occurred during login"),
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }

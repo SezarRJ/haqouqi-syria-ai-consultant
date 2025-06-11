@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -99,7 +98,7 @@ const Admin = () => {
     try {
       console.log('Attempting admin login with:', loginData.email);
       
-      // Check if it's the demo admin credentials (using proper email format)
+      // Check if it's the demo admin credentials
       if (loginData.email === 'admin@legaladvisor.com' && loginData.password === 'admin123456') {
         // Try to sign in first
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
@@ -107,7 +106,7 @@ const Admin = () => {
           password: loginData.password,
         });
 
-        if (signInData.user) {
+        if (signInData.user && !signInError) {
           console.log('Admin sign in successful:', signInData.user);
           
           // Check if admin privileges exist
@@ -136,10 +135,18 @@ const Admin = () => {
           return;
         }
 
-        // If sign in fails, create the account
-        if (signInError) {
-          console.log('Sign in failed, creating admin account:', signInError);
+        // If sign in fails due to email not confirmed, show helpful message
+        if (signInError && signInError.message === 'Email not confirmed') {
+          console.log('Admin email not confirmed, handling demo account');
           
+          toast({
+            title: language === 'ar' ? "حساب المدير التجريبي" : "Demo Admin Account",
+            description: language === 'ar' ? 
+              "هذا حساب تجريبي للمدير. سيتم إنشاؤه إذا لم يكن موجوداً." : 
+              "This is a demo admin account. It will be created if it doesn't exist.",
+          });
+
+          // Try to create the admin account
           const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             email: loginData.email,
             password: loginData.password,
@@ -152,7 +159,7 @@ const Admin = () => {
           });
 
           if (signUpData.user && !signUpError) {
-            console.log('Admin account created:', signUpData.user);
+            console.log('Demo admin account created:', signUpData.user);
             
             // Create admin privileges
             await supabase.from('admin_users').insert({
@@ -161,29 +168,41 @@ const Admin = () => {
               is_active: true
             });
 
-            setUser(signUpData.user);
-            setIsAdmin(true);
             toast({
               title: language === 'ar' ? "تم إنشاء حساب المشرف" : "Admin Account Created",
-              description: language === 'ar' ? "تم إنشاء حساب المشرف وتسجيل الدخول بنجاح" : "Admin account created and signed in successfully",
+              description: language === 'ar' ? 
+                "تم إنشاء حساب المشرف التجريبي. يرجى المحاولة مرة أخرى." : 
+                "Demo admin account created. Please try logging in again.",
             });
           } else {
             console.error('Admin account creation failed:', signUpError);
             throw signUpError || new Error('Failed to create admin account');
           }
         } else {
-          throw signInError;
+          throw signInError || new Error('Failed to sign in');
         }
       } else {
         throw new Error('Invalid admin credentials');
       }
     } catch (error: any) {
       console.error('Admin login error:', error);
-      toast({
-        title: language === 'ar' ? "خطأ في تسجيل الدخول" : "Login Error",
-        description: language === 'ar' ? "بيانات تسجيل الدخول غير صحيحة" : "Invalid login credentials",
-        variant: "destructive",
-      });
+      
+      // Handle rate limiting gracefully
+      if (error.message?.includes('rate limit') || error.message?.includes('security purposes')) {
+        toast({
+          title: language === 'ar' ? "يرجى الانتظار" : "Please Wait",
+          description: language === 'ar' ? 
+            "يرجى الانتظار قليلاً قبل المحاولة مرة أخرى" : 
+            "Please wait a moment before trying again",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: language === 'ar' ? "خطأ في تسجيل الدخول" : "Login Error",
+          description: language === 'ar' ? "بيانات تسجيل الدخول غير صحيحة" : "Invalid login credentials",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoggingIn(false);
     }
