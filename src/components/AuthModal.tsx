@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Scale, Mail, Lock, User, Globe, LogIn } from 'lucide-react';
+import { Scale, Mail, Lock, User, Globe, LogIn, UserCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
@@ -13,9 +14,10 @@ interface AuthModalProps {
   language: 'ar' | 'en';
   onLanguageChange?: (lang: 'ar' | 'en') => void;
   quickLogin?: (email: string, password: string, isAdmin?: boolean) => Promise<void>;
+  onGuestAccess?: () => void;
 }
 
-export const AuthModal = ({ language, onLanguageChange, quickLogin }: AuthModalProps) => {
+export const AuthModal = ({ language, onLanguageChange, quickLogin, onGuestAccess }: AuthModalProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -44,7 +46,10 @@ export const AuthModal = ({ language, onLanguageChange, quickLogin }: AuthModalP
       error: 'حدث خطأ. يرجى المحاولة مرة أخرى',
       quickAccess: 'وصول سريع للتجربة',
       userDemo: 'دخول تجريبي - مستخدم',
-      adminDemo: 'دخول تجريبي - مدير'
+      adminDemo: 'دخول تجريبي - مدير',
+      continueAsGuest: 'متابعة كضيف',
+      guestAccess: 'الوصول كضيف',
+      guestDescription: 'جرب النظام بدون إنشاء حساب'
     },
     en: {
       welcome: 'Welcome to Syrian Legal Advisor',
@@ -67,7 +72,10 @@ export const AuthModal = ({ language, onLanguageChange, quickLogin }: AuthModalP
       error: 'An error occurred. Please try again',
       quickAccess: 'Quick Access for Demo',
       userDemo: 'Demo Login - User',
-      adminDemo: 'Demo Login - Admin'
+      adminDemo: 'Demo Login - Admin',
+      continueAsGuest: 'Continue as Guest',
+      guestAccess: 'Guest Access',
+      guestDescription: 'Try the system without creating an account'
     }
   };
 
@@ -155,6 +163,16 @@ export const AuthModal = ({ language, onLanguageChange, quickLogin }: AuthModalP
     }
   };
 
+  const handleGuestAccess = () => {
+    if (onGuestAccess) {
+      onGuestAccess();
+      toast({
+        title: language === 'ar' ? "مرحباً بك كضيف" : "Welcome as Guest",
+        description: language === 'ar' ? "يمكنك تجربة النظام الآن" : "You can now try the system",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="w-full max-w-md">
@@ -184,6 +202,23 @@ export const AuthModal = ({ language, onLanguageChange, quickLogin }: AuthModalP
           </CardHeader>
 
           <CardContent className="p-6">
+            {/* Guest Access Button */}
+            {onGuestAccess && (
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="font-semibold text-blue-900 mb-3 text-center">{t.guestAccess}</h4>
+                <p className="text-sm text-blue-600 mb-3 text-center">{t.guestDescription}</p>
+                <Button
+                  variant="outline"
+                  className="w-full border-blue-300 text-blue-700 hover:bg-blue-50"
+                  onClick={handleGuestAccess}
+                  disabled={loading}
+                >
+                  <UserCheck className="mr-2 h-4 w-4" />
+                  {t.continueAsGuest}
+                </Button>
+              </div>
+            )}
+
             {/* Quick Access Demo Buttons */}
             {quickLogin && (
               <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">

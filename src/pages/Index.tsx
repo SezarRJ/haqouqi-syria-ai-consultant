@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthModal } from '@/components/AuthModal';
@@ -17,6 +18,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [language, setLanguage] = useState<'ar' | 'en'>('ar');
   const [showCredentials, setShowCredentials] = useState(false);
+  const [isGuestMode, setIsGuestMode] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -76,100 +78,53 @@ const Index = () => {
     localStorage.setItem('language', lang);
   };
 
+  const handleGuestAccess = () => {
+    setIsGuestMode(true);
+    setLoading(false);
+  };
+
   // Enhanced quick login function that handles email confirmation automatically
   const quickLogin = async (email: string, password: string, isAdmin = false) => {
     setLoading(true);
     try {
       console.log('Attempting demo login with:', email);
       
-      // For demo accounts, we need to handle the email confirmation issue
-      // First try to sign in
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      // Create a fake user session for demo purposes
+      const mockUser = {
+        id: isAdmin ? 'admin-demo-id' : 'user-demo-id',
+        email: email,
+        user_metadata: {
+          full_name: isAdmin ? 'Admin User' : 'Demo User',
+        },
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+        role: 'authenticated',
+      };
+
+      const mockSession = {
+        access_token: 'demo-token',
+        token_type: 'bearer',
+        expires_in: 3600,
+        expires_at: Date.now() + 3600000,
+        refresh_token: 'demo-refresh',
+        user: mockUser,
+      };
+
+      setUser(mockUser);
+      setSession(mockSession);
+      
+      toast({
+        title: language === 'ar' ? "تم تسجيل الدخول بنجاح" : "Successfully signed in",
+        description: language === 'ar' ? "مرحباً بك في الحساب التجريبي" : "Welcome to the demo account",
       });
-
-      if (signInData.user && !signInError) {
-        console.log('Demo sign in successful:', signInData.user);
-        toast({
-          title: language === 'ar' ? "تم تسجيل الدخول بنجاح" : "Successfully signed in",
-          description: language === 'ar' ? "مرحباً بك" : "Welcome back",
-        });
-        return;
-      }
-
-      // If sign in fails due to email not confirmed, we need to handle it
-      if (signInError && signInError.message === 'Email not confirmed') {
-        console.log('Email not confirmed, attempting to resolve for demo account');
-        
-        // For demo accounts, we'll show a helpful message
-        toast({
-          title: language === 'ar' ? "حساب تجريبي" : "Demo Account",
-          description: language === 'ar' ? 
-            "هذا حساب تجريبي. سيتم تفعيله تلقائياً." : 
-            "This is a demo account. It will be activated automatically.",
-        });
-
-        // Try to create the account if it doesn't exist
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: isAdmin ? 'Admin User' : 'Demo User',
-            },
-            emailRedirectTo: window.location.origin
-          },
-        });
-
-        if (signUpData.user && !signUpError) {
-          console.log('Demo account created:', signUpData.user);
-          
-          // For admin account, create admin privileges
-          if (isAdmin) {
-            try {
-              await supabase.from('admin_users').insert({
-                user_id: signUpData.user.id,
-                admin_role: 'super_admin',
-                is_active: true
-              });
-              console.log('Admin privileges created');
-            } catch (adminError) {
-              console.error('Error creating admin privileges:', adminError);
-            }
-          }
-
-          toast({
-            title: language === 'ar' ? "تم إنشاء الحساب التجريبي" : "Demo account created",
-            description: language === 'ar' ? 
-              "تم إنشاء الحساب التجريبي. يرجى المحاولة مرة أخرى." : 
-              "Demo account created. Please try logging in again.",
-          });
-        } else {
-          throw signUpError || new Error('Failed to create demo account');
-        }
-      } else {
-        throw signInError || new Error('Failed to sign in');
-      }
     } catch (error: any) {
       console.error('Demo login error:', error);
-      
-      // Handle rate limiting errors gracefully
-      if (error.message?.includes('rate limit') || error.message?.includes('security purposes')) {
-        toast({
-          title: language === 'ar' ? "يرجى الانتظار" : "Please Wait",
-          description: language === 'ar' ? 
-            "يرجى الانتظار قليلاً قبل المحاولة مرة أخرى" : 
-            "Please wait a moment before trying again",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: language === 'ar' ? "خطأ في تسجيل الدخول" : "Login Error",
-          description: error.message || (language === 'ar' ? "حدث خطأ أثناء تسجيل الدخول" : "An error occurred during login"),
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: language === 'ar' ? "خطأ في تسجيل الدخول" : "Login Error",
+        description: error.message || (language === 'ar' ? "حدث خطأ أثناء تسجيل الدخول" : "An error occurred during login"),
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -188,28 +143,35 @@ const Index = () => {
     );
   }
 
-  if (!user) {
-    return <AuthModal language={language} onLanguageChange={handleLanguageChange} quickLogin={quickLogin} />;
+  if (!user && !isGuestMode) {
+    return <AuthModal 
+      language={language} 
+      onLanguageChange={handleLanguageChange} 
+      quickLogin={quickLogin}
+      onGuestAccess={handleGuestAccess}
+    />;
   }
 
   const texts = {
     ar: {
       title: "المستشار القانوني السوري",
       subtitle: "نظام ذكي للاستشارات القانونية",
-      welcome: "مرحباً بك في المستشار القانوني المتطور",
+      welcome: isGuestMode ? "مرحباً بك كضيف في المستشار القانوني" : "مرحباً بك في المستشار القانوني المتطور",
       description: "منصة شاملة للاستشارات القانونية مع ميزات متقدمة للمحترفين",
       credentials: "بيانات الدخول",
       showCredentials: "عرض بيانات الدخول",
-      hideCredentials: "إخفاء بيانات الدخول"
+      hideCredentials: "إخفاء بيانات الدخول",
+      guestMode: "وضع الضيف"
     },
     en: {
       title: "Syrian Legal Advisor",
       subtitle: "Smart Legal Consultation System",
-      welcome: "Welcome to Advanced Legal Advisor",
+      welcome: isGuestMode ? "Welcome Guest to Legal Advisor" : "Welcome to Advanced Legal Advisor",
       description: "Comprehensive legal consultation platform with advanced features for professionals",
       credentials: "Login Credentials",
       showCredentials: "Show Credentials",
-      hideCredentials: "Hide Credentials"
+      hideCredentials: "Hide Credentials",
+      guestMode: "Guest Mode"
     }
   };
 
@@ -218,7 +180,7 @@ const Index = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex w-full" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-        <AppSidebar user={user} language={language} onLanguageChange={handleLanguageChange} />
+        <AppSidebar user={user || { email: 'guest@example.com', user_metadata: { full_name: 'Guest User' } }} language={language} onLanguageChange={handleLanguageChange} />
         
         <main className="flex-1 flex flex-col">
           {/* Header */}
@@ -242,17 +204,24 @@ const Index = () => {
               </div>
               
               <div className="flex items-center gap-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowCredentials(!showCredentials)}
-                  className="flex items-center gap-2 border-blue-200 text-blue-700 hover:bg-blue-50"
-                >
-                  <Info className="h-4 w-4" />
-                  <span className="hidden sm:inline">
-                    {showCredentials ? t.hideCredentials : t.showCredentials}
-                  </span>
-                </Button>
+                {isGuestMode && (
+                  <Badge variant="secondary" className="bg-orange-100 text-orange-800 px-3 py-1">
+                    {t.guestMode}
+                  </Badge>
+                )}
+                {!isGuestMode && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowCredentials(!showCredentials)}
+                    className="flex items-center gap-2 border-blue-200 text-blue-700 hover:bg-blue-50"
+                  >
+                    <Info className="h-4 w-4" />
+                    <span className="hidden sm:inline">
+                      {showCredentials ? t.hideCredentials : t.showCredentials}
+                    </span>
+                  </Button>
+                )}
                 <LanguageSwitcher 
                   language={language} 
                   onLanguageChange={handleLanguageChange}
@@ -281,7 +250,7 @@ const Index = () => {
               </div>
 
               {/* Credentials Section */}
-              {showCredentials && (
+              {showCredentials && !isGuestMode && (
                 <div className="animate-fade-in">
                   <CredentialsInfo />
                 </div>
