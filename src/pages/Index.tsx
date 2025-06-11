@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,6 +11,7 @@ import AuthModal from '@/components/AuthModal';
 import ChatInterface from '@/components/ChatInterface';
 import { LegalConsultationWithFiles } from '@/components/LegalConsultationWithFiles';
 import { SmartLegalSearch } from '@/components/SmartLegalSearch';
+import { UserBalance } from '@/components/UserBalance';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
@@ -96,6 +98,7 @@ const Index = () => {
             <div className="flex items-center gap-4">
               {user ? (
                 <div className="flex items-center gap-3">
+                  <UserBalance />
                   <span className="text-sm text-gray-600">مرحباً، {user.email}</span>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" asChild>
@@ -409,5 +412,3 @@ const Index = () => {
 };
 
 export default Index;
-
-}
