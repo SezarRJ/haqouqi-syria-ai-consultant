@@ -15,8 +15,8 @@ interface IntelligentLegalSearchProps {
 export const IntelligentLegalSearch: React.FC<IntelligentLegalSearchProps> = ({ language }) => {
   const [isSearching, setIsSearching] = useState(false);
   const [query, setQuery] = useState('');
-  const [documentType, setDocumentType] = useState('');
-  const [category, setCategory] = useState('');
+  const [documentType, setDocumentType] = useState('all');
+  const [category, setCategory] = useState('all');
   const [results, setResults] = useState<any[]>([]);
   const { toast } = useToast();
 
@@ -92,8 +92,8 @@ export const IntelligentLegalSearch: React.FC<IntelligentLegalSearchProps> = ({ 
       const { data, error } = await supabase.functions.invoke('legal-search', {
         body: {
           query,
-          document_type: documentType || null,
-          category: category || null,
+          document_type: documentType === 'all' ? null : documentType,
+          category: category === 'all' ? null : category,
           limit: 20
         }
       });
@@ -149,7 +149,7 @@ export const IntelligentLegalSearch: React.FC<IntelligentLegalSearchProps> = ({ 
                   <SelectValue placeholder={t.documentTypes.all} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t.documentTypes.all}</SelectItem>
+                  <SelectItem value="all">{t.documentTypes.all}</SelectItem>
                   <SelectItem value="law">{t.documentTypes.law}</SelectItem>
                   <SelectItem value="fiqh">{t.documentTypes.fiqh}</SelectItem>
                   <SelectItem value="fatwa">{t.documentTypes.fatwa}</SelectItem>
@@ -165,7 +165,7 @@ export const IntelligentLegalSearch: React.FC<IntelligentLegalSearchProps> = ({ 
                   <SelectValue placeholder={t.categories.all} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t.categories.all}</SelectItem>
+                  <SelectItem value="all">{t.categories.all}</SelectItem>
                   <SelectItem value="civil">{t.categories.civil}</SelectItem>
                   <SelectItem value="commercial">{t.categories.commercial}</SelectItem>
                   <SelectItem value="criminal">{t.categories.criminal}</SelectItem>
