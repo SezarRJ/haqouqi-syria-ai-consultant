@@ -306,8 +306,8 @@ const Index = () => {
       </div>
 
       <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
+        open={showAuthModal} 
+        onOpenChange={setShowAuthModal} 
       />
     </div>
   );
