@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthModal } from '@/components/AuthModal';
 import { AppSidebar } from '@/components/AppSidebar';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarTrigger, SidebarProvider } from '@/components/ui/sidebar';
 import { EnhancedLegalConsultation } from '@/components/EnhancedLegalConsultation';
 import { CredentialsInfo } from '@/components/CredentialsInfo';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -103,57 +104,68 @@ const Index = () => {
   const t = texts[language];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col lg:flex-row w-full" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      <AppSidebar 
-        user={user || { email: 'guest@example.com', user_metadata: { full_name: 'Guest User' } }} 
-        language={language} 
-        onLanguageChange={handleLanguageChange} 
-      />
-      
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white/95 backdrop-blur-sm border-b border-blue-200 shadow-sm sticky top-0 z-10 safe-area-inset-top">
-          <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-3">
-              <SidebarTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden touch-target">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SidebarTrigger>
-              <h1 className="font-bold text-blue-900 text-lg sm:text-xl truncate-mobile max-w-[calc(100vw-180px)]">
-                {t.title}
-              </h1>
+    <SidebarProvider>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex w-full" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <AppSidebar 
+          user={user || { email: 'guest@example.com', user_metadata: { full_name: 'Guest User' } }} 
+          language={language} 
+          onLanguageChange={handleLanguageChange} 
+        />
+        
+        <main className="flex-1 flex flex-col min-w-0">
+          <header className="bg-white/95 backdrop-blur-sm border-b border-blue-200 shadow-sm">
+            <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 gap-2">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                <SidebarTrigger className="md:hidden flex-shrink-0" />
+                <h1 className="font-bold text-blue-900 text-sm sm:text-base lg:text-lg truncate">
+                  {t.title}
+                </h1>
+              </div>
+              
+              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                {isGuestMode && (
+                  <Badge variant="secondary" className="bg-orange-100 text-orange-800 text-xs px-2 py-1">
+                    {t.guestMode}
+                  </Badge>
+                )}
+                <div className="hidden sm:block">
+                  <LanguageSwitcher 
+                    language={language} 
+                    onLanguageChange={handleLanguageChange}
+                  />
+                </div>
+                <div className="sm:hidden">
+                  <LanguageSwitcher 
+                    language={language} 
+                    onLanguageChange={handleLanguageChange}
+                    variant="compact"
+                  />
+                </div>
+              </div>
             </div>
-            
-            <div className="flex items-center gap-3">
-              {isGuestMode && (
-                <Badge variant="secondary" className="bg-orange-100 text-orange-800 text-xs py-1 px-2 no-select">
-                  {t.guestMode}
-                </Badge>
-              )}
-              <LanguageSwitcher 
-                language={language} 
-                onLanguageChange={handleLanguageChange}
-              />
+          </header>
+
+          <div className="flex-1 overflow-auto">
+            <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+              <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
+                <div className="text-center space-y-2 sm:space-y-3">
+                  <h2 className="text-xl sm:text-2xl font-bold text-blue-900">
+                    {t.welcome}
+                  </h2>
+                  <p className="text-blue-600 text-sm sm:text-base">
+                    {t.description}
+                  </p>
+                </div>
+
+                <div className="w-full">
+                  <EnhancedLegalConsultation language={language} />
+                </div>
+              </div>
             </div>
           </div>
-        </header>
-
-        <div className="flex-1 container mx-auto px-4 py-6 overflow-y-auto custom-scrollbar safe-area-inset-bottom">
-          <div className="max-w-6xl mx-auto space-y-8 pb-4 sm:pb-8">
-            <div className="text-center px-2">
-              <h2 className="text-xl sm:text-2xl font-bold text-blue-900 mb-2 sm:mb-3">
-                {t.welcome}
-              </h2>
-              <p className="text-blue-600 text-sm sm:text-base leading-relaxed">
-                {t.description}
-              </p>
-            </div>
-
-            <EnhancedLegalConsultation language={language} />
-          </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
 
