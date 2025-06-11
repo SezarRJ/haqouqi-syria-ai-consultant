@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthModal } from '@/components/AuthModal';
 import { AppSidebar } from '@/components/AppSidebar';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarTrigger, SidebarProvider } from '@/components/ui/sidebar';
 import { EnhancedLegalConsultation } from '@/components/EnhancedLegalConsultation';
 import { CredentialsInfo } from '@/components/CredentialsInfo';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -104,53 +104,55 @@ const Index = () => {
   const t = texts[language];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex w-full" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      <AppSidebar 
-        user={user || { email: 'guest@example.com', user_metadata: { full_name: 'Guest User' } }} 
-        language={language} 
-        onLanguageChange={handleLanguageChange} 
-      />
-      
-      <main className="flex-1 flex flex-col">
-        <header className="bg-white/95 backdrop-blur-sm border-b border-blue-200 shadow-sm">
-          <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-3">
-              <SidebarTrigger className="lg:hidden">
-                <Menu className="h-5 w-5" />
-              </SidebarTrigger>
-              <h1 className="font-bold text-blue-900">{t.title}</h1>
+    <SidebarProvider>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex w-full" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <AppSidebar 
+          user={user || { email: 'guest@example.com', user_metadata: { full_name: 'Guest User' } }} 
+          language={language} 
+          onLanguageChange={handleLanguageChange} 
+        />
+        
+        <main className="flex-1 flex flex-col">
+          <header className="bg-white/95 backdrop-blur-sm border-b border-blue-200 shadow-sm">
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-3">
+                <SidebarTrigger className="lg:hidden">
+                  <Menu className="h-5 w-5" />
+                </SidebarTrigger>
+                <h1 className="font-bold text-blue-900">{t.title}</h1>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                {isGuestMode && (
+                  <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                    {t.guestMode}
+                  </Badge>
+                )}
+                <LanguageSwitcher 
+                  language={language} 
+                  onLanguageChange={handleLanguageChange}
+                />
+              </div>
             </div>
-            
-            <div className="flex items-center gap-3">
-              {isGuestMode && (
-                <Badge variant="secondary" className="bg-orange-100 text-orange-800">
-                  {t.guestMode}
-                </Badge>
-              )}
-              <LanguageSwitcher 
-                language={language} 
-                onLanguageChange={handleLanguageChange}
-              />
+          </header>
+
+          <div className="flex-1 container mx-auto px-4 py-6">
+            <div className="max-w-6xl mx-auto space-y-8">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-blue-900 mb-3">
+                  {t.welcome}
+                </h2>
+                <p className="text-blue-600">
+                  {t.description}
+                </p>
+              </div>
+
+              <EnhancedLegalConsultation language={language} />
             </div>
           </div>
-        </header>
-
-        <div className="flex-1 container mx-auto px-4 py-6">
-          <div className="max-w-6xl mx-auto space-y-8">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-blue-900 mb-3">
-                {t.welcome}
-              </h2>
-              <p className="text-blue-600">
-                {t.description}
-              </p>
-            </div>
-
-            <EnhancedLegalConsultation language={language} />
-          </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
 
