@@ -100,6 +100,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    overflow-x: hidden;
   }
 
   /* Arabic RTL Support - Fixed circular dependency */
@@ -183,31 +184,77 @@
     @apply bg-blue-400;
   }
 
-  /* Mobile optimizations */
+  /* Improved Mobile optimizations */
   @media (max-width: 768px) {
+    .container {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+    
+    /* Prevent horizontal scroll */
+    html, body {
+      overflow-x: hidden;
+      width: 100%;
+    }
+    
+    /* Better text sizing for mobile */
+    .text-responsive {
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+    
+    /* Mobile cards with proper spacing */
+    .card-mobile {
+      margin: 0.5rem;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+    }
+    
+    /* Touch-friendly buttons with minimum sizes */
+    .btn-mobile {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0.5rem 0.75rem;
+      touch-action: manipulation;
+    }
+    
+    /* Better spacing for mobile layouts */
+    .space-mobile {
+      margin-bottom: 0.5rem;
+    }
+
+    /* Prevent text overflow on mobile */
+    .truncate-mobile {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* Mobile-specific flex improvements */
+    .flex-mobile {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    /* Improved mobile sidebar */
+    .sidebar-mobile {
+      width: 100%;
+      max-width: 320px;
+    }
+  }
+
+  /* Tablet optimizations */
+  @media (min-width: 769px) and (max-width: 1024px) {
     .container {
       padding-left: 1rem;
       padding-right: 1rem;
     }
     
-    .text-responsive {
-      font-size: 0.875rem;
-    }
-    
-    .card-mobile {
-      margin: 0.5rem;
-      padding: 0.75rem;
-    }
-    
-    /* Touch-friendly buttons */
-    .btn-mobile {
-      min-height: 44px;
-      min-width: 44px;
-    }
-    
-    /* Better spacing for mobile */
-    .space-mobile {
-      margin-bottom: 0.5rem;
+    .tablet-responsive {
+      font-size: 0.9375rem;
     }
   }
 }
@@ -223,11 +270,11 @@
   }
 
   .chat-message-user {
-    @apply bg-blue-600 text-white rounded-lg p-3 max-w-[80%] ml-auto;
+    @apply bg-blue-600 text-white rounded-lg p-3 max-w-[85%] ml-auto word-wrap break-words;
   }
 
   .chat-message-bot {
-    @apply bg-gray-100 text-gray-900 rounded-lg p-3 max-w-[80%] mr-auto;
+    @apply bg-gray-100 text-gray-900 rounded-lg p-3 max-w-[85%] mr-auto word-wrap break-words;
   }
 
   .legal-card-hover {
@@ -238,33 +285,71 @@
     font-variant-numeric: lining-nums;
   }
 
-  /* Mobile-specific components */
+  /* Enhanced Mobile-specific components */
   .mobile-tab {
-    @apply text-xs px-2 py-1;
+    @apply text-xs px-2 py-2 min-h-[40px] flex-shrink-0;
   }
   
   .mobile-card {
-    @apply p-3 m-2 shadow-sm;
+    @apply p-3 m-2 shadow-sm rounded-lg bg-white border border-gray-200;
   }
   
   .mobile-button {
-    @apply text-sm px-3 py-2 min-h-[44px];
+    @apply text-sm px-3 py-2 min-h-[44px] touch-manipulation;
   }
   
   .mobile-input {
-    @apply text-base min-h-[44px];
+    @apply text-base min-h-[44px] px-3 py-2;
   }
   
-  /* Responsive text utilities */
+  /* Enhanced Responsive text utilities */
   .text-mobile-sm {
     font-size: 0.75rem;
+    line-height: 1.3;
   }
   
   .text-mobile-base {
     font-size: 0.875rem;
+    line-height: 1.4;
   }
   
   .text-mobile-lg {
     font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  /* Prevent layout shift */
+  .no-layout-shift {
+    contain: layout style;
+  }
+
+  /* Improved focus states for accessibility */
+  .focus-improved:focus-visible {
+    @apply outline-2 outline-blue-500 outline-offset-2;
+  }
+
+  /* Better touch targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Prevent text selection on UI elements */
+  .no-select {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+  /* Safe area handling for mobile */
+  .safe-area-inset {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }

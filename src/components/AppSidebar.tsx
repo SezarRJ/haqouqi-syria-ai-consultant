@@ -29,6 +29,7 @@ import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AppSidebarProps {
   user: any;
@@ -39,6 +40,7 @@ interface AppSidebarProps {
 export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps) => {
   const location = useLocation();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -132,22 +134,26 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
   ];
 
   return (
-    <Sidebar side={language === 'ar' ? 'right' : 'left'}>
-      <SidebarHeader className="p-4">
+    <Sidebar side={language === 'ar' ? 'right' : 'left'} className="border-r border-blue-200">
+      <SidebarHeader className="p-3 sm:p-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Scale className="h-6 w-6 text-white" />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Scale className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
           </div>
-          <div>
-            <h2 className="font-bold text-blue-900">{t.legalAdvisor}</h2>
-            <p className="text-sm text-blue-600">{t.smartSystem}</p>
+          <div className="min-w-0 flex-1">
+            <h2 className="font-bold text-blue-900 text-sm sm:text-base truncate">
+              {t.legalAdvisor}
+            </h2>
+            <p className="text-xs sm:text-sm text-blue-600 truncate">
+              {t.smartSystem}
+            </p>
           </div>
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-2">
         <SidebarGroup>
-          <SidebarGroupLabel>{t.mainMenu}</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs sm:text-sm">{t.mainMenu}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -155,10 +161,11 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
                   <SidebarMenuButton 
                     asChild 
                     isActive={location.pathname === item.path}
+                    className="h-9 sm:h-10"
                   >
-                    <Link to={item.path}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                    <Link to={item.path} className="flex items-center gap-2 sm:gap-3">
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <span className="text-sm truncate">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -169,7 +176,7 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
 
         {user && (
           <SidebarGroup>
-            <SidebarGroupLabel>{t.accountPayment}</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-xs sm:text-sm">{t.accountPayment}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {accountItems.map((item) => (
@@ -177,10 +184,11 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
                     <SidebarMenuButton 
                       asChild 
                       isActive={location.pathname === item.path}
+                      className="h-9 sm:h-10"
                     >
-                      <Link to={item.path}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
+                      <Link to={item.path} className="flex items-center gap-2 sm:gap-3">
+                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        <span className="text-sm truncate">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -191,26 +199,30 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
         )}
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-3 sm:p-4 space-y-3">
         {user && (
-          <div className="space-y-3">
-            <div className="text-sm text-gray-600">
+          <div className="space-y-2 sm:space-y-3">
+            <div className="text-xs sm:text-sm text-gray-600 truncate">
               {t.hello} {user.email?.split('@')[0]}
             </div>
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleSignOut}
-              className="w-full justify-start"
+              className="w-full justify-start h-8 sm:h-9 text-xs sm:text-sm"
             >
-              <LogOut className="h-4 w-4 mr-2" />
-              {t.signOut}
+              <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0" />
+              <span className="truncate">{t.signOut}</span>
             </Button>
           </div>
         )}
         
-        <div className="mt-3">
-          <LanguageSwitcher language={language} onLanguageChange={onLanguageChange} />
+        <div className="mt-2 sm:mt-3">
+          <LanguageSwitcher 
+            language={language} 
+            onLanguageChange={onLanguageChange}
+            variant={isMobile ? "compact" : "default"}
+          />
         </div>
       </SidebarFooter>
     </Sidebar>
