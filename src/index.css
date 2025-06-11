@@ -105,7 +105,8 @@
 
   /* Reduces font size of the main title on small screens */
   .mobile-title {
-    @apply text-base sm:text-lg;
+    /* UPDATED: Made font size smaller. Now 14px on mobile, 16px on small screens and up. */
+    @apply text-sm sm:text-base;
   }
 
   /* Hides the subtitle on very small screens to save space */
@@ -116,5 +117,10 @@
   /* Reduces padding on the main content area for mobile */
   .mobile-content-padding {
     @apply p-2 sm:p-4 md:p-6;
+  }
+
+  /* ADDED: New class to control the text size within chat bubbles */
+  .chat-text {
+    @apply text-sm leading-relaxed; /* 14px font size with comfortable line spacing */
   }
 }
