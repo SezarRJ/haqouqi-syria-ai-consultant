@@ -1,9 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthModal } from '@/components/AuthModal';
 import { AppSidebar } from '@/components/AppSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { LegalConsultationWithFiles } from '@/components/LegalConsultationWithFiles';
+import { EnhancedLegalConsultation } from '@/components/EnhancedLegalConsultation';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Scale, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -66,12 +67,12 @@ const Index = () => {
     ar: {
       title: "المستشار القانوني السوري",
       subtitle: "نظام ذكي للاستشارات القانونية",
-      welcome: "مرحباً بك في المستشار القانوني"
+      welcome: "مرحباً بك في المستشار القانوني المتطور"
     },
     en: {
       title: "Syrian Legal Advisor",
       subtitle: "Smart Legal Consultation System",
-      welcome: "Welcome to Legal Advisor"
+      welcome: "Welcome to Advanced Legal Advisor"
     }
   };
 
@@ -115,20 +116,20 @@ const Index = () => {
 
           {/* Main Content */}
           <div className="flex-1 container mx-auto px-4 py-6">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-6xl mx-auto">
               <div className="text-center mb-8">
                 <h2 className="text-2xl md:text-3xl font-bold text-blue-900 mb-3">
                   {t.welcome}
                 </h2>
                 <p className="text-blue-600 text-lg">
                   {language === 'ar' 
-                    ? 'احصل على استشارات قانونية دقيقة ومفصلة باستخدام الذكاء الاصطناعي' 
-                    : 'Get accurate and detailed legal consultations using artificial intelligence'
+                    ? 'منصة شاملة للاستشارات القانونية مع ميزات متقدمة للمحترفين' 
+                    : 'Comprehensive legal consultation platform with advanced features for professionals'
                   }
                 </p>
               </div>
               
-              <LegalConsultationWithFiles language={language} />
+              <EnhancedLegalConsultation language={language} />
             </div>
           </div>
         </main>
