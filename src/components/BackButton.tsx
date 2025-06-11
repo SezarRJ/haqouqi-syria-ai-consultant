@@ -25,29 +25,25 @@ export const BackButton: React.FC<BackButtonProps> = ({
 
   console.log('BackButton render - isMobile:', isMobile);
 
-  // Render different buttons based on mobile state to avoid Slot issues
+  // Always render as a regular button element, never with asChild
   if (isMobile) {
     return (
-      <Button
-        variant={variant}
-        size="icon"
+      <button
         onClick={handleBack}
-        className={className}
+        className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 w-10 ${className}`}
       >
         <ArrowLeft className="h-4 w-4" />
-      </Button>
+      </button>
     );
   }
 
   return (
-    <Button
-      variant={variant}
-      size={size}
+    <button
       onClick={handleBack}
-      className={`flex items-center gap-2 ${className}`}
+      className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 ${className}`}
     >
       <ArrowLeft className="h-4 w-4" />
       العودة
-    </Button>
+    </button>
   );
 };
