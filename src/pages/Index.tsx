@@ -72,20 +72,20 @@ const Index = () => {
 
   const texts = {
     ar: {
-      title: "المستشار القانوني", // Shortened for mobile
+      title: "المستشار القانوني",
       subtitle: "نظام ذكي للاستشارات القانونية",
       welcome: isGuestMode ? "أهلاً بك ضيفنا الكريم" : "أهلاً بك",
       description: "منصة شاملة للاستشارات القانونية في سوريا. ابدأ بطرح سؤالك أدناه.",
-      guestMode: "ضيف", // Shortened for mobile
+      guestMode: "ضيف",
       nativeApp: "تطبيق أصلي",
       loading: "جاري التحميل..."
     },
     en: {
-      title: "Legal Advisor", // Shortened for mobile
+      title: "Legal Advisor",
       subtitle: "Smart Legal Consultation System",
       welcome: isGuestMode ? "Welcome, Guest" : "Welcome",
       description: "A comprehensive platform for legal consultation in Syria. Start by asking your question below.",
-      guestMode: "Guest", // Shortened for mobile
+      guestMode: "Guest",
       nativeApp: "Native App",
       loading: "Loading..."
     }
@@ -112,6 +112,13 @@ const Index = () => {
       />
     );
   }
+
+  // NOTE: The `EnhancedLegalConsultation` component is what renders the actual chat messages.
+  // To apply the smaller font size, you must find the <p> tag that displays the message text
+  // inside that component and add `className="chat-text"` to it.
+  // For example: <p className="chat-text">{message.text}</p>
+  // Without seeing that component's code, I cannot edit it directly for you.
+  // The CSS rule is ready and waiting for you to apply it.
 
   return (
     <div
