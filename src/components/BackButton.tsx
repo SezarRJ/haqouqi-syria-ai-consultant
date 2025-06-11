@@ -32,8 +32,10 @@ export const BackButton: React.FC<BackButtonProps> = ({
       onClick={handleBack}
       className={`flex items-center gap-2 ${className}`}
     >
-      <ArrowLeft className="h-4 w-4" />
-      {!isMobile && <span>العودة</span>}
+      <>
+        <ArrowLeft className="h-4 w-4" />
+        {!isMobile && <span>العودة</span>}
+      </>
     </Button>
   );
 };
