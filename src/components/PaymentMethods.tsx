@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CreditCard, Building, Gift, Loader2, Banknote } from 'lucide-react';
+import { CreditCard, Building, Gift, Loader2, Banknote, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -18,7 +18,11 @@ interface PaymentMethod {
   is_active: boolean;
 }
 
-export const PaymentMethods = () => {
+interface PaymentMethodsProps {
+  language?: 'ar' | 'en';
+}
+
+export const PaymentMethods = ({ language = 'ar' }: PaymentMethodsProps) => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
@@ -51,7 +55,7 @@ export const PaymentMethods = () => {
           payment_method_id: methodId,
           amount,
           reference_number: referenceNumber,
-          description: `Payment via ${paymentMethods?.find(m => m.id === methodId)?.name}`,
+          description: `${language === 'ar' ? 'دفع عبر' : 'Payment via'} ${paymentMethods?.find(m => m.id === methodId)?.name}`,
           status: 'pending'
         });
 
@@ -64,14 +68,14 @@ export const PaymentMethods = () => {
       setReferenceNumber('');
       setSelectedMethod('');
       toast({
-        title: "تم إرسال الطلب",
-        description: "تم إرسال طلب الدفع بنجاح وسيتم مراجعته قريباً",
+        title: language === 'ar' ? "تم إرسال الطلب" : "Request Sent",
+        description: language === 'ar' ? "تم إرسال طلب الدفع بنجاح وسيتم مراجعته قريباً" : "Payment request sent successfully and will be reviewed soon",
       });
     },
     onError: (error) => {
       toast({
-        title: "خطأ",
-        description: "فشل في إرسال طلب الدفع",
+        title: language === 'ar' ? "خطأ" : "Error",
+        description: language === 'ar' ? "فشل في إرسال طلب الدفع" : "Failed to send payment request",
         variant: "destructive",
       });
     }
@@ -81,8 +85,8 @@ export const PaymentMethods = () => {
     const amountNum = parseFloat(amount);
     if (!amountNum || amountNum <= 0) {
       toast({
-        title: "خطأ",
-        description: "يرجى إدخال مبلغ صحيح",
+        title: language === 'ar' ? "خطأ" : "Error",
+        description: language === 'ar' ? "يرجى إدخال مبلغ صحيح" : "Please enter a valid amount",
         variant: "destructive",
       });
       return;
@@ -90,8 +94,8 @@ export const PaymentMethods = () => {
 
     if (!selectedMethod) {
       toast({
-        title: "خطأ",
-        description: "يرجى اختيار طريقة الدفع",
+        title: language === 'ar' ? "خطأ" : "Error",
+        description: language === 'ar' ? "يرجى اختيار طريقة الدفع" : "Please select a payment method",
         variant: "destructive",
       });
       return;
@@ -99,8 +103,8 @@ export const PaymentMethods = () => {
 
     if (!referenceNumber.trim()) {
       toast({
-        title: "خطأ",
-        description: "يرجى إدخال رقم المرجع",
+        title: language === 'ar' ? "خطأ" : "Error",
+        description: language === 'ar' ? "يرجى إدخال رقم المرجع" : "Please enter reference number",
         variant: "destructive",
       });
       return;
@@ -126,56 +130,87 @@ export const PaymentMethods = () => {
     }
   };
 
+  const getPaymentMethodName = (method: PaymentMethod) => {
+    if (language === 'en') {
+      switch (method.type) {
+        case 'bank_transfer': return 'Bank Transfer';
+        case 'credit_card': return 'Credit Card';
+        case 'scratch_card': return 'Scratch Card';
+        default: return method.name;
+      }
+    }
+    
+    switch (method.type) {
+      case 'bank_transfer': return 'تحويل بنكي';
+      case 'credit_card': return 'بطاقة ائتمانية';
+      case 'scratch_card': return 'كرت شحن';
+      default: return method.name;
+    }
+  };
+
   if (isLoading) {
     return (
       <Card className="border-blue-200">
         <CardContent className="flex items-center justify-center p-8">
           <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-          <span className="mr-2 text-blue-700">جاري التحميل...</span>
+          <span className="mr-2 text-blue-700">
+            {language === 'ar' ? 'جاري التحميل...' : 'Loading...'}
+          </span>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="border-blue-200 shadow-sm">
+    <Card className="border-blue-200 shadow-lg max-w-2xl mx-auto">
       <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
         <CardTitle className="flex items-center gap-3 text-blue-900">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <CreditCard className="h-4 w-4 text-white" />
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+            <CreditCard className="h-5 w-5 text-white" />
           </div>
-          طرق الدفع
+          {language === 'ar' ? 'طرق الدفع' : 'Payment Methods'}
         </CardTitle>
-        <CardDescription className="text-blue-600">اختر طريقة الدفع المناسبة لشحن رصيدك</CardDescription>
+        <CardDescription className="text-blue-600 text-base">
+          {language === 'ar' 
+            ? 'اختر طريقة الدفع المناسبة لشحن رصيدك بسهولة وأمان' 
+            : 'Choose the appropriate payment method to top up your balance easily and securely'
+          }
+        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6 p-6">
-        <div className="grid gap-5">
+      <CardContent className="space-y-8 p-8">
+        <div className="grid gap-6">
           <div className="space-y-3">
-            <Label htmlFor="amount" className="text-sm font-semibold text-blue-900">المبلغ (ريال سعودي)</Label>
+            <Label htmlFor="amount" className="text-base font-semibold text-blue-900 flex items-center gap-2">
+              <Banknote className="h-4 w-4" />
+              {language === 'ar' ? 'المبلغ (ريال سعودي)' : 'Amount (Saudi Riyal)'}
+            </Label>
             <Input
               id="amount"
               type="number"
-              placeholder="0.00"
+              placeholder={language === 'ar' ? 'أدخل المبلغ' : 'Enter amount'}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               min="1"
               step="0.01"
-              className="h-11 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-right"
+              className="h-14 border-2 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-right text-lg font-medium"
             />
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="payment-method" className="text-sm font-semibold text-blue-900">طريقة الدفع</Label>
+            <Label htmlFor="payment-method" className="text-base font-semibold text-blue-900 flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              {language === 'ar' ? 'طريقة الدفع' : 'Payment Method'}
+            </Label>
             <Select value={selectedMethod} onValueChange={setSelectedMethod}>
-              <SelectTrigger className="h-11 border-blue-200 focus:border-blue-500 focus:ring-blue-500">
-                <SelectValue placeholder="اختر طريقة الدفع" />
+              <SelectTrigger className="h-14 border-2 border-blue-200 focus:border-blue-500 focus:ring-blue-500">
+                <SelectValue placeholder={language === 'ar' ? 'اختر طريقة الدفع' : 'Select payment method'} />
               </SelectTrigger>
               <SelectContent>
                 {paymentMethods?.map((method) => (
                   <SelectItem key={method.id} value={method.id}>
                     <div className="flex items-center gap-3">
                       {getPaymentIcon(method.type)}
-                      <span>{method.name}</span>
+                      <span className="font-medium">{getPaymentMethodName(method)}</span>
                     </div>
                   </SelectItem>
                 ))}
@@ -184,55 +219,93 @@ export const PaymentMethods = () => {
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="reference" className="text-sm font-semibold text-blue-900">رقم المرجع / رقم التحويل</Label>
+            <Label htmlFor="reference" className="text-base font-semibold text-blue-900 flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" />
+              {language === 'ar' ? 'رقم المرجع / رقم التحويل' : 'Reference Number / Transfer Number'}
+            </Label>
             <Input
               id="reference"
-              placeholder="أدخل رقم المرجع أو رقم التحويل"
+              placeholder={language === 'ar' ? 'أدخل رقم المرجع أو رقم التحويل' : 'Enter reference or transfer number'}
               value={referenceNumber}
               onChange={(e) => setReferenceNumber(e.target.value)}
-              className="h-11 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-right"
+              className="h-14 border-2 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-right text-lg"
             />
           </div>
 
           <Button 
             onClick={handlePayment}
             disabled={paymentMutation.isPending}
-            className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg font-semibold"
+            className="w-full h-16 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-xl font-bold text-lg rounded-xl transition-all duration-200 hover:shadow-2xl"
             size={isMobile ? "lg" : "default"}
           >
             {paymentMutation.isPending ? (
               <>
-                <Loader2 className="h-5 w-5 animate-spin ml-2" />
-                جاري المعالجة...
+                <Loader2 className="h-6 w-6 animate-spin ml-2" />
+                {language === 'ar' ? 'جاري المعالجة...' : 'Processing...'}
               </>
             ) : (
-              'إرسال طلب الدفع'
+              <>
+                <CheckCircle className="h-6 w-6 ml-2" />
+                {language === 'ar' ? 'إرسال طلب الدفع' : 'Send Payment Request'}
+              </>
             )}
           </Button>
         </div>
 
-        <div className="space-y-4 mt-8">
-          <h4 className="font-semibold text-blue-900 text-lg">تعليمات الدفع:</h4>
-          <div className="space-y-4">
-            <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg border border-blue-100">
-              <Building className="h-5 w-5 mt-0.5 flex-shrink-0 text-blue-600" />
+        <div className="space-y-6 mt-10">
+          <h4 className="font-bold text-blue-900 text-xl flex items-center gap-2">
+            <Building className="h-5 w-5" />
+            {language === 'ar' ? 'تعليمات الدفع:' : 'Payment Instructions:'}
+          </h4>
+          <div className="grid gap-4">
+            <div className="flex items-start gap-4 p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border-2 border-blue-200 hover:shadow-lg transition-all duration-200">
+              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Building className="h-6 w-6 text-white" />
+              </div>
               <div>
-                <p className="font-medium text-blue-900">التحويل البنكي</p>
-                <p className="text-sm text-blue-700 mt-1">أرسل المبلغ إلى الحساب المحدد وأدخل رقم التحويل</p>
+                <p className="font-bold text-blue-900 text-lg mb-2">
+                  {language === 'ar' ? 'التحويل البنكي' : 'Bank Transfer'}
+                </p>
+                <p className="text-blue-700 leading-relaxed">
+                  {language === 'ar' 
+                    ? 'قم بتحويل المبلغ إلى الحساب البنكي المحدد وأدخل رقم التحويل في الخانة المخصصة'
+                    : 'Transfer the amount to the specified bank account and enter the transfer number in the designated field'
+                  }
+                </p>
               </div>
             </div>
-            <div className="flex items-start gap-3 p-4 bg-indigo-50 rounded-lg border border-indigo-100">
-              <CreditCard className="h-5 w-5 mt-0.5 flex-shrink-0 text-indigo-600" />
+            
+            <div className="flex items-start gap-4 p-6 bg-gradient-to-r from-indigo-50 to-purple-100 rounded-xl border-2 border-indigo-200 hover:shadow-lg transition-all duration-200">
+              <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                <CreditCard className="h-6 w-6 text-white" />
+              </div>
               <div>
-                <p className="font-medium text-indigo-900">البطاقة الائتمانية</p>
-                <p className="text-sm text-indigo-700 mt-1">ادفع عبر نظام الدفع الآمن</p>
+                <p className="font-bold text-indigo-900 text-lg mb-2">
+                  {language === 'ar' ? 'البطاقة الائتمانية' : 'Credit Card'}
+                </p>
+                <p className="text-indigo-700 leading-relaxed">
+                  {language === 'ar' 
+                    ? 'ادفع عبر نظام الدفع الآمن باستخدام بطاقتك الائتمانية أو مدى'
+                    : 'Pay through the secure payment system using your credit card or debit card'
+                  }
+                </p>
               </div>
             </div>
-            <div className="flex items-start gap-3 p-4 bg-green-50 rounded-lg border border-green-100">
-              <Gift className="h-5 w-5 mt-0.5 flex-shrink-0 text-green-600" />
+            
+            <div className="flex items-start gap-4 p-6 bg-gradient-to-r from-green-50 to-emerald-100 rounded-xl border-2 border-green-200 hover:shadow-lg transition-all duration-200">
+              <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Gift className="h-6 w-6 text-white" />
+              </div>
               <div>
-                <p className="font-medium text-green-900">كرت الشحن</p>
-                <p className="text-sm text-green-700 mt-1">أدخل رقم كرت الشحن في خانة رقم المرجع</p>
+                <p className="font-bold text-green-900 text-lg mb-2">
+                  {language === 'ar' ? 'كرت الشحن' : 'Scratch Card'}
+                </p>
+                <p className="text-green-700 leading-relaxed">
+                  {language === 'ar' 
+                    ? 'قم بشراء كرت الشحن وأدخل الرقم السري في خانة رقم المرجع'
+                    : 'Purchase a scratch card and enter the secret number in the reference number field'
+                  }
+                </p>
               </div>
             </div>
           </div>
