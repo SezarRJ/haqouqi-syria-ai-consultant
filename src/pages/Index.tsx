@@ -3,16 +3,22 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AuthModal } from '@/components/AuthModal';
+import AuthModal from '@/components/AuthModal';
 import { LegalConsultation } from '@/components/LegalConsultation';
 import { SmartLegalSearch } from '@/components/SmartLegalSearch';
 import { EnhancedDocumentUpload } from '@/components/EnhancedDocumentUpload';
-import { ChatInterface } from '@/components/ChatInterface';
+import ChatInterface from '@/components/ChatInterface';
 import { MessageSquare, Search, FileText, Upload, Scale, Shield, Clock, Users, BookOpen, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  const handleLogin = (userData) => {
+    setUser(userData);
+    setIsAuthModalOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100" dir="rtl">
@@ -36,9 +42,18 @@ const Index = () => {
                   لوحة الإدارة
                 </Button>
               </Link>
-              <Button onClick={() => setIsAuthModalOpen(true)}>
-                تسجيل الدخول
-              </Button>
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">مرحباً، {user.name}</span>
+                  <Button variant="outline" onClick={() => setUser(null)}>
+                    تسجيل الخروج
+                  </Button>
+                </div>
+              ) : (
+                <Button onClick={() => setIsAuthModalOpen(true)}>
+                  تسجيل الدخول
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -178,8 +193,9 @@ const Index = () => {
 
       {/* Auth Modal */}
       <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+        open={isAuthModalOpen}
+        onOpenChange={setIsAuthModalOpen}
+        onLogin={handleLogin}
       />
     </div>
   );

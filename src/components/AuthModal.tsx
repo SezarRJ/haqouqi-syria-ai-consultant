@@ -10,7 +10,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { User, Mail, Lock, Briefcase } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-const AuthModal = ({ open, onOpenChange, onLogin }) => {
+interface AuthModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onLogin: (user: any) => void;
+}
+
+const AuthModal = ({ open, onOpenChange, onLogin }: AuthModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   
@@ -27,7 +33,7 @@ const AuthModal = ({ open, onOpenChange, onLogin }) => {
     profession: ''
   });
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -39,6 +45,7 @@ const AuthModal = ({ open, onOpenChange, onLogin }) => {
           email: loginData.email,
           profession: 'محامي'
         });
+        onOpenChange(false);
         toast({
           title: "تم تسجيل الدخول بنجاح",
           description: "مرحباً بك في المستشار القانوني السوري"
@@ -54,7 +61,7 @@ const AuthModal = ({ open, onOpenChange, onLogin }) => {
     }, 1000);
   };
 
-  const handleRegister = async (e) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -76,6 +83,7 @@ const AuthModal = ({ open, onOpenChange, onLogin }) => {
           email: registerData.email,
           profession: registerData.profession
         });
+        onOpenChange(false);
         toast({
           title: "تم إنشاء الحساب بنجاح",
           description: "مرحباً بك في المستشار القانوني السوري"

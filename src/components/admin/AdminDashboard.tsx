@@ -1,42 +1,49 @@
 
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, FileText, AlertCircle, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import { Users, FileText, Clock, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
 
 export const AdminDashboard = () => {
   const { data: stats } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: async () => {
-      const [lawsCount, usersCount, consultationsCount, pendingUpdates] = await Promise.all([
+      const [
+        { count: totalLaws },
+        { count: totalUsers },
+        { count: pendingUpdates },
+        { count: todayConsultations }
+      ] = await Promise.all([
         supabase.from('laws').select('id', { count: 'exact' }),
         supabase.from('profiles').select('id', { count: 'exact' }),
-        supabase.from('consultations').select('id', { count: 'exact' }),
-        supabase.from('law_updates').select('id', { count: 'exact' }).eq('status', 'pending')
+        supabase.from('law_updates').select('id', { count: 'exact' }).eq('status', 'pending'),
+        supabase.from('consultations').select('id', { count: 'exact' })
+          .gte('created_at', new Date().toISOString().split('T')[0])
       ]);
 
       return {
-        laws: lawsCount.count || 0,
-        users: usersCount.count || 0,
-        consultations: consultationsCount.count || 0,
-        pendingUpdates: pendingUpdates.count || 0
+        totalLaws: totalLaws || 0,
+        totalUsers: totalUsers || 0,
+        pendingUpdates: pendingUpdates || 0,
+        todayConsultations: todayConsultations || 0
       };
     }
   });
 
-  const { data: recentActivity } = useQuery({
-    queryKey: ['recent-activity'],
+  const { data: recentUpdates } = useQuery({
+    queryKey: ['recent-updates'],
     queryFn: async () => {
       const { data } = await supabase
         .from('law_updates')
         .select(`
           id,
           update_type,
-          submitted_at,
+          update_reason,
           status,
-          laws(name),
-          profiles(full_name)
+          submitted_at,
+          laws:law_id (name)
         `)
         .order('submitted_at', { ascending: false })
         .limit(5);
@@ -45,132 +52,211 @@ export const AdminDashboard = () => {
     }
   });
 
-  const statCards = [
-    {
-      title: 'إجمالي القوانين',
-      value: stats?.laws || 0,
-      icon: FileText,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100'
-    },
-    {
-      title: 'المستخدمون النشطون',
-      value: stats?.users || 0,
-      icon: Users,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100'
-    },
-    {
-      title: 'الاستشارات اليوم',
-      value: stats?.consultations || 0,
-      icon: TrendingUp,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100'
-    },
-    {
-      title: 'التحديثات المعلقة',
-      value: stats?.pendingUpdates || 0,
-      icon: AlertCircle,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100'
+  const { data: recentActivity } = useQuery({
+    queryKey: ['recent-activity'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('consultations')
+        .select(`
+          id,
+          consultation_type,
+          created_at,
+          profiles:user_id (full_name)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      return data || [];
     }
-  ];
+  });
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="secondary">في الانتظار</Badge>;
+      case 'approved':
+        return <Badge variant="default">مُوافق عليه</Badge>;
+      case 'rejected':
+        return <Badge variant="destructive">مرفوض</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getUpdateTypeLabel = (type: string) => {
+    switch (type) {
+      case 'new_law':
+        return 'قانون جديد';
+      case 'amend_law':
+        return 'تعديل قانون';
+      case 'repeal_law':
+        return 'إلغاء قانون';
+      case 'add_interpretation':
+        return 'إضافة تفسير';
+      default:
+        return type;
+    }
+  };
+
+  const getConsultationTypeLabel = (type: string) => {
+    switch (type) {
+      case 'chat':
+        return 'محادثة';
+      case 'document_analysis':
+        return 'تحليل وثائق';
+      case 'search':
+        return 'بحث';
+      default:
+        return type;
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat, index) => (
-          <Card key={index}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                </div>
-                <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div>
+        <h2 className="text-2xl font-bold">لوحة المراقبة</h2>
+        <p className="text-gray-600">نظرة عامة على حالة النظام والأنشطة الحديثة</p>
       </div>
 
-      {/* Recent Activity */}
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">إجمالي القوانين</p>
+                <p className="text-2xl font-bold">{stats?.totalLaws || 0}</p>
+              </div>
+              <FileText className="h-8 w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">المستخدمون النشطون</p>
+                <p className="text-2xl font-bold">{stats?.totalUsers || 0}</p>
+              </div>
+              <Users className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">التحديثات المعلقة</p>
+                <p className="text-2xl font-bold text-orange-600">{stats?.pendingUpdates || 0}</p>
+              </div>
+              <Clock className="h-8 w-8 text-orange-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">استشارات اليوم</p>
+                <p className="text-2xl font-bold text-purple-600">{stats?.todayConsultations || 0}</p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Updates */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              النشاط الأخير
+              <AlertCircle className="h-5 w-5" />
+              التحديثات الأخيرة
             </CardTitle>
-            <CardDescription>آخر التحديثات والأنشطة في النظام</CardDescription>
+            <CardDescription>آخر التحديثات المقترحة على القوانين</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {recentActivity?.map((activity) => (
-                <div key={activity.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">
-                      {activity.profiles?.full_name || 'مستخدم غير معروف'} - {activity.update_type}
+            <div className="space-y-3">
+              {recentUpdates?.map((update) => (
+                <div key={update.id} className="flex items-center justify-between border-b pb-2">
+                  <div>
+                    <p className="font-medium">{getUpdateTypeLabel(update.update_type)}</p>
+                    <p className="text-sm text-gray-600">
+                      {update.laws?.name || 'قانون غير محدد'}
                     </p>
-                    <p className="text-xs text-gray-600">{activity.laws?.name}</p>
                     <p className="text-xs text-gray-500">
-                      {new Date(activity.submitted_at).toLocaleDateString('ar-SA')}
+                      {new Date(update.submitted_at).toLocaleDateString('ar-SA')}
                     </p>
                   </div>
-                  <Badge variant={
-                    activity.status === 'approved' ? 'default' :
-                    activity.status === 'pending' ? 'secondary' : 'destructive'
-                  }>
-                    {activity.status === 'approved' ? 'موافق عليه' :
-                     activity.status === 'pending' ? 'معلق' : 'مرفوض'}
-                  </Badge>
+                  {getStatusBadge(update.status)}
                 </div>
-              )) || (
-                <p className="text-gray-500 text-center py-4">لا توجد أنشطة حديثة</p>
+              ))}
+              {!recentUpdates?.length && (
+                <p className="text-gray-500 text-center py-4">لا توجد تحديثات حديثة</p>
               )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
+        {/* Recent Activity */}
         <Card>
           <CardHeader>
-            <CardTitle>الإجراءات السريعة</CardTitle>
-            <CardDescription>روابط سريعة للمهام الشائعة</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5" />
+              النشاط الأخير
+            </CardTitle>
+            <CardDescription>آخر الاستشارات والأنشطة</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="p-4 hover:bg-gray-50 cursor-pointer transition-colors">
-                <div className="text-center">
-                  <FileText className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                  <p className="text-sm font-medium">إضافة قانون جديد</p>
+            <div className="space-y-3">
+              {recentActivity?.map((activity) => (
+                <div key={activity.id} className="flex items-center justify-between border-b pb-2">
+                  <div>
+                    <p className="font-medium">{getConsultationTypeLabel(activity.consultation_type)}</p>
+                    <p className="text-sm text-gray-600">
+                      {activity.profiles?.full_name || 'مستخدم غير محدد'}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(activity.created_at).toLocaleString('ar-SA')}
+                    </p>
+                  </div>
                 </div>
-              </Card>
-              <Card className="p-4 hover:bg-gray-50 cursor-pointer transition-colors">
-                <div className="text-center">
-                  <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                  <p className="text-sm font-medium">مراجعة التحديثات</p>
-                </div>
-              </Card>
-              <Card className="p-4 hover:bg-gray-50 cursor-pointer transition-colors">
-                <div className="text-center">
-                  <Users className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                  <p className="text-sm font-medium">إدارة المستخدمين</p>
-                </div>
-              </Card>
-              <Card className="p-4 hover:bg-gray-50 cursor-pointer transition-colors">
-                <div className="text-center">
-                  <TrendingUp className="h-8 w-8 mx-auto mb-2 text-orange-600" />
-                  <p className="text-sm font-medium">عرض التحليلات</p>
-                </div>
-              </Card>
+              ))}
+              {!recentActivity?.length && (
+                <p className="text-gray-500 text-center py-4">لا يوجد نشاط حديث</p>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* System Health */}
+      <Card>
+        <CardHeader>
+          <CardTitle>صحة النظام</CardTitle>
+          <CardDescription>مؤشرات حالة النظام والخدمات</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+              <span className="text-sm font-medium">قاعدة البيانات</span>
+              <Badge variant="default" className="bg-green-600">متصلة</Badge>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+              <span className="text-sm font-medium">خدمة الذكاء الاصطناعي</span>
+              <Badge variant="default" className="bg-blue-600">نشطة</Badge>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+              <span className="text-sm font-medium">واجهة المستخدم</span>
+              <Badge variant="default" className="bg-purple-600">تعمل بشكل طبيعي</Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
