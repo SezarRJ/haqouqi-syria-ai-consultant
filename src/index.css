@@ -102,41 +102,49 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   }
 
-  /* Arabic RTL Support */
+  /* Arabic RTL Support - Fixed circular dependency */
   [dir="rtl"] {
     direction: rtl;
   }
 
   [dir="rtl"] .ml-2 {
-    @apply mr-2 ml-0;
+    margin-right: 0.5rem;
+    margin-left: 0;
   }
 
   [dir="rtl"] .mr-2 {
-    @apply ml-2 mr-0;
+    margin-left: 0.5rem;
+    margin-right: 0;
   }
 
   [dir="rtl"] .ml-1 {
-    @apply mr-1 ml-0;
+    margin-right: 0.25rem;
+    margin-left: 0;
   }
 
   [dir="rtl"] .mr-1 {
-    @apply ml-1 mr-0;
+    margin-left: 0.25rem;
+    margin-right: 0;
   }
 
   [dir="rtl"] .pl-10 {
-    @apply pr-10 pl-0;
+    padding-right: 2.5rem;
+    padding-left: 0;
   }
 
   [dir="rtl"] .pr-10 {
-    @apply pl-10 pr-0;
+    padding-left: 2.5rem;
+    padding-right: 0;
   }
 
   [dir="rtl"] .left-3 {
-    @apply right-3 left-auto;
+    right: 0.75rem;
+    left: auto;
   }
 
   [dir="rtl"] .right-3 {
-    @apply left-3 right-auto;
+    left: 0.75rem;
+    right: auto;
   }
 
   /* Legal Theme Typography */

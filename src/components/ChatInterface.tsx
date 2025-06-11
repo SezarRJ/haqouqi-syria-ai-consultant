@@ -1,181 +1,188 @@
 
-import { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Send, Bot, User, FileText, Lightbulb, AlertTriangle } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState, useRef, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Send, Bot, User, Scale, FileText } from "lucide-react";
+
+interface Message {
+  id: number;
+  type: 'user' | 'bot';
+  content: string;
+  timestamp: Date;
+  suggestions?: string[];
+  citations?: string[];
+  responseType?: 'legal-advice' | 'law-reference' | 'general';
+}
 
 const ChatInterface = () => {
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
       type: 'bot',
-      content: 'مرحباً بك في المستشار القانوني السوري. أنا هنا لمساعدتك في استشاراتك القانونية. كيف يمكنني مساعدتك اليوم؟',
+      content: 'أهلاً وسهلاً بك في المستشار القانوني السوري. كيف يمكنني مساعدتك اليوم؟',
       timestamp: new Date(),
       suggestions: [
-        'استشارة حول قانون العمل',
-        'البحث في القانون المدني',
-        'تفسير مادة قانونية',
-        'استشارة في قانون الأحوال الشخصية'
+        'أريد استشارة حول قانون العمل',
+        'ما هي حقوقي في قانون الأحوال الشخصية؟',
+        'استفسار حول القانون التجاري'
       ]
     }
   ]);
-  
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef(null);
-  const { toast } = useToast();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  useEffect(scrollToBottom, [messages]);
 
-  const simulateAIResponse = (userMessage) => {
+  const simulateAIResponse = (userMessage: string): Message => {
     const responses = [
       {
-        content: `بناءً على استفسارك "${userMessage}"، يمكنني تقديم التوجيه التالي:\n\nوفقاً للقانون السوري، هناك عدة جوانب قانونية يجب مراعاتها:\n\n1. المادة 123 من القانون المدني تنص على...\n2. يجب مراجعة الأحكام الواردة في...\n3. من المهم ملاحظة أن...\n\nننصح بمراجعة محامٍ مختص للحصول على مشورة قانونية مفصلة.`,
-        citations: ['القانون المدني - المادة 123', 'قانون أصول المحاكمات - المادة 45'],
-        type: 'legal_advice'
+        content: 'بناءً على استفسارك حول قانون العمل السوري، يمكنني تقديم المعلومات التالية...',
+        responseType: 'legal-advice' as const,
+        citations: ['قانون العمل السوري رقم 17 لعام 2010، المادة 45', 'قرار وزاري رقم 8741 لعام 2018']
       },
       {
-        content: `شكراً لك على استفسارك. بحسب التشريع السوري النافذ:\n\nالمبادئ القانونية ذات الصلة:\n• المبدأ الأول: حماية الحقوق المكتسبة\n• المبدأ الثاني: سيادة القانون\n• المبدأ الثالث: العدالة والإنصاف\n\nالإجراءات المطلوبة:\n1. تقديم الطلب وفق النموذج المحدد\n2. إرفاق الوثائق الثبوتية\n3. دفع الرسوم المقررة\n\nملاحظة: هذه المعلومات للإرشاد العام فقط.`,
-        citations: ['قانون الإجراءات المدنية', 'النظام القضائي السوري'],
-        type: 'procedure_guide'
+        content: 'وفقاً للقانون المدني السوري، المادة 163...',
+        responseType: 'law-reference' as const,
+        citations: ['القانون المدني السوري، المادة 163', 'تفسير محكمة النقض رقم 1245/2019']
       }
     ];
     
-    return responses[Math.floor(Math.random() * responses.length)];
+    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+    
+    return {
+      id: Date.now(),
+      type: 'bot',
+      content: randomResponse.content,
+      timestamp: new Date(),
+      citations: randomResponse.citations,
+      responseType: randomResponse.responseType,
+      suggestions: [
+        'هل يمكن توضيح هذه النقطة أكثر؟',
+        'ما هي الإجراءات المطلوبة؟',
+        'أريد معرفة المزيد حول هذا الموضوع'
+      ]
+    };
   };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
-    const userMessage = {
+    // Add user message
+    const userMessage: Message = {
       id: Date.now(),
       type: 'user',
       content: inputMessage,
-      timestamp: new Date()
+      timestamp: new Date(),
+      suggestions: []
     };
 
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate AI processing time
+    // Simulate AI processing delay
     setTimeout(() => {
       const aiResponse = simulateAIResponse(inputMessage);
-      const botMessage = {
-        id: Date.now() + 1,
-        type: 'bot',
-        content: aiResponse.content,
-        citations: aiResponse.citations,
-        responseType: aiResponse.type,
-        timestamp: new Date(),
-        suggestions: [
-          'هل يمكن توضيح أكثر؟',
-          'ما هي الخطوات التالية؟',
-          'استشارة جديدة',
-          'البحث في قوانين أخرى'
-        ]
-      };
-      
-      setMessages(prev => [...prev, botMessage]);
+      setMessages(prev => [...prev, aiResponse]);
       setIsTyping(false);
-      
-      toast({
-        title: "تم إرسال الرد",
-        description: "تم تحليل استفسارك وتقديم الرد القانوني"
-      });
-    }, 2000);
+    }, 1500);
   };
 
-  const handleSuggestionClick = (suggestion) => {
+  const handleSuggestionClick = (suggestion: string) => {
     setInputMessage(suggestion);
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
+  const formatTimestamp = (date: Date) => {
+    return date.toLocaleTimeString('ar-SY', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   return (
-    <Card className="h-[600px] flex flex-col">
-      <CardHeader className="border-b">
-        <CardTitle className="flex items-center gap-2 text-blue-900">
-          <Bot className="h-5 w-5" />
-          المستشار القانوني المتخصص
-        </CardTitle>
-      </CardHeader>
-      
-      <CardContent className="flex-1 flex flex-col p-0">
-        {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex flex-col h-full bg-background border rounded-lg shadow-sm">
+      {/* Chat Header */}
+      <div className="flex items-center gap-3 p-4 border-b bg-legal-gradient text-white">
+        <Scale className="h-6 w-6" />
+        <div>
+          <h3 className="font-semibold">المستشار القانوني</h3>
+          <p className="text-sm opacity-90">متاح للاستشارة</p>
+        </div>
+      </div>
+
+      {/* Messages Area */}
+      <ScrollArea className="flex-1 p-4 custom-scrollbar">
+        <div className="space-y-4">
           {messages.map((message) => (
-            <div key={message.id} className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div
+              key={message.id}
+              className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
               {message.type === 'bot' && (
-                <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Bot className="h-4 w-4 text-blue-600" />
+                <div className="flex-shrink-0 w-8 h-8 bg-legal-blue rounded-full flex items-center justify-center">
+                  <Bot className="h-4 w-4 text-white" />
                 </div>
               )}
               
               <div className={`max-w-[80%] ${message.type === 'user' ? 'order-1' : ''}`}>
-                <div className={`p-3 rounded-lg ${
-                  message.type === 'user' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-100 text-gray-900'
-                }`}>
-                  <div className="whitespace-pre-wrap leading-relaxed">{message.content}</div>
+                <div
+                  className={`p-3 rounded-lg ${
+                    message.type === 'user'
+                      ? 'bg-legal-blue text-white ml-auto'
+                      : 'bg-muted text-foreground'
+                  }`}
+                >
+                  <p className="text-sm leading-relaxed">{message.content}</p>
                   
-                  {message.citations && (
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <div className="flex items-center gap-1 mb-2">
+                  {/* Citations for bot messages */}
+                  {message.type === 'bot' && message.citations && message.citations.length > 0 && (
+                    <div className="mt-3 pt-2 border-t border-gray-200">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
                         <FileText className="h-3 w-3" />
-                        <span className="text-xs font-medium">المراجع القانونية:</span>
+                        المراجع القانونية:
                       </div>
-                      <div className="space-y-1">
-                        {message.citations.map((citation, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {citation}
-                          </Badge>
-                        ))}
-                      </div>
+                      {message.citations.map((citation, index) => (
+                        <p key={index} className="text-xs text-muted-foreground">
+                          • {citation}
+                        </p>
+                      ))}
                     </div>
                   )}
                   
-                  {message.responseType && (
-                    <div className="mt-2 flex items-center gap-1">
-                      {message.responseType === 'legal_advice' && (
-                        <>
-                          <Lightbulb className="h-3 w-3 text-yellow-600" />
-                          <span className="text-xs text-yellow-600">استشارة قانونية</span>
-                        </>
-                      )}
-                      {message.responseType === 'procedure_guide' && (
-                        <>
-                          <FileText className="h-3 w-3 text-green-600" />
-                          <span className="text-xs text-green-600">دليل إجراءات</span>
-                        </>
-                      )}
+                  {/* Response type indicator */}
+                  {message.type === 'bot' && message.responseType && (
+                    <div className="mt-2">
+                      <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+                        message.responseType === 'legal-advice' ? 'bg-green-100 text-green-800' :
+                        message.responseType === 'law-reference' ? 'bg-blue-100 text-blue-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {message.responseType === 'legal-advice' ? 'استشارة قانونية' :
+                         message.responseType === 'law-reference' ? 'مرجع قانوني' : 'عام'}
+                      </span>
                     </div>
                   )}
                 </div>
                 
-                {message.suggestions && (
-                  <div className="mt-2 flex flex-wrap gap-2">
+                <p className="text-xs text-muted-foreground mt-1 text-right">
+                  {formatTimestamp(message.timestamp)}
+                </p>
+                
+                {/* Suggestions for bot messages */}
+                {message.type === 'bot' && message.suggestions && message.suggestions.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
                     {message.suggestions.map((suggestion, index) => (
                       <Button
                         key={index}
                         variant="outline"
                         size="sm"
-                        className="text-xs"
+                        className="text-xs h-auto py-1 px-2"
                         onClick={() => handleSuggestionClick(suggestion)}
                       >
                         {suggestion}
@@ -183,70 +190,60 @@ const ChatInterface = () => {
                     ))}
                   </div>
                 )}
-                
-                <div className="text-xs text-gray-500 mt-1">
-                  {message.timestamp.toLocaleTimeString('ar-SY')}
-                </div>
               </div>
               
               {message.type === 'user' && (
-                <div className="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <div className="flex-shrink-0 w-8 h-8 bg-legal-gold rounded-full flex items-center justify-center">
                   <User className="h-4 w-4 text-white" />
                 </div>
               )}
             </div>
           ))}
           
+          {/* Typing indicator */}
           {isTyping && (
             <div className="flex gap-3 justify-start">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <Bot className="h-4 w-4 text-blue-600" />
+              <div className="flex-shrink-0 w-8 h-8 bg-legal-blue rounded-full flex items-center justify-center">
+                <Bot className="h-4 w-4 text-white" />
               </div>
-              <div className="bg-gray-100 rounded-lg p-3">
+              <div className="bg-muted text-foreground p-3 rounded-lg">
                 <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                  <div className="w-2 h-2 bg-current rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                  <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                 </div>
               </div>
             </div>
           )}
-          
-          <div ref={messagesEndRef} />
+        </div>
+        <div ref={messagesEndRef} />
+      </ScrollArea>
+
+      {/* Input Area */}
+      <div className="p-4 border-t bg-background">
+        <div className="flex gap-2">
+          <Input
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            placeholder="اكتب استفسارك القانوني هنا..."
+            className="flex-1"
+            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            disabled={isTyping}
+          />
+          <Button 
+            onClick={handleSendMessage}
+            disabled={!inputMessage.trim() || isTyping}
+            className="bg-legal-blue hover:bg-legal-blue-dark"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
         </div>
         
-        {/* Legal Disclaimer */}
-        <div className="px-4 py-2 bg-amber-50 border-t border-amber-200">
-          <div className="flex items-start gap-2 text-xs text-amber-800">
-            <AlertTriangle className="h-3 w-3 mt-0.5 flex-shrink-0" />
-            <span>
-              تنويه: المعلومات المقدمة هي للاستشارة العامة فقط وليست بديلاً عن المشورة القانونية المهنية المتخصصة.
-            </span>
-          </div>
-        </div>
-        
-        {/* Input Area */}
-        <div className="p-4 border-t">
-          <div className="flex gap-2">
-            <Textarea
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="اكتب استفسارك القانوني هنا... (اضغط Enter للإرسال)"
-              className="flex-1 min-h-[60px] resize-none"
-              disabled={isTyping}
-            />
-            <Button 
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isTyping}
-              className="bg-blue-600 hover:bg-blue-700 px-3"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        <p className="text-xs text-muted-foreground mt-2 text-center">
+          تنبيه: هذه استشارة تقنية وليست استشارة قانونية رسمية
+        </p>
+      </div>
+    </div>
   );
 };
 
