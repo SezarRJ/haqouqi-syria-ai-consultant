@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -22,7 +23,9 @@ import {
   Gift, 
   History, 
   DollarSign,
-  Scale
+  Scale,
+  Brain,
+  Home
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -54,7 +57,10 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       legalAdvisor: 'المستشار القانوني',
       smartSystem: 'نظام ذكي للاستشارات',
       mainMenu: 'القائمة الرئيسية',
+      aiFeatures: 'الذكاء الاصطناعي',
       accountPayment: 'الحساب والدفع',
+      home: 'الرئيسية',
+      aiTools: 'أدوات الذكاء الاصطناعي',
       profile: 'الملف الشخصي',
       settings: 'الإعدادات',
       subscriptions: 'الاشتراكات',
@@ -70,7 +76,10 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       legalAdvisor: 'Legal Advisor',
       smartSystem: 'Smart Legal System',
       mainMenu: 'Main Menu',
+      aiFeatures: 'AI Features',
       accountPayment: 'Account & Payment',
+      home: 'Home',
+      aiTools: 'AI Tools',
       profile: 'Profile',
       settings: 'Settings',
       subscriptions: 'Subscriptions',
@@ -86,7 +95,12 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
 
   const t = texts[language];
 
-  const menuItems = [
+  const mainMenuItems = [
+    {
+      title: t.home,
+      icon: Home,
+      path: '/'
+    },
     {
       title: t.profile,
       icon: User,
@@ -101,6 +115,14 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       title: t.subscriptions,
       icon: CreditCard,
       path: '/pricing'
+    }
+  ];
+
+  const aiFeatureItems = [
+    {
+      title: t.aiTools,
+      icon: Brain,
+      path: '/ai-tools'
     },
     {
       title: t.admin,
@@ -135,15 +157,15 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
   return (
     <Sidebar side={language === 'ar' ? 'right' : 'left'} className="border-r border-blue-200">
       <SidebarHeader className="p-3 sm:p-4">
-        <div className="flex items-center gap-3">
+        <div className={`flex items-center gap-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
           <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
             <Scale className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="font-bold text-blue-900 text-sm sm:text-base truncate">
+            <h2 className={`font-bold text-blue-900 text-sm sm:text-base truncate ${language === 'ar' ? 'text-right' : 'text-left'}`}>
               {t.legalAdvisor}
             </h2>
-            <p className="text-xs sm:text-sm text-blue-600 truncate">
+            <p className={`text-xs sm:text-sm text-blue-600 truncate ${language === 'ar' ? 'text-right' : 'text-left'}`}>
               {t.smartSystem}
             </p>
           </div>
@@ -152,19 +174,45 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
 
       <SidebarContent className="px-2">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs sm:text-sm">{t.mainMenu}</SidebarGroupLabel>
+          <SidebarGroupLabel className={`text-xs sm:text-sm ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+            {t.mainMenu}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {mainMenuItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton 
                     asChild 
                     isActive={location.pathname === item.path}
                     className="h-9 sm:h-10"
                   >
-                    <Link to={item.path} className="flex items-center gap-2 sm:gap-3">
+                    <Link to={item.path} className={`flex items-center gap-2 sm:gap-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
                       <item.icon className="h-4 w-4 flex-shrink-0" />
-                      <span className="text-sm truncate">{item.title}</span>
+                      <span className={`text-sm truncate ${language === 'ar' ? 'text-right' : 'text-left'}`}>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className={`text-xs sm:text-sm ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+            {t.aiFeatures}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {aiFeatureItems.map((item) => (
+                <SidebarMenuItem key={item.path}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={location.pathname === item.path}
+                    className="h-9 sm:h-10"
+                  >
+                    <Link to={item.path} className={`flex items-center gap-2 sm:gap-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <span className={`text-sm truncate ${language === 'ar' ? 'text-right' : 'text-left'}`}>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -175,7 +223,9 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
 
         {user && (
           <SidebarGroup>
-            <SidebarGroupLabel className="text-xs sm:text-sm">{t.accountPayment}</SidebarGroupLabel>
+            <SidebarGroupLabel className={`text-xs sm:text-sm ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+              {t.accountPayment}
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {accountItems.map((item) => (
@@ -185,9 +235,9 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
                       isActive={location.pathname === item.path}
                       className="h-9 sm:h-10"
                     >
-                      <Link to={item.path} className="flex items-center gap-2 sm:gap-3">
+                      <Link to={item.path} className={`flex items-center gap-2 sm:gap-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
                         <item.icon className="h-4 w-4 flex-shrink-0" />
-                        <span className="text-sm truncate">{item.title}</span>
+                        <span className={`text-sm truncate ${language === 'ar' ? 'text-right' : 'text-left'}`}>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -201,14 +251,14 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       <SidebarFooter className="p-3 sm:p-4 space-y-3">
         {user && (
           <div className="space-y-2 sm:space-y-3">
-            <div className="text-xs sm:text-sm text-gray-600 truncate">
+            <div className={`text-xs sm:text-sm text-gray-600 truncate ${language === 'ar' ? 'text-right' : 'text-left'}`}>
               {t.hello} {user.email?.split('@')[0]}
             </div>
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleSignOut}
-              className="w-full justify-start h-8 sm:h-9 text-xs sm:text-sm"
+              className={`w-full justify-start h-8 sm:h-9 text-xs sm:text-sm ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}
             >
               <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0" />
               <span className="truncate">{t.signOut}</span>

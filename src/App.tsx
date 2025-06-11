@@ -1,15 +1,89 @@
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/toaster';
+import { supabase } from '@/integrations/supabase/client';
+import { User } from '@supabase/supabase-js';
+import { AppSidebar } from '@/components/AppSidebar';
+import { SidebarInset } from '@/components/ui/sidebar';
 import Index from '@/pages/Index';
+import Admin from '@/pages/Admin';
+import Profile from '@/pages/Profile';
+import SettingsPage from '@/pages/Settings';
+import Pricing from '@/pages/Pricing';
+import BalancePage from '@/pages/BalancePage';
+import VoucherPage from '@/pages/VoucherPage';
+import TransactionHistory from '@/pages/TransactionHistory';
+import PaymentMethodsPage from '@/pages/PaymentMethods';
+import AILegalTools from '@/pages/AILegalTools';
 
 const App = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [language, setLanguage] = useState<'ar' | 'en'>('ar');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Set up auth listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
+    // Load language preference
+    const savedLanguage = localStorage.getItem('language') as 'ar' | 'en';
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    }
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLanguageChange = (lang: 'ar' | 'en') => {
+    setLanguage(lang);
+    localStorage.setItem('language', lang);
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <SidebarProvider>
-        <Routes>
-          <Route path="/" element={<Index />} />
-        </Routes>
+        <div className="min-h-screen flex w-full" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+          <AppSidebar 
+            user={user} 
+            language={language} 
+            onLanguageChange={handleLanguageChange}
+          />
+          <SidebarInset className="flex-1">
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/ai-tools" element={<AILegalTools />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/balance" element={<BalancePage />} />
+              <Route path="/voucher" element={<VoucherPage />} />
+              <Route path="/history" element={<TransactionHistory />} />
+              <Route path="/payment-methods" element={<PaymentMethodsPage />} />
+            </Routes>
+          </SidebarInset>
+        </div>
         <Toaster />
       </SidebarProvider>
     </Router>
