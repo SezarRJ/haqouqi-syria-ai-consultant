@@ -64,7 +64,10 @@ export const UserBalance = () => {
         console.error('Transactions fetch error:', error);
         return [];
       }
-      return data || [];
+      return (data || []).map(transaction => ({
+        ...transaction,
+        type: transaction.type as 'deposit' | 'withdrawal' | 'subscription'
+      }));
     }
   });
 
