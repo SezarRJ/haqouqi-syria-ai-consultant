@@ -7,7 +7,6 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { EnhancedLegalConsultation } from '@/components/EnhancedLegalConsultation';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Menu } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 
@@ -107,10 +106,8 @@ const Index = () => {
         <header className="bg-white/95 backdrop-blur-sm border-b border-blue-200 shadow-sm">
           <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-              <SidebarTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden flex-shrink-0">
-                  <Menu className="h-4 w-4" />
-                </Button>
+              <SidebarTrigger className="md:hidden flex-shrink-0">
+                <Menu className="h-4 w-4" />
               </SidebarTrigger>
               <h1 className="font-bold text-blue-900 text-sm sm:text-base lg:text-lg truncate">
                 {t.title}
