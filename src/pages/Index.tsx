@@ -1,15 +1,16 @@
-import { useState, useEffect } = from 'react';
-import { supabase } = from '@/integrations/supabase/client';
-import { AuthModal } = from '@/components/AuthModal';
-import { AppSidebar } = from '@/components/AppSidebar';
-import { SidebarTrigger } = from '@/components/ui/sidebar';
-import { EnhancedLegalConsultation } = from '@/components/EnhancedLegalConsultation';
-import { CredentialsInfo } = from '@/components/CredentialsInfo';
-import { LanguageSwitcher } = from '@/components/LanguageSwitcher';
-import { Menu, Info } = from 'lucide-react';
-import { Button } = from '@/components/ui/button';
-import { Badge } = from '@/components/ui/badge';
-import { useToast } = from '@/hooks/use-toast';
+
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { AuthModal } from '@/components/AuthModal';
+import { AppSidebar } from '@/components/AppSidebar';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { EnhancedLegalConsultation } from '@/components/EnhancedLegalConsultation';
+import { CredentialsInfo } from '@/components/CredentialsInfo';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { Menu, Info } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 type User = {
   id: string;
@@ -114,10 +115,8 @@ const Index = () => {
         <header className="bg-white/95 backdrop-blur-sm border-b border-blue-200 shadow-sm sticky top-0 z-10 safe-area-inset-top">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-3">
-              <SidebarTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden touch-target">
-                  <Menu className="h-5 w-5" />
-                </Button>
+              <SidebarTrigger className="lg:hidden touch-target">
+                <Menu className="h-5 w-5" />
               </SidebarTrigger>
               <h1 className="font-bold text-blue-900 text-base sm:text-lg truncate-mobile max-w-[calc(100vw-180px)]">
                 {t.title}
