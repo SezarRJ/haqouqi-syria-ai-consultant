@@ -9,16 +9,353 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      admin_users: {
+        Row: {
+          admin_role: Database["public"]["Enums"]["admin_role"]
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_role: Database["public"]["Enums"]["admin_role"]
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_role?: Database["public"]["Enums"]["admin_role"]
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      consultations: {
+        Row: {
+          ai_response: string | null
+          confidence_score: number | null
+          consultation_duration: unknown | null
+          consultation_type: string | null
+          created_at: string | null
+          documents_uploaded: string[] | null
+          id: string
+          query_text: string | null
+          user_feedback: number | null
+          user_id: string | null
+        }
+        Insert: {
+          ai_response?: string | null
+          confidence_score?: number | null
+          consultation_duration?: unknown | null
+          consultation_type?: string | null
+          created_at?: string | null
+          documents_uploaded?: string[] | null
+          id?: string
+          query_text?: string | null
+          user_feedback?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          ai_response?: string | null
+          confidence_score?: number | null
+          consultation_duration?: unknown | null
+          consultation_type?: string | null
+          created_at?: string | null
+          documents_uploaded?: string[] | null
+          id?: string
+          query_text?: string | null
+          user_feedback?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      law_articles: {
+        Row: {
+          article_number: string
+          chapter: string | null
+          content: string
+          created_at: string | null
+          id: string
+          law_id: string | null
+          section: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          article_number: string
+          chapter?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          law_id?: string | null
+          section?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          article_number?: string
+          chapter?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          law_id?: string | null
+          section?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "law_articles_law_id_fkey"
+            columns: ["law_id"]
+            isOneToOne: false
+            referencedRelation: "laws"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      law_updates: {
+        Row: {
+          article_id: string | null
+          effective_date: string | null
+          id: string
+          law_id: string | null
+          new_content: string
+          old_content: string | null
+          review_comments: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          submitted_at: string | null
+          submitted_by: string
+          update_reason: string
+          update_type: string
+        }
+        Insert: {
+          article_id?: string | null
+          effective_date?: string | null
+          id?: string
+          law_id?: string | null
+          new_content: string
+          old_content?: string | null
+          review_comments?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          submitted_by: string
+          update_reason: string
+          update_type: string
+        }
+        Update: {
+          article_id?: string | null
+          effective_date?: string | null
+          id?: string
+          law_id?: string | null
+          new_content?: string
+          old_content?: string | null
+          review_comments?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          submitted_by?: string
+          update_reason?: string
+          update_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "law_updates_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "law_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "law_updates_law_id_fkey"
+            columns: ["law_id"]
+            isOneToOne: false
+            referencedRelation: "laws"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      laws: {
+        Row: {
+          category: string
+          content: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          number: string
+          status: string | null
+          updated_at: string | null
+          year: number | null
+        }
+        Insert: {
+          category: string
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          number: string
+          status?: string | null
+          updated_at?: string | null
+          year?: number | null
+        }
+        Update: {
+          category?: string
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          number?: string
+          status?: string | null
+          updated_at?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      legal_interpretations: {
+        Row: {
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          interpretation_type: string | null
+          reference_source: string | null
+          related_article_id: string | null
+          related_law_id: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          interpretation_type?: string | null
+          reference_source?: string | null
+          related_article_id?: string | null
+          related_law_id?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          interpretation_type?: string | null
+          reference_source?: string | null
+          related_article_id?: string | null
+          related_law_id?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_interpretations_related_article_id_fkey"
+            columns: ["related_article_id"]
+            isOneToOne: false
+            referencedRelation: "law_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "legal_interpretations_related_law_id_fkey"
+            columns: ["related_law_id"]
+            isOneToOne: false
+            referencedRelation: "laws"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          last_login: string | null
+          role: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          last_login?: string | null
+          role?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          last_login?: string | null
+          role?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      system_settings: {
+        Row: {
+          description: string | null
+          id: string
+          setting_key: string
+          setting_value: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_value: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      admin_role: "super_admin" | "content_editor" | "user_manager" | "reviewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +470,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      admin_role: ["super_admin", "content_editor", "user_manager", "reviewer"],
+    },
   },
 } as const
