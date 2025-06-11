@@ -5,7 +5,7 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { EnhancedLegalConsultation } from '@/components/EnhancedLegalConsultation';
 import { CredentialsInfo } from '@/components/CredentialsInfo';
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'; // Keep this import
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Menu, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -114,12 +114,11 @@ const Index = () => {
         <header className="bg-white/95 backdrop-blur-sm border-b border-blue-200 shadow-sm sticky top-0 z-10 safe-area-inset-top">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-3">
-              <SidebarTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden touch-target">
+              <SidebarTrigger className="lg:hidden">
+                <Button variant="ghost" size="icon" className="touch-target">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SidebarTrigger>
-              {/* MODIFIED: Increased max-width for title to prevent overlap on mobile */}
               <h1 className="font-bold text-blue-900 text-sm sm:text-base truncate-mobile max-w-[calc(100vw-260px)] sm:max-w-none">
                 {t.title}
               </h1>
@@ -131,7 +130,6 @@ const Index = () => {
                   {t.guestMode}
                 </Badge>
               )}
-              {/* REMOVED: Removed explicit className here, it will be handled internally by LanguageSwitcher after refactor */}
               <LanguageSwitcher 
                 language={language} 
                 onLanguageChange={handleLanguageChange}

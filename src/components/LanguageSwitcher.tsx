@@ -1,5 +1,3 @@
-// You might need to install Shadcn UI's select component:
-// npx shadcn-ui@latest add select
 
 import * as React from 'react';
 import {
@@ -8,32 +6,35 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'; // Adjust path if necessary
-import { Globe } from 'lucide-react'; // For a small icon if desired
+} from '@/components/ui/select';
+import { Globe } from 'lucide-react';
 
 interface LanguageSwitcherProps {
   language: 'ar' | 'en';
   onLanguageChange: (lang: 'ar' | 'en') => void;
-  // You can still accept a className if you want to apply external styles to the trigger
-  className?: string; 
+  className?: string;
+  variant?: string;
 }
 
 export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   language,
   onLanguageChange,
-  className
+  className,
+  variant
 }) => {
   const handleValueChange = (value: string) => {
     onLanguageChange(value as 'ar' | 'en');
   };
 
+  const isCompact = variant === 'compact';
+  const triggerWidth = isCompact ? 'w-[50px]' : 'w-[60px]';
+
   return (
     <Select value={language} onValueChange={handleValueChange}>
       <SelectTrigger 
-        className={`w-[60px] h-9 text-sm focus:ring-offset-0 focus:ring-0 ${className || ''}`}
+        className={`${triggerWidth} h-9 text-sm focus:ring-offset-0 focus:ring-0 ${className || ''}`}
         aria-label="Select Language"
       >
-        {/* <Globe className="h-4 w-4 text-blue-600 mr-2" /> Removed for extreme compactness if needed */}
         <SelectValue placeholder={language.toUpperCase()} className="min-w-0" />
       </SelectTrigger>
       <SelectContent>
