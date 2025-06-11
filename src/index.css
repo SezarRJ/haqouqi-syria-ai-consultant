@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -99,161 +100,200 @@
   body {
     @apply bg-background text-foreground;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-    overflow-x: hidden; /* Ensure no horizontal overflow */
-    width: 100%; /* Ensure body takes full width */
+    overflow-x: hidden;
+    width: 100%;
+    min-height: 100vh;
+    touch-action: manipulation;
   }
 
-  /* Arabic RTL Support - Fixed circular dependency */
+  /* Enhanced Arabic RTL Support */
   [dir="rtl"] {
     direction: rtl;
+    text-align: right;
   }
 
-  [dir="rtl"] .ml-2 {
-    margin-right: 0.5rem;
-    margin-left: 0;
-  }
-
-  [dir="rtl"] .mr-2 {
-    margin-left: 0.5rem;
-    margin-right: 0;
-  }
-
-  [dir="rtl"] .ml-1 {
-    margin-right: 0.25rem;
-    margin-left: 0;
-  }
-
-  [dir="rtl"] .mr-1 {
-    margin-left: 0.25rem;
-    margin-right: 0;
-  }
-
-  [dir="rtl"] .pl-10 {
-    padding-right: 2.5rem;
-    padding-left: 0;
-  }
-
-  [dir="rtl"] .pr-10 {
-    padding-left: 2.5rem;
-    padding-right: 0;
-  }
-
-  [dir="rtl"] .left-3 {
-    right: 0.75rem;
-    left: auto;
-  }
-
-  [dir="rtl"] .right-3 {
-    left: 0.75rem;
-    right: auto;
-  }
-
-  /* Legal Theme Typography */
-  .legal-heading {
-    @apply text-blue-900 font-bold;
-  }
-
-  .legal-text {
-    @apply text-blue-700 leading-relaxed;
-  }
-
-  .legal-card {
-    @apply bg-white border border-blue-100 shadow-sm hover:shadow-md transition-shadow;
-  }
-
-  /* Arabic Font Improvements */
-  .arabic-text {
-    font-feature-settings: "liga" 1, "calt" 1;
+  [dir="rtl"] * {
+    font-feature-settings: "liga" 1, "calt" 1, "kern" 1;
     text-rendering: optimizeLegibility;
   }
 
-  /* Custom scrollbar for Arabic interface */
+  /* RTL Margin and Padding Fixes */
+  [dir="rtl"] .ml-1 { margin-right: 0.25rem !important; margin-left: 0 !important; }
+  [dir="rtl"] .mr-1 { margin-left: 0.25rem !important; margin-right: 0 !important; }
+  [dir="rtl"] .ml-2 { margin-right: 0.5rem !important; margin-left: 0 !important; }
+  [dir="rtl"] .mr-2 { margin-left: 0.5rem !important; margin-right: 0 !important; }
+  [dir="rtl"] .ml-3 { margin-right: 0.75rem !important; margin-left: 0 !important; }
+  [dir="rtl"] .mr-3 { margin-left: 0.75rem !important; margin-right: 0 !important; }
+  [dir="rtl"] .ml-4 { margin-right: 1rem !important; margin-left: 0 !important; }
+  [dir="rtl"] .mr-4 { margin-left: 1rem !important; margin-right: 0 !important; }
+  [dir="rtl"] .ml-auto { margin-right: auto !important; margin-left: 0 !important; }
+  [dir="rtl"] .mr-auto { margin-left: auto !important; margin-right: 0 !important; }
+
+  [dir="rtl"] .pl-1 { padding-right: 0.25rem !important; padding-left: 0 !important; }
+  [dir="rtl"] .pr-1 { padding-left: 0.25rem !important; padding-right: 0 !important; }
+  [dir="rtl"] .pl-2 { padding-right: 0.5rem !important; padding-left: 0 !important; }
+  [dir="rtl"] .pr-2 { padding-left: 0.5rem !important; padding-right: 0 !important; }
+  [dir="rtl"] .pl-3 { padding-right: 0.75rem !important; padding-left: 0 !important; }
+  [dir="rtl"] .pr-3 { padding-left: 0.75rem !important; padding-right: 0 !important; }
+  [dir="rtl"] .pl-4 { padding-right: 1rem !important; padding-left: 0 !important; }
+  [dir="rtl"] .pr-4 { padding-left: 1rem !important; padding-right: 0 !important; }
+  [dir="rtl"] .pl-6 { padding-right: 1.5rem !important; padding-left: 0 !important; }
+  [dir="rtl"] .pr-6 { padding-left: 1.5rem !important; padding-right: 0 !important; }
+  [dir="rtl"] .pl-8 { padding-right: 2rem !important; padding-left: 0 !important; }
+  [dir="rtl"] .pr-8 { padding-left: 2rem !important; padding-right: 0 !important; }
+  [dir="rtl"] .pl-10 { padding-right: 2.5rem !important; padding-left: 0 !important; }
+  [dir="rtl"] .pr-10 { padding-left: 2.5rem !important; padding-right: 0 !important; }
+
+  /* RTL Position Fixes */
+  [dir="rtl"] .left-0 { right: 0 !important; left: auto !important; }
+  [dir="rtl"] .right-0 { left: 0 !important; right: auto !important; }
+  [dir="rtl"] .left-1 { right: 0.25rem !important; left: auto !important; }
+  [dir="rtl"] .right-1 { left: 0.25rem !important; right: auto !important; }
+  [dir="rtl"] .left-2 { right: 0.5rem !important; left: auto !important; }
+  [dir="rtl"] .right-2 { left: 0.5rem !important; right: auto !important; }
+  [dir="rtl"] .left-3 { right: 0.75rem !important; left: auto !important; }
+  [dir="rtl"] .right-3 { left: 0.75rem !important; right: auto !important; }
+  [dir="rtl"] .left-4 { right: 1rem !important; left: auto !important; }
+  [dir="rtl"] .right-4 { left: 1rem !important; right: auto !important; }
+
+  /* RTL Border Radius Fixes */
+  [dir="rtl"] .rounded-l { border-radius: 0 0.25rem 0.25rem 0 !important; }
+  [dir="rtl"] .rounded-r { border-radius: 0.25rem 0 0 0.25rem !important; }
+  [dir="rtl"] .rounded-tl { border-radius: 0 0.25rem 0 0 !important; }
+  [dir="rtl"] .rounded-tr { border-radius: 0.25rem 0 0 0 !important; }
+  [dir="rtl"] .rounded-bl { border-radius: 0 0 0.25rem 0 !important; }
+  [dir="rtl"] .rounded-br { border-radius: 0 0 0 0.25rem !important; }
+
+  /* RTL Flex Direction */
+  [dir="rtl"] .flex-row { flex-direction: row-reverse !important; }
+  [dir="rtl"] .space-x-1 > :not([hidden]) ~ :not([hidden]) { 
+    margin-right: 0.25rem !important; 
+    margin-left: 0 !important; 
+  }
+  [dir="rtl"] .space-x-2 > :not([hidden]) ~ :not([hidden]) { 
+    margin-right: 0.5rem !important; 
+    margin-left: 0 !important; 
+  }
+  [dir="rtl"] .space-x-3 > :not([hidden]) ~ :not([hidden]) { 
+    margin-right: 0.75rem !important; 
+    margin-left: 0 !important; 
+  }
+
+  /* Enhanced Arabic Typography */
+  .arabic-text {
+    font-feature-settings: "liga" 1, "calt" 1, "kern" 1, "mark" 1, "mkmk" 1;
+    text-rendering: optimizeLegibility;
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+  }
+
+  .arabic-heading {
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+  }
+
+  /* PWA and Mobile Optimizations */
+  @media (max-width: 768px) {
+    body {
+      font-size: 16px; /* Prevents zoom on iOS */
+      -webkit-text-size-adjust: 100%;
+    }
+    
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    
+    /* Better touch targets */
+    .mobile-touch {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0.75rem;
+    }
+    
+    /* Prevent layout shift on mobile */
+    .mobile-stable {
+      contain: layout style;
+      content-visibility: auto;
+    }
+    
+    /* Better mobile text sizing */
+    .text-mobile-xs { font-size: 0.75rem; line-height: 1.4; }
+    .text-mobile-sm { font-size: 0.875rem; line-height: 1.5; }
+    .text-mobile-base { font-size: 1rem; line-height: 1.6; }
+    .text-mobile-lg { font-size: 1.125rem; line-height: 1.6; }
+    .text-mobile-xl { font-size: 1.25rem; line-height: 1.5; }
+    
+    /* Mobile-specific Arabic text improvements */
+    [dir="rtl"] .text-mobile-xs,
+    [dir="rtl"] .text-mobile-sm,
+    [dir="rtl"] .text-mobile-base,
+    [dir="rtl"] .text-mobile-lg,
+    [dir="rtl"] .text-mobile-xl {
+      line-height: 1.8;
+      letter-spacing: 0.01em;
+    }
+  }
+
+  /* Enhanced Mobile Responsiveness */
+  @media (max-width: 640px) {
+    .mobile-grid-1 { grid-template-columns: 1fr !important; }
+    .mobile-grid-2 { grid-template-columns: repeat(2, 1fr) !important; }
+    .mobile-full-width { width: 100% !important; }
+    .mobile-hidden { display: none !important; }
+    .mobile-block { display: block !important; }
+    .mobile-flex { display: flex !important; }
+  }
+
+  /* Safe area handling for PWA */
+  .safe-area-top { padding-top: env(safe-area-inset-top); }
+  .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  .safe-area-left { padding-left: env(safe-area-inset-left); }
+  .safe-area-right { padding-right: env(safe-area-inset-right); }
+  .safe-area-inset {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Custom scrollbar improvements */
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
     @apply bg-gray-100;
+    border-radius: 10px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-blue-300 rounded-full;
+    @apply bg-blue-300;
+    border-radius: 10px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     @apply bg-blue-400;
   }
 
-  /* Improved Mobile optimizations */
-  @media (max-width: 768px) {
-    .container {
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
-    }
-    
-    /* Better text sizing for mobile */
-    .text-responsive {
-      font-size: 0.875rem;
-      line-height: 1.4;
-    }
-    
-    /* Mobile cards with proper spacing */
-    .card-mobile {
-      margin: 0.5rem;
-      padding: 0.75rem;
-      border-radius: 0.5rem;
-    }
-    
-    /* Touch-friendly buttons with minimum sizes */
-    .btn-mobile {
-      min-height: 44px;
-      min-width: 44px;
-      padding: 0.5rem 0.75rem;
-      touch-action: manipulation;
-    }
-    
-    /* Better spacing for mobile layouts */
-    .space-mobile {
-      margin-bottom: 0.5rem;
-    }
-
-    /* Prevent text overflow on mobile */
-    .truncate-mobile {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%; /* Ensure it respects parent's width */
-    }
-
-    /* Mobile-specific flex improvements */
-    .flex-mobile {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    /* Improved mobile sidebar */
-    .sidebar-mobile {
-      width: 100%;
-      max-width: 320px;
-    }
+  /* Improved focus states for accessibility */
+  .focus-visible:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 
-  /* Tablet optimizations */
-  @media (min-width: 769px) and (max-width: 1024px) {
-    .container {
-      padding-left: 1rem;
-      padding-right: 1rem;
-    }
-    
-    .tablet-responsive {
-      font-size: 0.9375rem;
-    }
+  /* No text selection for UI elements */
+  .no-select {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
   }
 }
 
-/* Legal consultation interface specific styles */
+/* Legal consultation interface components */
 @layer components {
   .legal-gradient {
     background: linear-gradient(135deg, hsl(var(--legal-blue)) 0%, hsl(var(--legal-blue-dark)) 100%);
@@ -271,92 +311,80 @@
     @apply bg-gray-100 text-gray-900 rounded-lg p-3 max-w-[85%] mr-auto break-words;
   }
 
+  [dir="rtl"] .chat-message-user {
+    @apply mr-auto ml-0;
+  }
+
+  [dir="rtl"] .chat-message-bot {
+    @apply ml-auto mr-0;
+  }
+
   .legal-card-hover {
     @apply transition-all duration-300 hover:shadow-lg hover:shadow-blue-100 hover:border-blue-200;
   }
 
-  .arabic-number {
-    font-variant-numeric: lining-nums;
-  }
-
-  /* Enhanced Mobile-specific components */
-  .mobile-tab {
-    @apply text-xs px-2 py-2 min-h-[40px] flex-shrink-0;
-  }
-  
+  /* Enhanced Mobile Components */
   .mobile-card {
-    @apply p-3 m-2 shadow-sm rounded-lg bg-white border border-gray-200;
+    @apply p-4 m-2 shadow-sm rounded-lg bg-white border border-gray-200 mobile-stable;
   }
-  
+
   .mobile-button {
-    @apply text-sm px-3 py-2 min-h-[44px];
+    @apply text-sm px-4 py-3 min-h-[44px] mobile-touch focus-visible;
   }
-  
+
   .mobile-input {
-    @apply text-base min-h-[44px] px-3 py-2;
-  }
-  
-  /* Enhanced Responsive text utilities */
-  .text-mobile-sm {
-    font-size: 0.75rem;
-    line-height: 1.3;
-  }
-  
-  .text-mobile-base {
-    font-size: 0.875rem;
-    line-height: 1.4;
-  }
-  
-  .text-mobile-lg {
-    font-size: 1rem;
-    line-height: 1.5;
+    @apply text-base min-h-[44px] px-4 py-3 mobile-touch;
   }
 
-  /* Prevent layout shift */
-  .no-layout-shift {
-    contain: layout style;
+  .mobile-tab {
+    @apply text-xs px-3 py-3 min-h-[44px] flex-shrink-0 mobile-touch;
   }
 
-  /* Improved focus states for accessibility */
-  .focus-improved:focus-visible {
-    @apply outline-2 outline-blue-500 outline-offset-2;
+  /* RTL-aware components */
+  .rtl-flex {
+    @apply flex;
   }
 
-  /* Better touch targets */
-  .touch-target {
-    min-height: 44px;
-    min-width: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  [dir="rtl"] .rtl-flex {
+    flex-direction: row-reverse;
   }
 
-  /* Prevent text selection on UI elements */
-  .no-select {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+  .rtl-text-left {
+    text-align: left;
   }
 
-  /* Safe area handling for mobile */
-  .safe-area-inset {
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
+  [dir="rtl"] .rtl-text-left {
+    text-align: right;
   }
 
-  .safe-area-inset-top {
-    padding-top: env(safe-area-inset-top);
+  .rtl-text-right {
+    text-align: right;
   }
-  .safe-area-inset-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
+
+  [dir="rtl"] .rtl-text-right {
+    text-align: left;
   }
-  .safe-area-inset-left {
-    padding-left: env(safe-area-inset-left);
+
+  /* PWA Loading states */
+  .pwa-loading {
+    @apply animate-pulse bg-gray-200 rounded;
   }
-  .safe-area-inset-right {
-    padding-right: env(safe-area-inset-right);
+
+  .pwa-skeleton {
+    @apply bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite];
   }
+}
+
+/* PWA Animations */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Print styles for documents */
+@media print {
+  .no-print { display: none !important; }
+  .print-break { page-break-before: always; }
+  body { font-size: 12pt; line-height: 1.5; }
+  [dir="rtl"] { direction: rtl; text-align: right; }
 }

@@ -1,35 +1,63 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>المستشار القانوني السوري - استشارات قانونية بالذكاء الاصطناعي</title>
-    <meta name="description" content="استشارات قانونية فورية ودقيقة بناءً على القوانين السورية النافذة والتفاسير الفقهية المعتمدة" />
-    <meta name="author" content="المستشار القانوني السوري" />
-    <meta name="keywords" content="استشارة قانونية، القوانين السورية، محامي، استشارة فورية، ذكاء اصطناعي، قانون سوريا" />
-
-    <meta property="og:title" content="المستشار القانوني السوري - استشارات قانونية بالذكاء الاصطناعي" />
-    <meta property="og:description" content="احصل على استشارات قانونية دقيقة وفورية بناءً على القوانين السورية النافذة" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    <meta property="og:locale" content="ar_SY" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <!-- Preload Arabic fonts -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Legal Advisor" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- Arabic Font Support -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- iOS Icons -->
+    <link rel="apple-touch-icon" href="/placeholder.svg" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/placeholder.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/placeholder.svg" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/placeholder.svg" />
+    
+    <!-- Meta Tags for SEO and Social -->
+    <meta name="description" content="نظام ذكي للاستشارات القانونية في سوريا - Smart Legal Consultation System for Syria" />
+    <meta name="keywords" content="قانون سوريا, استشارة قانونية, محامي, Syrian law, legal consultation, lawyer" />
+    <meta name="author" content="Syrian Legal Advisor" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="المستشار القانوني السوري - Syrian Legal Advisor" />
+    <meta property="og:description" content="نظام ذكي للاستشارات القانونية" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ar_SY" />
+    <meta property="og:locale:alternate" content="en_US" />
+    
+    <title>المستشار القانوني السوري - Syrian Legal Advisor</title>
   </head>
-
-  <body class="font-arabic">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
   </body>
 </html>
