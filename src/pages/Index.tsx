@@ -5,15 +5,19 @@ import { AuthModal } from '@/components/AuthModal';
 import { AppSidebar } from '@/components/AppSidebar';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { EnhancedLegalConsultation } from '@/components/EnhancedLegalConsultation';
+import { CredentialsInfo } from '@/components/CredentialsInfo';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import { Scale, Menu } from 'lucide-react';
+import { Scale, Menu, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [language, setLanguage] = useState<'ar' | 'en'>('ar');
+  const [showCredentials, setShowCredentials] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener
@@ -67,12 +71,20 @@ const Index = () => {
     ar: {
       title: "المستشار القانوني السوري",
       subtitle: "نظام ذكي للاستشارات القانونية",
-      welcome: "مرحباً بك في المستشار القانوني المتطور"
+      welcome: "مرحباً بك في المستشار القانوني المتطور",
+      description: "منصة شاملة للاستشارات القانونية مع ميزات متقدمة للمحترفين",
+      credentials: "بيانات الدخول",
+      showCredentials: "عرض بيانات الدخول",
+      hideCredentials: "إخفاء بيانات الدخول"
     },
     en: {
       title: "Syrian Legal Advisor",
       subtitle: "Smart Legal Consultation System",
-      welcome: "Welcome to Advanced Legal Advisor"
+      welcome: "Welcome to Advanced Legal Advisor",
+      description: "Comprehensive legal consultation platform with advanced features for professionals",
+      credentials: "Login Credentials",
+      showCredentials: "Show Credentials",
+      hideCredentials: "Hide Credentials"
     }
   };
 
@@ -105,6 +117,17 @@ const Index = () => {
               </div>
               
               <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowCredentials(!showCredentials)}
+                  className="flex items-center gap-2 border-blue-200 text-blue-700 hover:bg-blue-50"
+                >
+                  <Info className="h-4 w-4" />
+                  <span className="hidden sm:inline">
+                    {showCredentials ? t.hideCredentials : t.showCredentials}
+                  </span>
+                </Button>
                 <LanguageSwitcher 
                   language={language} 
                   onLanguageChange={handleLanguageChange}
@@ -116,19 +139,30 @@ const Index = () => {
 
           {/* Main Content */}
           <div className="flex-1 container mx-auto px-4 py-6">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-8">
+            <div className="max-w-6xl mx-auto space-y-8">
+              {/* Welcome Section */}
+              <div className="text-center">
                 <h2 className="text-2xl md:text-3xl font-bold text-blue-900 mb-3">
                   {t.welcome}
                 </h2>
-                <p className="text-blue-600 text-lg">
-                  {language === 'ar' 
-                    ? 'منصة شاملة للاستشارات القانونية مع ميزات متقدمة للمحترفين' 
-                    : 'Comprehensive legal consultation platform with advanced features for professionals'
-                  }
+                <p className="text-blue-600 text-lg mb-4">
+                  {t.description}
                 </p>
+                <div className="flex justify-center">
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-800 px-4 py-1">
+                    الإصدار التجريبي - Beta Version
+                  </Badge>
+                </div>
               </div>
-              
+
+              {/* Credentials Section */}
+              {showCredentials && (
+                <div className="animate-fade-in">
+                  <CredentialsInfo />
+                </div>
+              )}
+
+              {/* Main Application */}
               <EnhancedLegalConsultation language={language} />
             </div>
           </div>

@@ -37,7 +37,7 @@ export const UserBalance = () => {
     queryKey: ['user-balance'],
     queryFn: async (): Promise<UserBalanceData> => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return { balance: 0, currency: 'SAR' };
+      if (!user) return { balance: 0, currency: 'SYP' };
 
       const { data, error } = await supabase.rpc('get_user_balance', { 
         p_user_id: user.id 
@@ -45,10 +45,10 @@ export const UserBalance = () => {
 
       if (error) {
         console.error('Balance fetch error:', error);
-        return { balance: 0, currency: 'SAR' };
+        return { balance: 0, currency: 'SYP' };
       }
       
-      return data?.[0] || { balance: 0, currency: 'SAR' };
+      return data?.[0] || { balance: 0, currency: 'SYP' };
     }
   });
 
@@ -82,7 +82,7 @@ export const UserBalance = () => {
       const { error } = await supabase.rpc('add_user_balance', { 
         p_user_id: user.id, 
         p_amount: amount, 
-        p_description: `إيداع رصيد - ${amount} ريال`
+        p_description: `إيداع رصيد - ${amount.toLocaleString('ar-SY')} ليرة سورية`
       });
 
       if (error) throw error;
@@ -144,38 +144,44 @@ export const UserBalance = () => {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    return `${amount.toLocaleString('ar-SY')} ل.س`;
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       {/* Current Balance */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Wallet className="h-5 w-5" />
+      <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200">
+        <CardHeader className="text-center">
+          <CardTitle className="flex items-center justify-center gap-3 text-blue-900">
+            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+              <Wallet className="h-6 w-6 text-white" />
+            </div>
             الرصيد الحالي
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center">
-            <p className="text-4xl font-bold text-blue-600">
-              {balance?.balance?.toFixed(2) || '0.00'} {balance?.currency || 'ريال'}
+            <p className="text-5xl font-bold text-blue-700 mb-2">
+              {formatCurrency(balance?.balance || 0)}
             </p>
-            <p className="text-gray-600 mt-2">الرصيد المتاح في حسابك</p>
+            <p className="text-blue-600 text-lg">الرصيد المتاح في حسابك</p>
           </div>
         </CardContent>
       </Card>
 
       {/* Payment Methods */}
       <Tabs defaultValue="payment" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="payment" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-3 bg-blue-50">
+          <TabsTrigger value="payment" className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
             <CreditCard className="h-4 w-4" />
             طرق الدفع
           </TabsTrigger>
-          <TabsTrigger value="voucher" className="flex items-center gap-2">
+          <TabsTrigger value="voucher" className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
             <Plus className="h-4 w-4" />
             كوبون الشحن
           </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
+          <TabsTrigger value="history" className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
             <History className="h-4 w-4" />
             السجل
           </TabsTrigger>
@@ -190,23 +196,23 @@ export const UserBalance = () => {
         </TabsContent>
         
         <TabsContent value="history">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <Card className="border-blue-200">
+            <CardHeader className="bg-blue-50 border-b border-blue-100">
+              <CardTitle className="flex items-center gap-3 text-blue-900">
                 <History className="h-5 w-5" />
                 سجل المعاملات
               </CardTitle>
-              <CardDescription>آخر المعاملات المالية</CardDescription>
+              <CardDescription className="text-blue-600">آخر المعاملات المالية</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
+            <CardContent className="p-6">
+              <div className="space-y-4">
                 {transactions && transactions.length > 0 ? (
                   transactions.map((transaction: Transaction) => (
-                    <div key={transaction.id} className="flex items-center justify-between border-b pb-2">
+                    <div key={transaction.id} className="flex items-center justify-between p-4 border border-blue-100 rounded-lg bg-blue-50/30">
                       <div>
-                        <p className="font-medium">{transaction.description}</p>
+                        <p className="font-medium text-gray-900">{transaction.description}</p>
                         <p className="text-sm text-gray-600">
-                          {new Date(transaction.created_at).toLocaleDateString('ar-SA', {
+                          {new Date(transaction.created_at).toLocaleDateString('ar-SY', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric',
@@ -215,9 +221,9 @@ export const UserBalance = () => {
                           })}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className={`font-bold ${getTransactionColor(transaction.type)}`}>
-                          {getTransactionSign(transaction.type)}{Math.abs(transaction.amount).toFixed(2)} ريال
+                      <div className="text-left">
+                        <p className={`font-bold text-lg ${getTransactionColor(transaction.type)}`}>
+                          {getTransactionSign(transaction.type)}{formatCurrency(Math.abs(transaction.amount))}
                         </p>
                         <Badge 
                           variant={transaction.type === 'deposit' ? 'default' : 'secondary'}
@@ -230,7 +236,13 @@ export const UserBalance = () => {
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500 text-center py-4">لا توجد معاملات</p>
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <History className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-500 text-lg">لا توجد معاملات</p>
+                    <p className="text-gray-400 text-sm">ستظهر معاملاتك هنا عند إجرائها</p>
+                  </div>
                 )}
               </div>
             </CardContent>
