@@ -8,7 +8,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { PWAInstaller } from '@/components/PWAInstaller';
 import { useCapacitor } from '@/hooks/useCapacitor';
 import { User } from '@supabase/supabase-js';
-import { Scale, Users, Shield, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Scale, Users, Shield, Settings as SettingsIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Admin from './Admin';
@@ -106,7 +106,7 @@ const Index = () => {
             {/* Header with smaller components */}
             <div className={`flex items-center justify-between mb-8 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
               <div className="flex items-center gap-3">
-                <PWAInstaller />
+                <PWAInstaller language={language} />
                 {isNative && <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>}
               </div>
               
@@ -170,7 +170,7 @@ const Index = () => {
                 variant="outline"
                 className={`h-16 flex flex-col items-center gap-2 border-blue-200 hover:bg-blue-50 text-blue-700 ${language === 'ar' ? 'flex-col-reverse' : 'flex-col'}`}
               >
-                <Settings className="h-5 w-5" />
+                <SettingsIcon className="h-5 w-5" />
                 <span className="text-xs font-medium">{t.settings}</span>
               </Button>
 
