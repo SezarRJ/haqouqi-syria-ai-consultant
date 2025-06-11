@@ -23,6 +23,8 @@ export const BackButton: React.FC<BackButtonProps> = ({
     navigate(-1);
   };
 
+  console.log('BackButton render - isMobile:', isMobile);
+
   return (
     <Button
       variant={variant}
@@ -30,8 +32,14 @@ export const BackButton: React.FC<BackButtonProps> = ({
       onClick={handleBack}
       className={`flex items-center gap-2 ${className}`}
     >
-      <ArrowLeft className="h-4 w-4" />
-      {!isMobile && <span>العودة</span>}
+      {isMobile ? (
+        <ArrowLeft className="h-4 w-4" />
+      ) : (
+        <>
+          <ArrowLeft className="h-4 w-4" />
+          <span>العودة</span>
+        </>
+      )}
     </Button>
   );
 };

@@ -40,6 +40,8 @@ const Settings = () => {
     }
   });
 
+  console.log('Settings component render');
+
   const handleSave = (section: string) => {
     toast({
       title: "تم الحفظ",
@@ -71,34 +73,34 @@ const Settings = () => {
         <Tabs defaultValue="profile" className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="profile">
-              <div className="flex items-center gap-2">
+              <span className="flex items-center gap-2">
                 <SettingsIcon className="h-4 w-4" />
-                <span>الملف الشخصي</span>
-              </div>
+                الملف الشخصي
+              </span>
             </TabsTrigger>
             <TabsTrigger value="balance">
-              <div className="flex items-center gap-2">
+              <span className="flex items-center gap-2">
                 <SettingsIcon className="h-4 w-4" />
-                <span>الرصيد</span>
-              </div>
+                الرصيد
+              </span>
             </TabsTrigger>
             <TabsTrigger value="notifications">
-              <div className="flex items-center gap-2">
+              <span className="flex items-center gap-2">
                 <Bell className="h-4 w-4" />
-                <span>الإشعارات</span>
-              </div>
+                الإشعارات
+              </span>
             </TabsTrigger>
             <TabsTrigger value="privacy">
-              <div className="flex items-center gap-2">
+              <span className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
-                <span>الخصوصية</span>
-              </div>
+                الخصوصية
+              </span>
             </TabsTrigger>
             <TabsTrigger value="appearance">
-              <div className="flex items-center gap-2">
+              <span className="flex items-center gap-2">
                 <Palette className="h-4 w-4" />
-                <span>المظهر</span>
-              </div>
+                المظهر
+              </span>
             </TabsTrigger>
           </TabsList>
 
