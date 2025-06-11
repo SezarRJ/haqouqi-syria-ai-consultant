@@ -12,12 +12,12 @@ export const CredentialsInfo = () => {
 
   const credentials = {
     user: {
-      email: 'user@example.com',
+      email: 'user@legaladvisor.sy',
       password: 'user123456',
       role: 'مستخدم عادي'
     },
     admin: {
-      email: 'admin@example.com',
+      email: 'admin@legaladvisor.sy',
       password: 'admin123456',
       role: 'مدير النظام'
     }

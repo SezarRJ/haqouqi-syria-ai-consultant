@@ -54,6 +54,7 @@ const Admin = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUser(user);
+        console.log('Current user:', user);
         
         try {
           const { data: adminCheck, error } = await supabase
@@ -62,6 +63,8 @@ const Admin = () => {
             .eq('user_id', user.id)
             .eq('is_active', true)
             .single();
+
+          console.log('Admin check result:', adminCheck, error);
 
           if (adminCheck && !error) {
             setIsAdmin(true);
@@ -93,8 +96,10 @@ const Admin = () => {
     setIsLoggingIn(true);
 
     try {
-      // Check if it's the demo admin credentials
-      if (loginData.email === 'admin@example.com' && loginData.password === 'admin123456') {
+      console.log('Attempting admin login with:', loginData.email);
+      
+      // Check if it's the demo admin credentials (using proper email format)
+      if (loginData.email === 'admin@legaladvisor.sy' && loginData.password === 'admin123456') {
         // Try to sign in first
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: loginData.email,
@@ -102,6 +107,8 @@ const Admin = () => {
         });
 
         if (signInData.user) {
+          console.log('Admin sign in successful:', signInData.user);
+          
           // Check if admin privileges exist
           const { data: adminCheck } = await supabase
             .from('admin_users')
@@ -116,6 +123,7 @@ const Admin = () => {
               admin_role: 'super_admin',
               is_active: true
             });
+            console.log('Admin privileges created');
           }
 
           setUser(signInData.user);
@@ -128,7 +136,9 @@ const Admin = () => {
         }
 
         // If sign in fails, create the account
-        if (signInError && signInError.message.includes('Invalid login credentials')) {
+        if (signInError) {
+          console.log('Sign in failed, creating admin account:', signInError);
+          
           const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             email: loginData.email,
             password: loginData.password,
@@ -136,10 +146,13 @@ const Admin = () => {
               data: {
                 full_name: 'Admin User',
               },
+              emailRedirectTo: window.location.origin
             },
           });
 
           if (signUpData.user && !signUpError) {
+            console.log('Admin account created:', signUpData.user);
+            
             // Create admin privileges
             await supabase.from('admin_users').insert({
               user_id: signUpData.user.id,
@@ -154,6 +167,7 @@ const Admin = () => {
               description: language === 'ar' ? "تم إنشاء حساب المشرف وتسجيل الدخول بنجاح" : "Admin account created and signed in successfully",
             });
           } else {
+            console.error('Admin account creation failed:', signUpError);
             throw signUpError || new Error('Failed to create admin account');
           }
         } else {
@@ -163,7 +177,7 @@ const Admin = () => {
         throw new Error('Invalid admin credentials');
       }
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('Admin login error:', error);
       toast({
         title: language === 'ar' ? "خطأ في تسجيل الدخول" : "Login Error",
         description: language === 'ar' ? "بيانات تسجيل الدخول غير صحيحة" : "Invalid login credentials",
@@ -266,7 +280,7 @@ const Admin = () => {
                     type="email"
                     value={loginData.email}
                     onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="admin@example.com"
+                    placeholder="admin@legaladvisor.sy"
                     className="h-12 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-right"
                     required
                   />
@@ -308,7 +322,7 @@ const Admin = () => {
                 <div className="space-y-2 text-sm text-blue-700">
                   <div className="flex justify-between items-center">
                     <span className="font-medium">{t.email}:</span>
-                    <code className="bg-white px-2 py-1 rounded text-xs">admin@example.com</code>
+                    <code className="bg-white px-2 py-1 rounded text-xs">admin@legaladvisor.sy</code>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="font-medium">{t.password}:</span>

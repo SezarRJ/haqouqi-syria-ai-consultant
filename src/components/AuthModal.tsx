@@ -112,6 +112,7 @@ export const AuthModal = ({ language, onLanguageChange, quickLogin }: AuthModalP
           data: {
             full_name: name,
           },
+          emailRedirectTo: window.location.origin
         },
       });
 
@@ -191,7 +192,7 @@ export const AuthModal = ({ language, onLanguageChange, quickLogin }: AuthModalP
                   <Button
                     variant="outline"
                     className="w-full border-green-300 text-green-700 hover:bg-green-50"
-                    onClick={() => quickLogin('user@example.com', 'user123456', false)}
+                    onClick={() => quickLogin('user@legaladvisor.sy', 'user123456', false)}
                     disabled={loading}
                   >
                     <LogIn className="mr-2 h-4 w-4" />
@@ -200,7 +201,7 @@ export const AuthModal = ({ language, onLanguageChange, quickLogin }: AuthModalP
                   <Button
                     variant="outline"
                     className="w-full border-red-300 text-red-700 hover:bg-red-50"
-                    onClick={() => quickLogin('admin@example.com', 'admin123456', true)}
+                    onClick={() => quickLogin('admin@legaladvisor.sy', 'admin123456', true)}
                     disabled={loading}
                   >
                     <LogIn className="mr-2 h-4 w-4" />

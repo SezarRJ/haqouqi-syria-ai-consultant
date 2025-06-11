@@ -24,11 +24,12 @@ const Index = () => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session);
         setSession(session);
         setUser(session?.user ?? null);
         
         // If user just signed in and it's an admin account, ensure admin privileges
-        if (event === 'SIGNED_IN' && session?.user?.email === 'admin@example.com') {
+        if (event === 'SIGNED_IN' && session?.user?.email === 'admin@legaladvisor.sy') {
           try {
             // Check if admin record exists, if not create it
             const { data: adminCheck } = await supabase
@@ -43,6 +44,7 @@ const Index = () => {
                 admin_role: 'super_admin',
                 is_active: true
               });
+              console.log('Admin privileges created for user');
             }
           } catch (error) {
             console.error('Error setting up admin privileges:', error);
@@ -55,6 +57,7 @@ const Index = () => {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Existing session:', session);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -74,17 +77,20 @@ const Index = () => {
     localStorage.setItem('language', lang);
   };
 
-  // Quick login function for demo credentials
+  // Quick login function for demo credentials with proper email formats
   const quickLogin = async (email: string, password: string, isAdmin = false) => {
     setLoading(true);
     try {
+      console.log('Attempting login with:', email);
+      
       // Try to sign in first
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signInData.user) {
+      if (signInData.user && !signInError) {
+        console.log('Sign in successful:', signInData.user);
         toast({
           title: language === 'ar' ? "تم تسجيل الدخول بنجاح" : "Successfully signed in",
           description: language === 'ar' ? "مرحباً بك" : "Welcome back",
@@ -92,8 +98,10 @@ const Index = () => {
         return;
       }
 
+      console.log('Sign in failed, attempting sign up:', signInError);
+      
       // If sign in fails, try to create the account
-      if (signInError && signInError.message.includes('Invalid login credentials')) {
+      if (signInError) {
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
@@ -101,24 +109,35 @@ const Index = () => {
             data: {
               full_name: isAdmin ? 'Admin User' : 'Demo User',
             },
+            emailRedirectTo: window.location.origin
           },
         });
 
         if (signUpData.user && !signUpError) {
+          console.log('Sign up successful:', signUpData.user);
+          
           // For admin account, create admin privileges
           if (isAdmin) {
-            await supabase.from('admin_users').insert({
-              user_id: signUpData.user.id,
-              admin_role: 'super_admin',
-              is_active: true
-            });
+            try {
+              await supabase.from('admin_users').insert({
+                user_id: signUpData.user.id,
+                admin_role: 'super_admin',
+                is_active: true
+              });
+              console.log('Admin privileges created');
+            } catch (adminError) {
+              console.error('Error creating admin privileges:', adminError);
+            }
           }
 
           toast({
             title: language === 'ar' ? "تم إنشاء الحساب وتسجيل الدخول" : "Account created and signed in",
-            description: language === 'ar' ? "مرحباً بك في النظام" : "Welcome to the system",
+            description: language === 'ar' ? 
+              (signUpData.user.email_confirmed_at ? "مرحباً بك في النظام" : "يرجى تفقد بريدك الإلكتروني لتأكيد الحساب") : 
+              (signUpData.user.email_confirmed_at ? "Welcome to the system" : "Please check your email to confirm your account"),
           });
         } else {
+          console.error('Sign up failed:', signUpError);
           throw signUpError || new Error('Failed to create account');
         }
       } else {
