@@ -270,11 +270,11 @@
   }
 
   .chat-message-user {
-    @apply bg-blue-600 text-white rounded-lg p-3 max-w-[85%] ml-auto word-wrap break-words;
+    @apply bg-blue-600 text-white rounded-lg p-3 max-w-[85%] ml-auto break-words;
   }
 
   .chat-message-bot {
-    @apply bg-gray-100 text-gray-900 rounded-lg p-3 max-w-[85%] mr-auto word-wrap break-words;
+    @apply bg-gray-100 text-gray-900 rounded-lg p-3 max-w-[85%] mr-auto break-words;
   }
 
   .legal-card-hover {
@@ -295,7 +295,7 @@
   }
   
   .mobile-button {
-    @apply text-sm px-3 py-2 min-h-[44px] touch-manipulation;
+    @apply text-sm px-3 py-2 min-h-[44px];
   }
   
   .mobile-input {
