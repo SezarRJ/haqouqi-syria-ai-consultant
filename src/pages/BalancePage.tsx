@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { UserBalance } from '@/components/UserBalance';
 import { BackButton } from '@/components/BackButton';
@@ -54,7 +53,7 @@ const BalancePage = ({ language = 'ar' }: BalancePageProps) => {
             </CardHeader>
             <CardContent className="p-6">
               <div className="flex items-center justify-center mb-6">
-                <UserBalance showLabel={false} />
+                <UserBalance />
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
