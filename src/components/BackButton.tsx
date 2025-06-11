@@ -3,6 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface BackButtonProps {
   className?: string;
@@ -16,6 +17,7 @@ export const BackButton: React.FC<BackButtonProps> = ({
   size = "sm"
 }) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const handleBack = () => {
     navigate(-1);
@@ -24,12 +26,12 @@ export const BackButton: React.FC<BackButtonProps> = ({
   return (
     <Button
       variant={variant}
-      size={size}
+      size={isMobile ? "icon" : size}
       onClick={handleBack}
       className={`flex items-center gap-2 ${className}`}
     >
       <ArrowLeft className="h-4 w-4" />
-      العودة
+      {!isMobile && <span>العودة</span>}
     </Button>
   );
 };

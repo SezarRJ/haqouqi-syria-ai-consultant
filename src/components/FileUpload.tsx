@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Upload, File, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface UploadedFile {
   id: string;
@@ -26,6 +27,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   acceptedTypes = ['image/*', 'application/pdf', '.doc', '.docx', '.txt']
 }) => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -70,9 +72,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
   });
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return '0 بايت';
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ['بايت', 'كيلوبايت', 'ميجابايت', 'جيجابايت'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
@@ -80,23 +82,23 @@ const FileUpload: React.FC<FileUploadProps> = ({
   return (
     <div className="space-y-4">
       <Card>
-        <CardContent className="p-6">
+        <CardContent className={`${isMobile ? 'p-4' : 'p-6'}`}>
           <div
             {...getRootProps()}
-            className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+            className={`border-2 border-dashed rounded-lg ${isMobile ? 'p-4' : 'p-6'} text-center cursor-pointer transition-colors ${
               isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
             }`}
           >
             <input {...getInputProps()} />
-            <Upload className="h-8 w-8 mx-auto mb-4 text-gray-400" />
+            <Upload className={`${isMobile ? 'h-6 w-6' : 'h-8 w-8'} mx-auto mb-4 text-gray-400`} />
             {isDragActive ? (
-              <p className="text-blue-600">اسحب الملفات هنا...</p>
+              <p className="text-blue-600 text-sm">اسحب الملفات هنا...</p>
             ) : (
               <div>
-                <p className="text-gray-600 mb-2">
-                  اسحب الملفات هنا أو انقر للاختيار
+                <p className={`text-gray-600 mb-2 ${isMobile ? 'text-sm' : ''}`}>
+                  {isMobile ? 'اضغط لاختيار الملفات' : 'اسحب الملفات هنا أو انقر للاختيار'}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs text-gray-500">
                   الحد الأقصى: {maxFiles} ملفات
                 </p>
               </div>
@@ -107,15 +109,15 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
       {uploadedFiles.length > 0 && (
         <Card>
-          <CardContent className="p-4">
-            <h4 className="font-medium mb-3">الملفات المرفوعة ({uploadedFiles.length})</h4>
+          <CardContent className={`${isMobile ? 'p-3' : 'p-4'}`}>
+            <h4 className={`font-medium mb-3 ${isMobile ? 'text-sm' : ''}`}>الملفات المرفوعة ({uploadedFiles.length})</h4>
             <div className="space-y-2">
               {uploadedFiles.map((file) => (
-                <div key={file.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <File className="h-4 w-4 text-gray-500" />
-                    <div>
-                      <p className="text-sm font-medium">{file.name}</p>
+                <div key={file.id} className={`flex items-center justify-between ${isMobile ? 'p-2' : 'p-3'} bg-gray-50 rounded-lg`}>
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <File className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium truncate`}>{file.name}</p>
                       <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
                     </div>
                   </div>
@@ -123,7 +125,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => removeFile(file.id)}
-                    className="text-red-500 hover:text-red-700"
+                    className="text-red-500 hover:text-red-700 flex-shrink-0 ml-2"
                   >
                     <X className="h-4 w-4" />
                   </Button>

@@ -182,6 +182,34 @@
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     @apply bg-blue-400;
   }
+
+  /* Mobile optimizations */
+  @media (max-width: 768px) {
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    
+    .text-responsive {
+      font-size: 0.875rem;
+    }
+    
+    .card-mobile {
+      margin: 0.5rem;
+      padding: 0.75rem;
+    }
+    
+    /* Touch-friendly buttons */
+    .btn-mobile {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    /* Better spacing for mobile */
+    .space-mobile {
+      margin-bottom: 0.5rem;
+    }
+  }
 }
 
 /* Legal consultation interface specific styles */
@@ -208,5 +236,35 @@
 
   .arabic-number {
     font-variant-numeric: lining-nums;
+  }
+
+  /* Mobile-specific components */
+  .mobile-tab {
+    @apply text-xs px-2 py-1;
+  }
+  
+  .mobile-card {
+    @apply p-3 m-2 shadow-sm;
+  }
+  
+  .mobile-button {
+    @apply text-sm px-3 py-2 min-h-[44px];
+  }
+  
+  .mobile-input {
+    @apply text-base min-h-[44px];
+  }
+  
+  /* Responsive text utilities */
+  .text-mobile-sm {
+    font-size: 0.75rem;
+  }
+  
+  .text-mobile-base {
+    font-size: 0.875rem;
+  }
+  
+  .text-mobile-lg {
+    font-size: 1rem;
   }
 }
