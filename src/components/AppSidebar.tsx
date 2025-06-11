@@ -220,7 +220,6 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
           <LanguageSwitcher 
             language={language} 
             onLanguageChange={onLanguageChange}
-            variant={isMobile ? "compact" : "default"}
           />
         </div>
       </SidebarFooter>

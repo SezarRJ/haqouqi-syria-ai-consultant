@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { UserBalance } from '@/components/UserBalance';
 import { BackButton } from '@/components/BackButton';
@@ -78,7 +77,6 @@ const BalancePage = ({ language: propLanguage }: BalancePageProps) => {
           <LanguageSwitcher 
             language={language} 
             onLanguageChange={handleLanguageChange}
-            variant="compact"
           />
         </div>
 

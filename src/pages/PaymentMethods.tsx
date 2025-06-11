@@ -31,7 +31,6 @@ const PaymentMethodsPage = ({ language: propLanguage }: PaymentMethodsPageProps)
           <LanguageSwitcher 
             language={language} 
             onLanguageChange={handleLanguageChange}
-            variant="compact"
           />
         </div>
         <PaymentMethodsComponent language={language} />

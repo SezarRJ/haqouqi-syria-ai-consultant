@@ -46,7 +46,6 @@ const VoucherPage = ({ language: propLanguage }: VoucherPageProps) => {
           <LanguageSwitcher 
             language={language} 
             onLanguageChange={handleLanguageChange}
-            variant="compact"
           />
         </div>
         
