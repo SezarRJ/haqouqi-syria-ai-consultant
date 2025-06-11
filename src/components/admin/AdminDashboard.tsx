@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -61,7 +60,7 @@ export const AdminDashboard = () => {
           id,
           consultation_type,
           created_at,
-          profiles:user_id (full_name)
+          user_id
         `)
         .order('created_at', { ascending: false })
         .limit(5);
@@ -169,6 +168,25 @@ export const AdminDashboard = () => {
         </Card>
       </div>
 
+      {/* Admin Credentials */}
+      <Card className="border-2 border-blue-200 bg-blue-50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-blue-800">
+            <AlertCircle className="h-5 w-5" />
+            معلومات الدخول للمشرف
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <p className="text-sm"><strong>البريد الإلكتروني:</strong> admin@example.com</p>
+            <p className="text-sm"><strong>كلمة المرور:</strong> admin123</p>
+            <p className="text-xs text-blue-600 mt-2">
+              ملاحظة: يرجى تغيير كلمة المرور بعد أول تسجيل دخول
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Updates */}
         <Card>
@@ -218,7 +236,7 @@ export const AdminDashboard = () => {
                   <div>
                     <p className="font-medium">{getConsultationTypeLabel(activity.consultation_type)}</p>
                     <p className="text-sm text-gray-600">
-                      {activity.profiles?.full_name || 'مستخدم غير محدد'}
+                      مستخدم: {activity.user_id?.substring(0, 8)}...
                     </p>
                     <p className="text-xs text-gray-500">
                       {new Date(activity.created_at).toLocaleString('ar-SA')}

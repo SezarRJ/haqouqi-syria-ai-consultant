@@ -4,11 +4,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import AuthModal from '@/components/AuthModal';
-import { LegalConsultation } from '@/components/LegalConsultation';
+import { LegalConsultationWithFiles } from '@/components/LegalConsultationWithFiles';
 import { SmartLegalSearch } from '@/components/SmartLegalSearch';
 import { EnhancedDocumentUpload } from '@/components/EnhancedDocumentUpload';
 import ChatInterface from '@/components/ChatInterface';
-import { MessageSquare, Search, FileText, Upload, Scale, Shield, Clock, Users, BookOpen, Settings } from 'lucide-react';
+import { MessageSquare, Search, FileText, Upload, Scale, Shield, Clock, Users, BookOpen, Settings, CreditCard, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
@@ -36,6 +36,18 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              <Link to="/pricing">
+                <Button variant="outline" size="sm">
+                  <CreditCard className="h-4 w-4 ml-2" />
+                  الأسعار
+                </Button>
+              </Link>
+              <Link to="/settings">
+                <Button variant="outline" size="sm">
+                  <Settings className="h-4 w-4 ml-2" />
+                  الإعدادات
+                </Button>
+              </Link>
               <Link to="/admin">
                 <Button variant="outline" size="sm">
                   <Settings className="h-4 w-4 ml-2" />
@@ -44,7 +56,12 @@ const Index = () => {
               </Link>
               {user ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm">مرحباً، {user.name}</span>
+                  <Link to="/profile">
+                    <Button variant="outline" size="sm">
+                      <User className="h-4 w-4 ml-2" />
+                      {user.name}
+                    </Button>
+                  </Link>
                   <Button variant="outline" onClick={() => setUser(null)}>
                     تسجيل الخروج
                   </Button>
@@ -130,7 +147,7 @@ const Index = () => {
             </TabsList>
 
             <TabsContent value="consultation">
-              <LegalConsultation />
+              <LegalConsultationWithFiles />
             </TabsContent>
 
             <TabsContent value="search">
