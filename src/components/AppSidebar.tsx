@@ -23,10 +23,10 @@ import {
   Gift, 
   History, 
   DollarSign,
-  Scale,
-  Globe
+  Scale
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -48,24 +48,61 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
     });
   };
 
+  const texts = {
+    ar: {
+      legalAdvisor: 'المستشار القانوني',
+      smartSystem: 'نظام ذكي للاستشارات',
+      mainMenu: 'القائمة الرئيسية',
+      accountPayment: 'الحساب والدفع',
+      profile: 'الملف الشخصي',
+      settings: 'الإعدادات',
+      subscriptions: 'الاشتراكات',
+      admin: 'الإدارة',
+      balance: 'الرصيد',
+      paymentMethods: 'طرق الدفع',
+      voucher: 'كوبون الشحن',
+      history: 'السجل',
+      hello: 'مرحباً،',
+      signOut: 'تسجيل الخروج'
+    },
+    en: {
+      legalAdvisor: 'Legal Advisor',
+      smartSystem: 'Smart Legal System',
+      mainMenu: 'Main Menu',
+      accountPayment: 'Account & Payment',
+      profile: 'Profile',
+      settings: 'Settings',
+      subscriptions: 'Subscriptions',
+      admin: 'Admin',
+      balance: 'Balance',
+      paymentMethods: 'Payment Methods',
+      voucher: 'Voucher',
+      history: 'History',
+      hello: 'Hello,',
+      signOut: 'Sign Out'
+    }
+  };
+
+  const t = texts[language];
+
   const menuItems = [
     {
-      title: language === 'ar' ? 'الملف الشخصي' : 'Profile',
+      title: t.profile,
       icon: User,
       path: '/profile'
     },
     {
-      title: language === 'ar' ? 'الإعدادات' : 'Settings',
+      title: t.settings,
       icon: Settings,
       path: '/settings'
     },
     {
-      title: language === 'ar' ? 'الاشتراكات' : 'Subscriptions',
+      title: t.subscriptions,
       icon: CreditCard,
       path: '/pricing'
     },
     {
-      title: language === 'ar' ? 'الإدارة' : 'Admin',
+      title: t.admin,
       icon: Shield,
       path: '/admin'
     }
@@ -73,22 +110,22 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
 
   const accountItems = [
     {
-      title: language === 'ar' ? 'الرصيد' : 'Balance',
+      title: t.balance,
       icon: DollarSign,
       path: '/balance'
     },
     {
-      title: language === 'ar' ? 'طرق الدفع' : 'Payment Methods',
+      title: t.paymentMethods,
       icon: Wallet,
       path: '/payment-methods'
     },
     {
-      title: language === 'ar' ? 'كوبون الشحن' : 'Voucher',
+      title: t.voucher,
       icon: Gift,
       path: '/voucher'
     },
     {
-      title: language === 'ar' ? 'السجل' : 'History',
+      title: t.history,
       icon: History,
       path: '/history'
     }
@@ -102,21 +139,15 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
             <Scale className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="font-bold text-blue-900">
-              {language === 'ar' ? 'المستشار القانوني' : 'Legal Advisor'}
-            </h2>
-            <p className="text-sm text-blue-600">
-              {language === 'ar' ? 'نظام ذكي للاستشارات' : 'Smart Legal System'}
-            </p>
+            <h2 className="font-bold text-blue-900">{t.legalAdvisor}</h2>
+            <p className="text-sm text-blue-600">{t.smartSystem}</p>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>
-            {language === 'ar' ? 'القائمة الرئيسية' : 'Main Menu'}
-          </SidebarGroupLabel>
+          <SidebarGroupLabel>{t.mainMenu}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -138,9 +169,7 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
 
         {user && (
           <SidebarGroup>
-            <SidebarGroupLabel>
-              {language === 'ar' ? 'الحساب والدفع' : 'Account & Payment'}
-            </SidebarGroupLabel>
+            <SidebarGroupLabel>{t.accountPayment}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {accountItems.map((item) => (
@@ -166,7 +195,7 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
         {user && (
           <div className="space-y-3">
             <div className="text-sm text-gray-600">
-              {language === 'ar' ? 'مرحباً،' : 'Hello,'} {user.email?.split('@')[0]}
+              {t.hello} {user.email?.split('@')[0]}
             </div>
             <Button 
               variant="outline" 
@@ -175,28 +204,13 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
               className="w-full justify-start"
             >
               <LogOut className="h-4 w-4 mr-2" />
-              {language === 'ar' ? 'تسجيل الخروج' : 'Sign Out'}
+              {t.signOut}
             </Button>
           </div>
         )}
         
-        <div className="flex items-center gap-2 mt-3">
-          <Button
-            variant={language === 'ar' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => onLanguageChange('ar')}
-            className="flex-1"
-          >
-            العربية
-          </Button>
-          <Button
-            variant={language === 'en' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => onLanguageChange('en')}
-            className="flex-1"
-          >
-            English
-          </Button>
+        <div className="mt-3">
+          <LanguageSwitcher language={language} onLanguageChange={onLanguageChange} />
         </div>
       </SidebarFooter>
     </Sidebar>

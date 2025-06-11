@@ -1,53 +1,33 @@
+
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, FileText, Clock, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
+import { Activity, Users, FileText, AlertCircle, TrendingUp, Database, Shield, CheckCircle } from 'lucide-react';
 
 export const AdminDashboard = () => {
   const { data: stats } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: async () => {
       const [
-        { count: totalLaws },
-        { count: totalUsers },
-        { count: pendingUpdates },
-        { count: todayConsultations }
+        { count: lawsCount },
+        { count: usersCount },
+        { count: consultationsCount },
+        { count: pendingUpdatesCount }
       ] = await Promise.all([
-        supabase.from('laws').select('id', { count: 'exact' }),
-        supabase.from('profiles').select('id', { count: 'exact' }),
-        supabase.from('law_updates').select('id', { count: 'exact' }).eq('status', 'pending'),
-        supabase.from('consultations').select('id', { count: 'exact' })
-          .gte('created_at', new Date().toISOString().split('T')[0])
+        supabase.from('laws').select('*', { count: 'exact', head: true }),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('consultations').select('*', { count: 'exact', head: true }),
+        supabase.from('law_updates').select('*', { count: 'exact', head: true }).eq('status', 'pending')
       ]);
 
       return {
-        totalLaws: totalLaws || 0,
-        totalUsers: totalUsers || 0,
-        pendingUpdates: pendingUpdates || 0,
-        todayConsultations: todayConsultations || 0
+        laws: lawsCount || 0,
+        users: usersCount || 0,
+        consultations: consultationsCount || 0,
+        pendingUpdates: pendingUpdatesCount || 0
       };
-    }
-  });
-
-  const { data: recentUpdates } = useQuery({
-    queryKey: ['recent-updates'],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('law_updates')
-        .select(`
-          id,
-          update_type,
-          update_reason,
-          status,
-          submitted_at,
-          laws:law_id (name)
-        `)
-        .order('submitted_at', { ascending: false })
-        .limit(5);
-
-      return data || [];
     }
   });
 
@@ -55,223 +35,171 @@ export const AdminDashboard = () => {
     queryKey: ['recent-activity'],
     queryFn: async () => {
       const { data } = await supabase
-        .from('consultations')
-        .select(`
-          id,
-          consultation_type,
-          created_at,
-          user_id
-        `)
-        .order('created_at', { ascending: false })
+        .from('law_updates')
+        .select('*, laws(name)')
+        .order('submitted_at', { ascending: false })
         .limit(5);
-
       return data || [];
     }
   });
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return <Badge variant="secondary">في الانتظار</Badge>;
-      case 'approved':
-        return <Badge variant="default">مُوافق عليه</Badge>;
-      case 'rejected':
-        return <Badge variant="destructive">مرفوض</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
+  const quickStats = [
+    {
+      title: 'إجمالي القوانين',
+      value: stats?.laws || 0,
+      icon: FileText,
+      color: 'bg-blue-500',
+      description: 'في قاعدة البيانات'
+    },
+    {
+      title: 'المستخدمون النشطون',
+      value: stats?.users || 0,
+      icon: Users,
+      color: 'bg-green-500',
+      description: 'مستخدم مسجل'
+    },
+    {
+      title: 'الاستشارات',
+      value: stats?.consultations || 0,
+      icon: Activity,
+      color: 'bg-purple-500',
+      description: 'إجمالي الاستشارات'
+    },
+    {
+      title: 'التحديثات المعلقة',
+      value: stats?.pendingUpdates || 0,
+      icon: AlertCircle,
+      color: 'bg-orange-500',
+      description: 'تحتاج مراجعة'
     }
-  };
+  ];
 
-  const getUpdateTypeLabel = (type: string) => {
-    switch (type) {
-      case 'new_law':
-        return 'قانون جديد';
-      case 'amend_law':
-        return 'تعديل قانون';
-      case 'repeal_law':
-        return 'إلغاء قانون';
-      case 'add_interpretation':
-        return 'إضافة تفسير';
-      default:
-        return type;
-    }
-  };
-
-  const getConsultationTypeLabel = (type: string) => {
-    switch (type) {
-      case 'chat':
-        return 'محادثة';
-      case 'document_analysis':
-        return 'تحليل وثائق';
-      case 'search':
-        return 'بحث';
-      default:
-        return type;
-    }
-  };
+  const systemHealth = [
+    { name: 'قاعدة البيانات', status: 'متصلة', color: 'bg-green-500' },
+    { name: 'نموذج الذكاء الاصطناعي', status: 'نشط', color: 'bg-green-500' },
+    { name: 'آخر نسخ احتياطي', status: 'اليوم', color: 'bg-green-500' },
+    { name: 'أداء النظام', status: 'ممتاز', color: 'bg-green-500' }
+  ];
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">لوحة المراقبة</h2>
-        <p className="text-gray-600">نظرة عامة على حالة النظام والأنشطة الحديثة</p>
+      <div className="flex items-center space-x-3 space-x-reverse">
+        <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+          <TrendingUp className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800">لوحة تحكم الإدارة</h2>
+          <p className="text-slate-600">نظرة عامة على النشاط والإحصائيات</p>
+        </div>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">إجمالي القوانين</p>
-                <p className="text-2xl font-bold">{stats?.totalLaws || 0}</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {quickStats.map((stat, index) => (
+          <Card key={index} className="shadow-sm border-slate-200 hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-600">
+                {stat.title}
+              </CardTitle>
+              <div className={`w-8 h-8 ${stat.color} rounded-lg flex items-center justify-center`}>
+                <stat.icon className="h-4 w-4 text-white" />
               </div>
-              <FileText className="h-8 w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">المستخدمون النشطون</p>
-                <p className="text-2xl font-bold">{stats?.totalUsers || 0}</p>
-              </div>
-              <Users className="h-8 w-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">التحديثات المعلقة</p>
-                <p className="text-2xl font-bold text-orange-600">{stats?.pendingUpdates || 0}</p>
-              </div>
-              <Clock className="h-8 w-8 text-orange-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">استشارات اليوم</p>
-                <p className="text-2xl font-bold text-purple-600">{stats?.todayConsultations || 0}</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-purple-500" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-slate-800">{stat.value.toLocaleString()}</div>
+              <p className="text-xs text-slate-500 mt-1">{stat.description}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-
-      {/* Admin Credentials */}
-      <Card className="border-2 border-blue-200 bg-blue-50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-blue-800">
-            <AlertCircle className="h-5 w-5" />
-            معلومات الدخول للمشرف
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <p className="text-sm"><strong>البريد الإلكتروني:</strong> admin@example.com</p>
-            <p className="text-sm"><strong>كلمة المرور:</strong> admin123</p>
-            <p className="text-xs text-blue-600 mt-2">
-              ملاحظة: يرجى تغيير كلمة المرور بعد أول تسجيل دخول
-            </p>
-          </div>
-        </CardContent>
-      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Updates */}
-        <Card>
+        {/* Recent Activity */}
+        <Card className="shadow-sm border-slate-200">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5" />
-              التحديثات الأخيرة
+            <CardTitle className="flex items-center gap-2 text-slate-800">
+              <Activity className="h-5 w-5" />
+              النشاط الأخير
             </CardTitle>
-            <CardDescription>آخر التحديثات المقترحة على القوانين</CardDescription>
+            <CardDescription>آخر التحديثات والأنشطة في النظام</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {recentUpdates?.map((update) => (
-                <div key={update.id} className="flex items-center justify-between border-b pb-2">
+          <CardContent className="space-y-4">
+            {recentActivity?.length === 0 ? (
+              <p className="text-center text-slate-500 py-4">لا توجد أنشطة حديثة</p>
+            ) : (
+              recentActivity?.map((activity: any) => (
+                <div key={activity.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
                   <div>
-                    <p className="font-medium">{getUpdateTypeLabel(update.update_type)}</p>
-                    <p className="text-sm text-gray-600">
-                      {update.laws?.name || 'قانون غير محدد'}
+                    <p className="font-medium text-slate-800 text-sm">
+                      تحديث على: {activity.laws?.name || 'قانون غير محدد'}
                     </p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(update.submitted_at).toLocaleDateString('ar-SA')}
+                    <p className="text-xs text-slate-600">
+                      نوع التحديث: {activity.update_type}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {new Date(activity.submitted_at).toLocaleDateString('ar-SA')}
                     </p>
                   </div>
-                  {getStatusBadge(update.status)}
+                  <Badge variant={activity.status === 'pending' ? 'outline' : 'default'}>
+                    {activity.status === 'pending' ? 'معلق' : activity.status}
+                  </Badge>
                 </div>
-              ))}
-              {!recentUpdates?.length && (
-                <p className="text-gray-500 text-center py-4">لا توجد تحديثات حديثة</p>
-              )}
-            </div>
+              ))
+            )}
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
-        <Card>
+        {/* System Health */}
+        <Card className="shadow-sm border-slate-200">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5" />
-              النشاط الأخير
+            <CardTitle className="flex items-center gap-2 text-slate-800">
+              <Shield className="h-5 w-5" />
+              حالة النظام
             </CardTitle>
-            <CardDescription>آخر الاستشارات والأنشطة</CardDescription>
+            <CardDescription>مؤشرات صحة وأداء النظام</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {recentActivity?.map((activity) => (
-                <div key={activity.id} className="flex items-center justify-between border-b pb-2">
-                  <div>
-                    <p className="font-medium">{getConsultationTypeLabel(activity.consultation_type)}</p>
-                    <p className="text-sm text-gray-600">
-                      مستخدم: {activity.user_id?.substring(0, 8)}...
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(activity.created_at).toLocaleString('ar-SA')}
-                    </p>
-                  </div>
+          <CardContent className="space-y-4">
+            {systemHealth.map((item, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 ${item.color} rounded-full`}></div>
+                  <span className="font-medium text-slate-800">{item.name}</span>
                 </div>
-              ))}
-              {!recentActivity?.length && (
-                <p className="text-gray-500 text-center py-4">لا يوجد نشاط حديث</p>
-              )}
-            </div>
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  {item.status}
+                </Badge>
+              </div>
+            ))}
           </CardContent>
         </Card>
       </div>
 
-      {/* System Health */}
-      <Card>
+      {/* Quick Actions */}
+      <Card className="shadow-sm border-slate-200">
         <CardHeader>
-          <CardTitle>صحة النظام</CardTitle>
-          <CardDescription>مؤشرات حالة النظام والخدمات</CardDescription>
+          <CardTitle className="flex items-center gap-2 text-slate-800">
+            <Database className="h-5 w-5" />
+            إجراءات سريعة
+          </CardTitle>
+          <CardDescription>الوصول السريع للمهام الشائعة</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-              <span className="text-sm font-medium">قاعدة البيانات</span>
-              <Badge variant="default" className="bg-green-600">متصلة</Badge>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-              <span className="text-sm font-medium">خدمة الذكاء الاصطناعي</span>
-              <Badge variant="default" className="bg-blue-600">نشطة</Badge>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-              <span className="text-sm font-medium">واجهة المستخدم</span>
-              <Badge variant="default" className="bg-purple-600">تعمل بشكل طبيعي</Badge>
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { name: 'إضافة قانون جديد', icon: FileText },
+              { name: 'مراجعة التحديثات', icon: CheckCircle },
+              { name: 'إدارة المستخدمين', icon: Users },
+              { name: 'إعدادات النظام', icon: Shield }
+            ].map((action, index) => (
+              <div key={index} className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 hover:shadow-md transition-shadow cursor-pointer">
+                <div className="flex flex-col items-center text-center space-y-2">
+                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <action.icon className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="text-sm font-medium text-blue-900">{action.name}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>

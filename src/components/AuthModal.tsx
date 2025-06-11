@@ -1,282 +1,344 @@
 
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import React, { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, Mail, Lock, Briefcase } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Scale } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface AuthModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onLogin: (user: any) => void;
+  language: 'ar' | 'en';
 }
 
-const AuthModal = ({ open, onOpenChange, onLogin }: AuthModalProps) => {
-  const [isLoading, setIsLoading] = useState(false);
+export const AuthModal = ({ language }: AuthModalProps) => {
   const { toast } = useToast();
-  
-  const [loginData, setLoginData] = useState({
-    email: '',
-    password: ''
-  });
-  
-  const [registerData, setRegisterData] = useState({
-    name: '',
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
     email: '',
     password: '',
-    confirmPassword: '',
-    profession: ''
+    fullName: ''
   });
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleEmailAuth = async (type: 'login' | 'signup') => {
     setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      if (loginData.email && loginData.password) {
-        onLogin({
-          name: 'أحمد محمد',
-          email: loginData.email,
-          profession: 'محامي'
+    try {
+      if (type === 'signup') {
+        const { error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              full_name: formData.fullName
+            }
+          }
         });
-        onOpenChange(false);
+        if (error) throw error;
         toast({
-          title: "تم تسجيل الدخول بنجاح",
-          description: "مرحباً بك في المستشار القانوني السوري"
+          title: language === 'ar' ? "تم إنشاء الحساب" : "Account Created",
+          description: language === 'ar' ? "تحقق من بريدك الإلكتروني للتفعيل" : "Check your email to confirm your account",
         });
       } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+        if (error) throw error;
         toast({
-          title: "خطأ في تسجيل الدخول",
-          description: "يرجى التحقق من البيانات المدخلة",
-          variant: "destructive"
+          title: language === 'ar' ? "تم تسجيل الدخول" : "Signed In",
+          description: language === 'ar' ? "مرحباً بك في المستشار القانوني" : "Welcome to Legal Advisor",
         });
       }
+    } catch (error: any) {
+      toast({
+        title: language === 'ar' ? "خطأ" : "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSocialAuth = async (provider: 'google' | 'facebook') => {
     setIsLoading(true);
-    
-    if (registerData.password !== registerData.confirmPassword) {
-      toast({
-        title: "خطأ في كلمة المرور",
-        description: "كلمة المرور وتأكيد كلمة المرور غير متطابقين",
-        variant: "destructive"
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/`
+        }
       });
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: language === 'ar' ? "خطأ" : "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-      return;
     }
-    
-    // Simulate API call
-    setTimeout(() => {
-      if (registerData.name && registerData.email && registerData.password && registerData.profession) {
-        onLogin({
-          name: registerData.name,
-          email: registerData.email,
-          profession: registerData.profession
-        });
-        onOpenChange(false);
-        toast({
-          title: "تم إنشاء الحساب بنجاح",
-          description: "مرحباً بك في المستشار القانوني السوري"
-        });
-      } else {
-        toast({
-          title: "خطأ في إنشاء الحساب",
-          description: "يرجى ملء جميع الحقول المطلوبة",
-          variant: "destructive"
-        });
-      }
-      setIsLoading(false);
-    }, 1000);
   };
+
+  const texts = {
+    ar: {
+      welcome: "مرحباً بك",
+      subtitle: "المستشار القانوني السوري",
+      login: "تسجيل الدخول",
+      signup: "إنشاء حساب",
+      email: "البريد الإلكتروني",
+      password: "كلمة المرور",
+      fullName: "الاسم الكامل",
+      loginWith: "تسجيل الدخول باستخدام",
+      signupWith: "إنشاء حساب باستخدام",
+      google: "جوجل",
+      facebook: "فيسبوك",
+      or: "أو",
+      enterEmail: "أدخل بريدك الإلكتروني",
+      enterPassword: "أدخل كلمة المرور",
+      enterName: "أدخل اسمك الكامل",
+      loginDesc: "ادخل للوصول إلى حسابك",
+      signupDesc: "أنشئ حساباً جديداً للبدء"
+    },
+    en: {
+      welcome: "Welcome",
+      subtitle: "Syrian Legal Advisor",
+      login: "Sign In",
+      signup: "Sign Up",
+      email: "Email",
+      password: "Password",
+      fullName: "Full Name",
+      loginWith: "Sign in with",
+      signupWith: "Sign up with",
+      google: "Google",
+      facebook: "Facebook",
+      or: "Or",
+      enterEmail: "Enter your email",
+      enterPassword: "Enter your password",
+      enterName: "Enter your full name",
+      loginDesc: "Sign in to access your account",
+      signupDesc: "Create a new account to get started"
+    }
+  };
+
+  const t = texts[language];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md" dir="rtl">
-        <DialogHeader>
-          <DialogTitle className="text-center text-blue-900">
-            المستشار القانوني السوري
-          </DialogTitle>
-        </DialogHeader>
-        
-        <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">تسجيل الدخول</TabsTrigger>
-            <TabsTrigger value="register">إنشاء حساب</TabsTrigger>
-          </TabsList>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      <div className="w-full max-w-md">
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+          <CardHeader className="text-center pb-4">
+            <div className="mx-auto w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mb-6 shadow-lg">
+              <Scale className="h-10 w-10 text-white" />
+            </div>
+            <CardTitle className="text-2xl font-bold text-blue-900 mb-2">{t.welcome}</CardTitle>
+            <CardDescription className="text-blue-600 text-lg">{t.subtitle}</CardDescription>
+          </CardHeader>
           
-          <TabsContent value="login">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-blue-900">تسجيل الدخول</CardTitle>
-                <CardDescription>
-                  أدخل بياناتك للوصول إلى حسابك
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">البريد الإلكتروني</Label>
-                    <div className="relative">
-                      <Mail className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="example@email.com"
-                        className="pr-10"
-                        value={loginData.email}
-                        onChange={(e) => setLoginData({...loginData, email: e.target.value})}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="password">كلمة المرور</Label>
-                    <div className="relative">
-                      <Lock className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="password"
-                        type="password"
-                        placeholder="كلمة المرور"
-                        className="pr-10"
-                        value={loginData.password}
-                        onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-blue-600 hover:bg-blue-700"
+          <CardContent>
+            <Tabs defaultValue="login" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-2 bg-blue-50 border border-blue-200">
+                <TabsTrigger value="login" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                  {t.login}
+                </TabsTrigger>
+                <TabsTrigger value="signup" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                  {t.signup}
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="login" className="space-y-6">
+                <div className="text-center mb-6">
+                  <p className="text-blue-600 mb-4">{t.loginDesc}</p>
+                </div>
+
+                {/* Social Login Buttons */}
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => handleSocialAuth('google')}
                     disabled={isLoading}
+                    variant="outline"
+                    className="w-full h-12 border-red-200 hover:bg-red-50 hover:border-red-300 text-red-700"
                   >
-                    {isLoading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
+                    <Mail className="h-5 w-5 mr-3" />
+                    {t.loginWith} {t.google}
                   </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="register">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-blue-900">إنشاء حساب جديد</CardTitle>
-                <CardDescription>
-                  أنشئ حسابك للاستفادة من خدماتنا القانونية
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleRegister} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">الاسم الكامل</Label>
-                    <div className="relative">
-                      <User className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="name"
-                        placeholder="أدخل اسمك الكامل"
-                        className="pr-10"
-                        value={registerData.name}
-                        onChange={(e) => setRegisterData({...registerData, name: e.target.value})}
-                        required
-                      />
-                    </div>
+                  
+                  <Button
+                    onClick={() => handleSocialAuth('facebook')}
+                    disabled={isLoading}
+                    variant="outline"
+                    className="w-full h-12 border-blue-200 hover:bg-blue-50 hover:border-blue-300 text-blue-700"
+                  >
+                    <User className="h-5 w-5 mr-3" />
+                    {t.loginWith} {t.facebook}
+                  </Button>
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-blue-200" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-white px-2 text-blue-600">{t.or}</span>
+                  </div>
+                </div>
+
+                {/* Email Login Form */}
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="login-email" className="text-blue-900">{t.email}</Label>
+                    <Input
+                      id="login-email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder={t.enterEmail}
+                      className="h-12 border-blue-200 focus:border-blue-500"
+                      required
+                    />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="reg-email">البريد الإلكتروني</Label>
+                  <div>
+                    <Label htmlFor="login-password" className="text-blue-900">{t.password}</Label>
                     <div className="relative">
-                      <Mail className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
-                        id="reg-email"
-                        type="email"
-                        placeholder="example@email.com"
-                        className="pr-10"
-                        value={registerData.email}
-                        onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
+                        id="login-password"
+                        type={showPassword ? "text" : "password"}
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        placeholder={t.enterPassword}
+                        className="h-12 border-blue-200 focus:border-blue-500 pr-12"
                         required
                       />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="profession">المهنة</Label>
-                    <div className="relative">
-                      <Briefcase className="absolute right-3 top-3 h-4 w-4 text-gray-400 z-10" />
-                      <Select 
-                        value={registerData.profession} 
-                        onValueChange={(value) => setRegisterData({...registerData, profession: value})}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8"
+                        onClick={() => setShowPassword(!showPassword)}
                       >
-                        <SelectTrigger className="pr-10">
-                          <SelectValue placeholder="اختر مهنتك" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="individual">فرد</SelectItem>
-                          <SelectItem value="company">شركة</SelectItem>
-                          <SelectItem value="lawyer">محامي</SelectItem>
-                          <SelectItem value="judge">قاضي</SelectItem>
-                        </SelectContent>
-                      </Select>
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
                     </div>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="reg-password">كلمة المرور</Label>
-                    <div className="relative">
-                      <Lock className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="reg-password"
-                        type="password"
-                        placeholder="كلمة المرور"
-                        className="pr-10"
-                        value={registerData.password}
-                        onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">تأكيد كلمة المرور</Label>
-                    <div className="relative">
-                      <Lock className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="confirm-password"
-                        type="password"
-                        placeholder="تأكيد كلمة المرور"
-                        className="pr-10"
-                        value={registerData.confirmPassword}
-                        onChange={(e) => setRegisterData({...registerData, confirmPassword: e.target.value})}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-blue-600 hover:bg-blue-700"
+
+                  <Button
+                    onClick={() => handleEmailAuth('login')}
                     disabled={isLoading}
+                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
                   >
-                    {isLoading ? 'جاري إنشاء الحساب...' : 'إنشاء الحساب'}
+                    {isLoading ? (language === 'ar' ? 'جارٍ تسجيل الدخول...' : 'Signing in...') : t.login}
                   </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="signup" className="space-y-6">
+                <div className="text-center mb-6">
+                  <p className="text-blue-600 mb-4">{t.signupDesc}</p>
+                </div>
+
+                {/* Social Signup Buttons */}
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => handleSocialAuth('google')}
+                    disabled={isLoading}
+                    variant="outline"
+                    className="w-full h-12 border-red-200 hover:bg-red-50 hover:border-red-300 text-red-700"
+                  >
+                    <Mail className="h-5 w-5 mr-3" />
+                    {t.signupWith} {t.google}
+                  </Button>
+                  
+                  <Button
+                    onClick={() => handleSocialAuth('facebook')}
+                    disabled={isLoading}
+                    variant="outline"
+                    className="w-full h-12 border-blue-200 hover:bg-blue-50 hover:border-blue-300 text-blue-700"
+                  >
+                    <User className="h-5 w-5 mr-3" />
+                    {t.signupWith} {t.facebook}
+                  </Button>
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-blue-200" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-white px-2 text-blue-600">{t.or}</span>
+                  </div>
+                </div>
+
+                {/* Email Signup Form */}
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="signup-name" className="text-blue-900">{t.fullName}</Label>
+                    <Input
+                      id="signup-name"
+                      type="text"
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      placeholder={t.enterName}
+                      className="h-12 border-blue-200 focus:border-blue-500"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="signup-email" className="text-blue-900">{t.email}</Label>
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder={t.enterEmail}
+                      className="h-12 border-blue-200 focus:border-blue-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="signup-password" className="text-blue-900">{t.password}</Label>
+                    <div className="relative">
+                      <Input
+                        id="signup-password"
+                        type={showPassword ? "text" : "password"}
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        placeholder={t.enterPassword}
+                        className="h-12 border-blue-200 focus:border-blue-500 pr-12"
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={() => handleEmailAuth('signup')}
+                    disabled={isLoading}
+                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
+                  >
+                    {isLoading ? (language === 'ar' ? 'جارٍ إنشاء الحساب...' : 'Creating account...') : t.signup}
+                  </Button>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
-
-export default AuthModal;

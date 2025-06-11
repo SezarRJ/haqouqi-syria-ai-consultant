@@ -1,6 +1,8 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { UserBalance } from '@/components/UserBalance';
 import { BackButton } from '@/components/BackButton';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, TrendingUp, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -10,7 +12,21 @@ interface BalancePageProps {
   language?: 'ar' | 'en';
 }
 
-const BalancePage = ({ language = 'ar' }: BalancePageProps) => {
+const BalancePage = ({ language: propLanguage }: BalancePageProps) => {
+  const [language, setLanguage] = useState<'ar' | 'en'>(propLanguage || 'ar');
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('language') as 'ar' | 'en';
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    }
+  }, []);
+
+  const handleLanguageChange = (lang: 'ar' | 'en') => {
+    setLanguage(lang);
+    localStorage.setItem('language', lang);
+  };
+
   const { data: recentTransactions } = useQuery({
     queryKey: ['recent-transactions'],
     queryFn: async () => {
@@ -27,11 +43,43 @@ const BalancePage = ({ language = 'ar' }: BalancePageProps) => {
     }
   });
 
+  const texts = {
+    ar: {
+      currentBalance: 'الرصيد الحالي',
+      balanceDescription: 'عرض رصيدك الحالي ونشاطك المالي',
+      totalDeposits: 'إجمالي الإيداعات',
+      totalExpenses: 'إجمالي المصروفات',
+      totalTransactions: 'عدد المعاملات',
+      recentActivity: 'النشاط الأخير',
+      recentDescription: 'آخر 5 معاملات مالية',
+      financialTransaction: 'معاملة مالية',
+      currency: 'ريال'
+    },
+    en: {
+      currentBalance: 'Current Balance',
+      balanceDescription: 'View your current balance and financial activity',
+      totalDeposits: 'Total Deposits',
+      totalExpenses: 'Total Expenses',
+      totalTransactions: 'Total Transactions',
+      recentActivity: 'Recent Activity',
+      recentDescription: 'Your last 5 financial transactions',
+      financialTransaction: 'Financial Transaction',
+      currency: 'SAR'
+    }
+  };
+
+  const t = texts[language];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
+        <div className="mb-6 flex justify-between items-center">
           <BackButton />
+          <LanguageSwitcher 
+            language={language} 
+            onLanguageChange={handleLanguageChange}
+            variant="compact"
+          />
         </div>
 
         <div className="max-w-4xl mx-auto space-y-6">
@@ -42,13 +90,10 @@ const BalancePage = ({ language = 'ar' }: BalancePageProps) => {
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                   <DollarSign className="h-4 w-4 text-white" />
                 </div>
-                {language === 'ar' ? 'الرصيد الحالي' : 'Current Balance'}
+                {t.currentBalance}
               </CardTitle>
               <CardDescription className="text-blue-600">
-                {language === 'ar' 
-                  ? 'عرض رصيدك الحالي ونشاطك المالي' 
-                  : 'View your current balance and financial activity'
-                }
+                {t.balanceDescription}
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6">
@@ -61,13 +106,11 @@ const BalancePage = ({ language = 'ar' }: BalancePageProps) => {
                   <div className="flex items-center justify-center mb-2">
                     <ArrowDownLeft className="h-5 w-5 text-green-600" />
                   </div>
-                  <p className="text-sm text-green-600 font-medium">
-                    {language === 'ar' ? 'إجمالي الإيداعات' : 'Total Deposits'}
-                  </p>
+                  <p className="text-sm text-green-600 font-medium">{t.totalDeposits}</p>
                   <p className="text-2xl font-bold text-green-700">
                     {recentTransactions?.filter(t => ['deposit', 'payment', 'voucher'].includes(t.type))
                       .reduce((sum, t) => sum + t.amount, 0).toFixed(2) || '0.00'} 
-                    {language === 'ar' ? ' ريال' : ' SAR'}
+                    {' '}{t.currency}
                   </p>
                 </div>
                 
@@ -75,13 +118,11 @@ const BalancePage = ({ language = 'ar' }: BalancePageProps) => {
                   <div className="flex items-center justify-center mb-2">
                     <ArrowUpRight className="h-5 w-5 text-red-600" />
                   </div>
-                  <p className="text-sm text-red-600 font-medium">
-                    {language === 'ar' ? 'إجمالي المصروفات' : 'Total Expenses'}
-                  </p>
+                  <p className="text-sm text-red-600 font-medium">{t.totalExpenses}</p>
                   <p className="text-2xl font-bold text-red-700">
                     {recentTransactions?.filter(t => ['withdrawal', 'usage'].includes(t.type))
                       .reduce((sum, t) => sum + t.amount, 0).toFixed(2) || '0.00'} 
-                    {language === 'ar' ? ' ريال' : ' SAR'}
+                    {' '}{t.currency}
                   </p>
                 </div>
                 
@@ -89,9 +130,7 @@ const BalancePage = ({ language = 'ar' }: BalancePageProps) => {
                   <div className="flex items-center justify-center mb-2">
                     <TrendingUp className="h-5 w-5 text-blue-600" />
                   </div>
-                  <p className="text-sm text-blue-600 font-medium">
-                    {language === 'ar' ? 'عدد المعاملات' : 'Total Transactions'}
-                  </p>
+                  <p className="text-sm text-blue-600 font-medium">{t.totalTransactions}</p>
                   <p className="text-2xl font-bold text-blue-700">
                     {recentTransactions?.length || 0}
                   </p>
@@ -104,14 +143,9 @@ const BalancePage = ({ language = 'ar' }: BalancePageProps) => {
           {recentTransactions && recentTransactions.length > 0 && (
             <Card className="border-blue-200 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-blue-900">
-                  {language === 'ar' ? 'النشاط الأخير' : 'Recent Activity'}
-                </CardTitle>
+                <CardTitle className="text-blue-900">{t.recentActivity}</CardTitle>
                 <CardDescription className="text-blue-600">
-                  {language === 'ar' 
-                    ? 'آخر 5 معاملات مالية' 
-                    : 'Your last 5 financial transactions'
-                  }
+                  {t.recentDescription}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -120,7 +154,7 @@ const BalancePage = ({ language = 'ar' }: BalancePageProps) => {
                     <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div>
                         <p className="font-medium text-gray-900">
-                          {transaction.description || (language === 'ar' ? 'معاملة مالية' : 'Financial Transaction')}
+                          {transaction.description || t.financialTransaction}
                         </p>
                         <p className="text-sm text-gray-600">
                           {new Date(transaction.created_at).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
@@ -132,7 +166,7 @@ const BalancePage = ({ language = 'ar' }: BalancePageProps) => {
                           : 'text-red-600'
                       }`}>
                         {['deposit', 'payment', 'voucher'].includes(transaction.type) ? '+' : '-'}
-                        {transaction.amount.toFixed(2)} {language === 'ar' ? 'ريال' : 'SAR'}
+                        {transaction.amount.toFixed(2)} {t.currency}
                       </div>
                     </div>
                   ))}

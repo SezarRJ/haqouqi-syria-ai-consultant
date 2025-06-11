@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Users, FileText, AlertCircle, TrendingUp, Settings, BookOpen, Database, Globe, Shield, Eye, EyeOff, Gift, CreditCard, Scale } from 'lucide-react';
+import { Users, FileText, AlertCircle, TrendingUp, Settings, BookOpen, Database, Globe, Shield, Eye, EyeOff, Gift, CreditCard, Scale, BarChart3 } from 'lucide-react';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { LawsManagement } from '@/components/admin/LawsManagement';
 import { UpdatesManagement } from '@/components/admin/UpdatesManagement';
@@ -19,6 +19,7 @@ import { Integrations } from '@/components/admin/Integrations';
 import { VoucherManagement } from '@/components/admin/VoucherManagement';
 import { PaymentManagement } from '@/components/admin/PaymentManagement';
 import { BackButton } from '@/components/BackButton';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -32,10 +33,21 @@ const Admin = () => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [language, setLanguage] = useState<'ar' | 'en'>('ar');
 
   useEffect(() => {
     checkAdmin();
+    // Load language preference
+    const savedLanguage = localStorage.getItem('language') as 'ar' | 'en';
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    }
   }, []);
+
+  const handleLanguageChange = (lang: 'ar' | 'en') => {
+    setLanguage(lang);
+    localStorage.setItem('language', lang);
+  };
 
   const checkAdmin = async () => {
     setIsCheckingAuth(true);
@@ -44,7 +56,6 @@ const Admin = () => {
       if (user) {
         setUser(user);
         
-        // Check if user is admin
         try {
           const { data: adminCheck, error } = await supabase
             .from('admin_users')
@@ -58,8 +69,8 @@ const Admin = () => {
           } else {
             setIsAdmin(false);
             toast({
-              title: "غير مصرح",
-              description: "ليس لديك صلاحية للوصول إلى لوحة الإدارة",
+              title: language === 'ar' ? "غير مصرح" : "Unauthorized",
+              description: language === 'ar' ? "ليس لديك صلاحية للوصول إلى لوحة الإدارة" : "You don't have permission to access the admin panel",
               variant: "destructive",
             });
           }
@@ -83,16 +94,13 @@ const Admin = () => {
     setIsLoggingIn(true);
 
     try {
-      // Create admin account if it doesn't exist
       if (loginData.email === 'admin@legal.com' && loginData.password === 'Admin123!') {
-        // Try to sign in first
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: loginData.email,
           password: loginData.password,
         });
 
         if (signInData.user) {
-          // Check if admin record exists
           const { data: adminCheck } = await supabase
             .from('admin_users')
             .select('*')
@@ -100,7 +108,6 @@ const Admin = () => {
             .single();
 
           if (!adminCheck) {
-            // Create admin record
             await supabase.from('admin_users').insert({
               user_id: signInData.user.id,
               admin_role: 'super_admin',
@@ -111,13 +118,12 @@ const Admin = () => {
           setUser(signInData.user);
           setIsAdmin(true);
           toast({
-            title: "تم تسجيل الدخول",
-            description: "مرحباً بك في لوحة الإدارة",
+            title: language === 'ar' ? "تم تسجيل الدخول" : "Signed In",
+            description: language === 'ar' ? "مرحباً بك في لوحة الإدارة" : "Welcome to admin panel",
           });
           return;
         }
 
-        // If sign in fails, try to sign up
         if (signInError && signInError.message.includes('Invalid login credentials')) {
           const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             email: loginData.email,
@@ -125,7 +131,6 @@ const Admin = () => {
           });
 
           if (signUpData.user && !signUpError) {
-            // Create admin user record
             await supabase.from('admin_users').insert({
               user_id: signUpData.user.id,
               admin_role: 'super_admin',
@@ -135,8 +140,8 @@ const Admin = () => {
             setUser(signUpData.user);
             setIsAdmin(true);
             toast({
-              title: "تم إنشاء حساب المشرف",
-              description: "تم إنشاء حساب المشرف وتسجيل الدخول بنجاح",
+              title: language === 'ar' ? "تم إنشاء حساب المشرف" : "Admin Account Created",
+              description: language === 'ar' ? "تم إنشاء حساب المشرف وتسجيل الدخول بنجاح" : "Admin account created and signed in successfully",
             });
           } else {
             throw signUpError || new Error('Failed to create admin account');
@@ -150,8 +155,8 @@ const Admin = () => {
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
-        title: "خطأ في تسجيل الدخول",
-        description: "بيانات تسجيل الدخول غير صحيحة",
+        title: language === 'ar' ? "خطأ في تسجيل الدخول" : "Login Error",
+        description: language === 'ar' ? "بيانات تسجيل الدخول غير صحيحة" : "Invalid login credentials",
         variant: "destructive",
       });
     } finally {
@@ -159,12 +164,67 @@ const Admin = () => {
     }
   };
 
+  const texts = {
+    ar: {
+      adminPanel: "لوحة إدارة المستشار القانوني",
+      smartSystem: "نظام ذكي للاستشارات القانونية",
+      adminLogin: "دخول لوحة الإدارة",
+      email: "البريد الإلكتروني",
+      password: "كلمة المرور",
+      signIn: "دخول لوحة الإدارة",
+      signingIn: "جاري تسجيل الدخول...",
+      loginCredentials: "بيانات تسجيل الدخول",
+      signOut: "تسجيل الخروج",
+      loading: "جاري التحميل...",
+      signedOut: "تم تسجيل الخروج",
+      signedOutDesc: "تم تسجيل خروجك من لوحة الإدارة",
+      dashboard: "لوحة التحكم",
+      laws: "القوانين",
+      vouchers: "الكوبونات",
+      payments: "المدفوعات",
+      database: "قاعدة البيانات",
+      integrations: "التكاملات",
+      users: "المستخدمون",
+      analytics: "التحليلات",
+      settings: "الإعدادات",
+      more: "المزيد",
+      comprehensiveManagement: "إدارة شاملة للنظام القانوني والمحتوى"
+    },
+    en: {
+      adminPanel: "Legal Advisor Admin Panel",
+      smartSystem: "Smart Legal Consultation System",
+      adminLogin: "Admin Panel Login",
+      email: "Email",
+      password: "Password",
+      signIn: "Sign In to Admin Panel",
+      signingIn: "Signing in...",
+      loginCredentials: "Login Credentials",
+      signOut: "Sign Out",
+      loading: "Loading...",
+      signedOut: "Signed Out",
+      signedOutDesc: "You have been signed out from admin panel",
+      dashboard: "Dashboard",
+      laws: "Laws",
+      vouchers: "Vouchers",
+      payments: "Payments",
+      database: "Database",
+      integrations: "Integrations",
+      users: "Users",
+      analytics: "Analytics",
+      settings: "Settings",
+      more: "More",
+      comprehensiveManagement: "Comprehensive management for legal system and content"
+    }
+  };
+
+  const t = texts[language];
+
   if (isCheckingAuth) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-          <p className="text-slate-600 font-medium">جاري التحميل...</p>
+          <p className="text-slate-600 font-medium">{t.loading}</p>
         </div>
       </div>
     );
@@ -172,8 +232,9 @@ const Admin = () => {
 
   if (!user || !isAdmin) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4" dir="rtl">
-        <div className="absolute top-4 right-4 z-10">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="absolute top-4 right-4 z-10 flex items-center gap-4">
+          <LanguageSwitcher language={language} onLanguageChange={handleLanguageChange} variant="compact" />
           <BackButton />
         </div>
         
@@ -183,15 +244,13 @@ const Admin = () => {
               <div className="mx-auto w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mb-6 shadow-lg">
                 <Scale className="h-10 w-10 text-white" />
               </div>
-              <CardTitle className="text-2xl font-bold text-blue-900 mb-2">لوحة إدارة المستشار القانوني</CardTitle>
-              <CardDescription className="text-blue-600 text-lg">
-                نظام ذكي للاستشارات القانونية
-              </CardDescription>
+              <CardTitle className="text-2xl font-bold text-blue-900 mb-2">{t.adminPanel}</CardTitle>
+              <CardDescription className="text-blue-600 text-lg">{t.smartSystem}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <form onSubmit={handleAdminLogin} className="space-y-5">
                 <div className="space-y-3">
-                  <Label htmlFor="email" className="text-sm font-semibold text-blue-900">البريد الإلكتروني</Label>
+                  <Label htmlFor="email" className="text-sm font-semibold text-blue-900">{t.email}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -203,7 +262,7 @@ const Admin = () => {
                   />
                 </div>
                 <div className="space-y-3">
-                  <Label htmlFor="password" className="text-sm font-semibold text-blue-900">كلمة المرور</Label>
+                  <Label htmlFor="password" className="text-sm font-semibold text-blue-900">{t.password}</Label>
                   <div className="relative">
                     <Input
                       id="password"
@@ -230,19 +289,19 @@ const Admin = () => {
                   className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg text-lg font-semibold"
                   disabled={isLoggingIn}
                 >
-                  {isLoggingIn ? 'جاري تسجيل الدخول...' : 'دخول لوحة الإدارة'}
+                  {isLoggingIn ? t.signingIn : t.signIn}
                 </Button>
               </form>
               
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
-                <h4 className="font-semibold text-blue-900 mb-3 text-center">بيانات تسجيل الدخول</h4>
+                <h4 className="font-semibold text-blue-900 mb-3 text-center">{t.loginCredentials}</h4>
                 <div className="space-y-2 text-sm text-blue-700">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">البريد الإلكتروني:</span>
+                    <span className="font-medium">{t.email}:</span>
                     <code className="bg-white px-2 py-1 rounded text-xs">admin@legal.com</code>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">كلمة المرور:</span>
+                    <span className="font-medium">{t.password}:</span>
                     <code className="bg-white px-2 py-1 rounded text-xs">Admin123!</code>
                   </div>
                 </div>
@@ -255,7 +314,7 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="bg-white/95 backdrop-blur-sm border-b border-blue-200 shadow-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
@@ -264,11 +323,12 @@ const Admin = () => {
                 <Scale className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl md:text-2xl font-bold text-blue-900">لوحة إدارة المستشار القانوني</h1>
-                <p className="text-sm text-blue-600 hidden md:block">إدارة شاملة للنظام القانوني والمحتوى</p>
+                <h1 className="text-xl md:text-2xl font-bold text-blue-900">{t.adminPanel}</h1>
+                <p className="text-sm text-blue-600 hidden md:block">{t.comprehensiveManagement}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <LanguageSwitcher language={language} onLanguageChange={handleLanguageChange} variant="compact" />
               <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 px-3 py-1">
                 <div className="w-2 h-2 bg-green-500 rounded-full ml-2"></div>
                 {isMobile ? user.email?.split('@')[0] : user.email}
@@ -281,13 +341,13 @@ const Admin = () => {
                   setUser(null);
                   setIsAdmin(false);
                   toast({
-                    title: "تم تسجيل الخروج",
-                    description: "تم تسجيل خروجك من لوحة الإدارة",
+                    title: t.signedOut,
+                    description: t.signedOutDesc,
                   });
                 }}
                 className="border-blue-300 text-blue-700 hover:bg-blue-50"
               >
-                تسجيل الخروج
+                {t.signOut}
               </Button>
               <BackButton />
             </div>
@@ -300,51 +360,51 @@ const Admin = () => {
           <TabsList className={`grid w-full ${isMobile ? 'grid-cols-4' : 'grid-cols-9'} bg-white/95 backdrop-blur-sm border border-blue-200 shadow-sm h-12`}>
             <TabsTrigger value="dashboard" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
               <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">لوحة التحكم</span>
-              <span className="sm:hidden text-xs">التحكم</span>
+              <span className="hidden sm:inline">{t.dashboard}</span>
+              <span className="sm:hidden text-xs">{t.dashboard}</span>
             </TabsTrigger>
             <TabsTrigger value="laws" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
               <BookOpen className="h-4 w-4" />
-              <span className="hidden sm:inline">القوانين</span>
-              <span className="sm:hidden text-xs">قوانين</span>
+              <span className="hidden sm:inline">{t.laws}</span>
+              <span className="sm:hidden text-xs">{t.laws}</span>
             </TabsTrigger>
             {!isMobile && (
               <>
                 <TabsTrigger value="vouchers" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
                   <Gift className="h-4 w-4" />
-                  الكوبونات
+                  {t.vouchers}
                 </TabsTrigger>
                 <TabsTrigger value="payments" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
                   <CreditCard className="h-4 w-4" />
-                  المدفوعات
+                  {t.payments}
                 </TabsTrigger>
                 <TabsTrigger value="database" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
                   <Database className="h-4 w-4" />
-                  قاعدة البيانات
+                  {t.database}
                 </TabsTrigger>
                 <TabsTrigger value="integrations" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
                   <Globe className="h-4 w-4" />
-                  التكاملات
+                  {t.integrations}
                 </TabsTrigger>
                 <TabsTrigger value="users" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
                   <Users className="h-4 w-4" />
-                  المستخدمون
+                  {t.users}
                 </TabsTrigger>
                 <TabsTrigger value="analytics" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
-                  <TrendingUp className="h-4 w-4" />
-                  التحليلات
+                  <BarChart3 className="h-4 w-4" />
+                  {t.analytics}
                 </TabsTrigger>
               </>
             )}
             <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
               <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">الإعدادات</span>
-              <span className="sm:hidden text-xs">إعدادات</span>
+              <span className="hidden sm:inline">{t.settings}</span>
+              <span className="sm:hidden text-xs">{t.settings}</span>
             </TabsTrigger>
             {isMobile && (
               <TabsTrigger value="more" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
                 <AlertCircle className="h-4 w-4" />
-                <span className="text-xs">المزيد</span>
+                <span className="text-xs">{t.more}</span>
               </TabsTrigger>
             )}
           </TabsList>
@@ -387,12 +447,12 @@ const Admin = () => {
             <TabsContent value="more">
               <div className="grid grid-cols-1 gap-4">
                 {[
-                  { key: 'vouchers', icon: Gift, title: 'الكوبونات' },
-                  { key: 'payments', icon: CreditCard, title: 'المدفوعات' },
-                  { key: 'database', icon: Database, title: 'قاعدة البيانات' },
-                  { key: 'integrations', icon: Globe, title: 'التكاملات' },
-                  { key: 'users', icon: Users, title: 'المستخدمون' },
-                  { key: 'analytics', icon: TrendingUp, title: 'التحليلات' }
+                  { key: 'vouchers', icon: Gift, title: t.vouchers },
+                  { key: 'payments', icon: CreditCard, title: t.payments },
+                  { key: 'database', icon: Database, title: t.database },
+                  { key: 'integrations', icon: Globe, title: t.integrations },
+                  { key: 'users', icon: Users, title: t.users },
+                  { key: 'analytics', icon: BarChart3, title: t.analytics }
                 ].map(({ key, icon: Icon, title }) => (
                   <Card 
                     key={key}
