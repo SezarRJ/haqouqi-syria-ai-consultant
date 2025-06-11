@@ -4,368 +4,337 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   User, 
-  MessageSquare, 
-  FileText, 
+  Mail, 
+  Phone, 
+  MapPin, 
   Calendar, 
-  TrendingUp, 
+  Award, 
+  Briefcase, 
   Star,
+  FileText,
   Clock,
-  Download,
-  Share2,
-  Edit
+  Settings as SettingsIcon
 } from 'lucide-react';
+import { BackButton } from '@/components/BackButton';
+import { useToast } from '@/hooks/use-toast';
 
 const Profile = () => {
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    name: 'أحمد محمد الأحمد',
-    email: 'ahmed@example.com',
-    phone: '+963912345678',
-    organization: 'مكتب المحاماة الأول',
-    joinDate: 'مارس 2024',
-    plan: 'المتقدم',
-    avatar: ''
+    fullName: 'محمد أحمد السعد',
+    email: 'mohammed.ahmed@example.com',
+    phone: '+966501234567',
+    location: 'الرياض، المملكة العربية السعودية',
+    profession: 'محامي متخصص في القانون التجاري',
+    experience: '8 سنوات',
+    bio: 'محامي معتمد مع خبرة واسعة في القانون التجاري والشركات. متخصص في العقود التجارية وقانون الاستثمار.',
+    joinDate: '2020-03-15',
+    consultations: 156,
+    rating: 4.8,
+    specializations: ['القانون التجاري', 'قانون الشركات', 'العقود', 'الاستثمار']
   });
 
-  const stats = {
-    totalConsultations: 47,
-    successfulCases: 42,
-    rating: 4.8,
-    responseTime: '< 2 دقيقة',
-    documentsAnalyzed: 23,
-    lawsSearched: 156
+  const handleSave = () => {
+    setIsEditing(false);
+    toast({
+      title: "تم الحفظ",
+      description: "تم تحديث معلومات الملف الشخصي بنجاح",
+    });
   };
 
-  const recentConsultations = [
+  const recentActivity = [
     {
       id: 1,
-      type: 'استشارة عقود',
-      date: '2024-12-10',
-      status: 'مكتملة',
-      rating: 5
+      type: 'consultation',
+      description: 'استشارة قانونية حول عقد شراكة',
+      date: '2024-01-20',
+      status: 'مكتملة'
     },
     {
       id: 2,
-      type: 'تحليل وثائق',
-      date: '2024-12-08',
-      status: 'مكتملة',
-      rating: 4
+      type: 'document',
+      description: 'تحليل وثيقة قانونية',
+      date: '2024-01-19',
+      status: 'مكتملة'
     },
     {
       id: 3,
-      type: 'بحث قانوني',
-      date: '2024-12-05',
-      status: 'مكتملة',
-      rating: 5
-    }
-  ];
-
-  const achievements = [
-    {
-      title: 'مستخدم متميز',
-      description: 'أكمل 50 استشارة بنجاح',
-      icon: '🏆',
-      earned: true,
-      progress: 94
-    },
-    {
-      title: 'خبير القوانين',
-      description: 'بحث في أكثر من 100 قانون',
-      icon: '📚',
-      earned: true,
-      progress: 100
-    },
-    {
-      title: 'محلل الوثائق',
-      description: 'حلل 25 وثيقة قانونية',
-      icon: '📋',
-      earned: false,
-      progress: 92
-    },
-    {
-      title: 'نشط دائماً',
-      description: 'استخدم النظام لمدة 30 يوم متتالي',
-      icon: '⚡',
-      earned: false,
-      progress: 67
+      type: 'search',
+      description: 'بحث في قانون العمل',
+      date: '2024-01-18',
+      status: 'مكتملة'
     }
   ];
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
       <div className="container mx-auto px-4 py-8">
-        {/* Profile Header */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={profile.avatar} />
-                  <AvatarFallback className="text-xl bg-blue-100 text-blue-600">
-                    {profile.name.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">{profile.name}</h1>
-                  <p className="text-gray-600">{profile.organization}</p>
-                  <div className="flex items-center gap-4 mt-2">
-                    <Badge variant="default">{profile.plan}</Badge>
-                    <span className="text-sm text-gray-500">عضو منذ {profile.joinDate}</span>
-                  </div>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">الملف الشخصي</h1>
+            <p className="text-gray-600">إدارة معلوماتك الشخصية والمهنية</p>
+          </div>
+          <BackButton />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Profile Overview */}
+          <div className="lg:col-span-1">
+            <Card>
+              <CardContent className="p-6 text-center">
+                <div className="w-24 h-24 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <User className="h-12 w-12 text-blue-600" />
                 </div>
-              </div>
-              <Button 
-                variant="outline" 
-                onClick={() => setIsEditing(!isEditing)}
-              >
-                <Edit className="h-4 w-4 ml-2" />
-                تعديل الملف
-              </Button>
-            </div>
+                <h2 className="text-xl font-bold mb-2">{profile.fullName}</h2>
+                <p className="text-gray-600 mb-4">{profile.profession}</p>
+                
+                <div className="flex justify-center items-center gap-2 mb-4">
+                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                  <span className="font-medium">{profile.rating}</span>
+                  <span className="text-gray-500">({profile.consultations} استشارة)</span>
+                </div>
+
+                <div className="flex flex-wrap justify-center gap-2 mb-6">
+                  {profile.specializations.map((spec, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {spec}
+                    </Badge>
+                  ))}
+                </div>
+
+                <Button 
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="w-full"
+                  variant={isEditing ? "outline" : "default"}
+                >
+                  {isEditing ? 'إلغاء التعديل' : 'تعديل الملف الشخصي'}
+                </Button>
+              </CardContent>
+            </Card>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <MessageSquare className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-blue-600">{stats.totalConsultations}</div>
-                <div className="text-sm text-gray-600">إجمالي الاستشارات</div>
-              </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <Star className="h-6 w-6 text-green-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-green-600">{stats.rating}</div>
-                <div className="text-sm text-gray-600">التقييم العام</div>
-              </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <FileText className="h-6 w-6 text-purple-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-purple-600">{stats.documentsAnalyzed}</div>
-                <div className="text-sm text-gray-600">وثائق محللة</div>
-              </div>
-              <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <Clock className="h-6 w-6 text-orange-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-orange-600">{stats.responseTime}</div>
-                <div className="text-sm text-gray-600">متوسط الاستجابة</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Main Content */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-            <TabsTrigger value="consultations">الاستشارات</TabsTrigger>
-            <TabsTrigger value="achievements">الإنجازات</TabsTrigger>
-            <TabsTrigger value="settings">الإعدادات</TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Activity Summary */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>ملخص النشاط</CardTitle>
-                  <CardDescription>إحصائيات استخدامك للنظام</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">الاستشارات المكتملة</span>
-                    <span className="font-bold">{stats.successfulCases}/{stats.totalConsultations}</span>
-                  </div>
-                  <Progress value={(stats.successfulCases / stats.totalConsultations) * 100} />
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">القوانين المبحوثة</span>
-                    <span className="font-bold">{stats.lawsSearched}</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">نسبة النجاح</span>
-                    <Badge variant="default">{Math.round((stats.successfulCases / stats.totalConsultations) * 100)}%</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Recent Activity */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>النشاط الأخير</CardTitle>
-                  <CardDescription>آخر الاستشارات والأنشطة</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {recentConsultations.map((consultation) => (
-                      <div key={consultation.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <p className="font-medium">{consultation.type}</p>
-                          <p className="text-sm text-gray-600">{consultation.date}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">{consultation.status}</Badge>
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i} 
-                                className={`h-4 w-4 ${i < consultation.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Consultations Tab */}
-          <TabsContent value="consultations">
-            <Card>
+            <Card className="mt-6">
               <CardHeader>
-                <CardTitle>سجل الاستشارات</CardTitle>
-                <CardDescription>جميع استشاراتك القانونية</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentConsultations.map((consultation) => (
-                    <div key={consultation.id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold">{consultation.type}</h3>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">{consultation.status}</Badge>
-                          <Button variant="ghost" size="sm">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Share2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-2">التاريخ: {consultation.date}</p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm">التقييم:</span>
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <Star 
-                              key={i} 
-                              className={`h-4 w-4 ${i < consultation.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Achievements Tab */}
-          <TabsContent value="achievements">
-            <Card>
-              <CardHeader>
-                <CardTitle>الإنجازات والشارات</CardTitle>
-                <CardDescription>إنجازاتك في استخدام النظام</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {achievements.map((achievement, index) => (
-                    <div key={index} className={`border rounded-lg p-4 ${achievement.earned ? 'bg-green-50 border-green-200' : 'bg-gray-50'}`}>
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className="text-2xl">{achievement.icon}</span>
-                        <div>
-                          <h3 className={`font-semibold ${achievement.earned ? 'text-green-800' : 'text-gray-700'}`}>
-                            {achievement.title}
-                          </h3>
-                          <p className="text-sm text-gray-600">{achievement.description}</p>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>التقدم</span>
-                          <span>{achievement.progress}%</span>
-                        </div>
-                        <Progress value={achievement.progress} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Settings Tab */}
-          <TabsContent value="settings">
-            <Card>
-              <CardHeader>
-                <CardTitle>إعدادات الملف الشخصي</CardTitle>
-                <CardDescription>إدارة معلوماتك الشخصية</CardDescription>
+                <CardTitle className="text-lg">إحصائيات سريعة</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">الاسم الكامل</Label>
-                    <Input 
-                      id="name"
-                      value={profile.name}
-                      disabled={!isEditing}
-                      onChange={(e) => setProfile({...profile, name: e.target.value})}
-                    />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-blue-500" />
+                    <span className="text-sm">الاستشارات</span>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email">البريد الإلكتروني</Label>
-                    <Input 
-                      id="email"
-                      type="email"
-                      value={profile.email}
-                      disabled={!isEditing}
-                      onChange={(e) => setProfile({...profile, email: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">رقم الهاتف</Label>
-                    <Input 
-                      id="phone"
-                      value={profile.phone}
-                      disabled={!isEditing}
-                      onChange={(e) => setProfile({...profile, phone: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="organization">المؤسسة</Label>
-                    <Input 
-                      id="organization"
-                      value={profile.organization}
-                      disabled={!isEditing}
-                      onChange={(e) => setProfile({...profile, organization: e.target.value})}
-                    />
-                  </div>
+                  <span className="font-medium">{profile.consultations}</span>
                 </div>
-
-                {isEditing && (
-                  <div className="flex gap-2 pt-4">
-                    <Button onClick={() => setIsEditing(false)}>
-                      حفظ التغييرات
-                    </Button>
-                    <Button variant="outline" onClick={() => setIsEditing(false)}>
-                      إلغاء
-                    </Button>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-yellow-500" />
+                    <span className="text-sm">التقييم</span>
                   </div>
-                )}
+                  <span className="font-medium">{profile.rating}/5.0</span>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-green-500" />
+                    <span className="text-sm">تاريخ الانضمام</span>
+                  </div>
+                  <span className="font-medium">
+                    {new Date(profile.joinDate).toLocaleDateString('ar-SA')}
+                  </span>
+                </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+
+          {/* Profile Details */}
+          <div className="lg:col-span-2">
+            <Tabs defaultValue="personal" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="personal">المعلومات الشخصية</TabsTrigger>
+                <TabsTrigger value="professional">المعلومات المهنية</TabsTrigger>
+                <TabsTrigger value="activity">النشاط الأخير</TabsTrigger>
+              </TabsList>
+
+              {/* Personal Information */}
+              <TabsContent value="personal">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>المعلومات الشخصية</CardTitle>
+                    <CardDescription>إدارة معلوماتك الشخصية الأساسية</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="fullName" className="flex items-center gap-2">
+                          <User className="h-4 w-4" />
+                          الاسم الكامل
+                        </Label>
+                        <Input
+                          id="fullName"
+                          value={profile.fullName}
+                          onChange={(e) => setProfile(prev => ({ ...prev, fullName: e.target.value }))}
+                          disabled={!isEditing}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="email" className="flex items-center gap-2">
+                          <Mail className="h-4 w-4" />
+                          البريد الإلكتروني
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={profile.email}
+                          onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
+                          disabled={!isEditing}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="phone" className="flex items-center gap-2">
+                          <Phone className="h-4 w-4" />
+                          رقم الهاتف
+                        </Label>
+                        <Input
+                          id="phone"
+                          value={profile.phone}
+                          onChange={(e) => setProfile(prev => ({ ...prev, phone: e.target.value }))}
+                          disabled={!isEditing}
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="location" className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4" />
+                          الموقع
+                        </Label>
+                        <Input
+                          id="location"
+                          value={profile.location}
+                          onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))}
+                          disabled={!isEditing}
+                        />
+                      </div>
+                    </div>
+
+                    {isEditing && (
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setIsEditing(false)}>
+                          إلغاء
+                        </Button>
+                        <Button onClick={handleSave}>
+                          حفظ التغييرات
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Professional Information */}
+              <TabsContent value="professional">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>المعلومات المهنية</CardTitle>
+                    <CardDescription>إدارة معلوماتك المهنية والتخصصات</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="profession" className="flex items-center gap-2">
+                        <Briefcase className="h-4 w-4" />
+                        المهنة
+                      </Label>
+                      <Input
+                        id="profession"
+                        value={profile.profession}
+                        onChange={(e) => setProfile(prev => ({ ...prev, profession: e.target.value }))}
+                        disabled={!isEditing}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="experience" className="flex items-center gap-2">
+                        <Award className="h-4 w-4" />
+                        سنوات الخبرة
+                      </Label>
+                      <Input
+                        id="experience"
+                        value={profile.experience}
+                        onChange={(e) => setProfile(prev => ({ ...prev, experience: e.target.value }))}
+                        disabled={!isEditing}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="bio">نبذة تعريفية</Label>
+                      <Textarea
+                        id="bio"
+                        value={profile.bio}
+                        onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
+                        disabled={!isEditing}
+                        rows={4}
+                      />
+                    </div>
+
+                    {isEditing && (
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setIsEditing(false)}>
+                          إلغاء
+                        </Button>
+                        <Button onClick={handleSave}>
+                          حفظ التغييرات
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Recent Activity */}
+              <TabsContent value="activity">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>النشاط الأخير</CardTitle>
+                    <CardDescription>آخر الأنشطة والاستشارات</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {recentActivity.map((activity) => (
+                        <div key={activity.id} className="flex items-center justify-between border-b pb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                              {activity.type === 'consultation' && <FileText className="h-4 w-4 text-blue-600" />}
+                              {activity.type === 'document' && <FileText className="h-4 w-4 text-green-600" />}
+                              {activity.type === 'search' && <SettingsIcon className="h-4 w-4 text-purple-600" />}
+                            </div>
+                            <div>
+                              <p className="font-medium">{activity.description}</p>
+                              <p className="text-sm text-gray-600 flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {new Date(activity.date).toLocaleDateString('ar-SA')}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge variant="outline" className="text-green-600 border-green-600">
+                            {activity.status}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,14 +1,21 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Crown, Zap, Shield, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { BackButton } from '@/components/BackButton';
+import { useToast } from '@/hooks/use-toast';
 
 const Pricing = () => {
+  const { toast } = useToast();
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const plans = [
     {
+      id: 'basic',
       name: 'الأساسي',
       price: '0',
       period: 'مجاني',
@@ -28,6 +35,7 @@ const Pricing = () => {
       color: 'border-gray-200'
     },
     {
+      id: 'premium',
       name: 'المتقدم',
       price: '99',
       period: 'شهرياً',
@@ -46,6 +54,7 @@ const Pricing = () => {
       color: 'border-blue-500'
     },
     {
+      id: 'enterprise',
       name: 'المؤسسي',
       price: '299',
       period: 'شهرياً',
@@ -67,25 +76,52 @@ const Pricing = () => {
     }
   ];
 
+  const handleSelectPlan = async (planId: string) => {
+    setSelectedPlan(planId);
+    setIsProcessing(true);
+
+    try {
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      toast({
+        title: "تم الاختيار",
+        description: `تم اختيار الخطة ${plans.find(p => p.id === planId)?.name} بنجاح`,
+      });
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "فشل في اختيار الخطة",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+      setSelectedPlan(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100" dir="rtl">
       <div className="container mx-auto px-4 py-12">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            اختر الخطة المناسبة لك
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            خطط مرنة تناسب احتياجاتك القانونية من الاستخدام الشخصي إلى المؤسسات الكبيرة
-          </p>
+        <div className="flex justify-between items-center mb-8">
+          <div className="text-center flex-1">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              اختر الخطة المناسبة لك
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              خطط مرنة تناسب احتياجاتك القانونية من الاستخدام الشخصي إلى المؤسسات الكبيرة
+            </p>
+          </div>
+          <BackButton className="mb-auto" />
         </div>
 
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12">
-          {plans.map((plan, index) => (
+          {plans.map((plan) => (
             <Card 
-              key={index} 
-              className={`relative ${plan.color} ${plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''}`}
+              key={plan.id} 
+              className={`relative ${plan.color} ${plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''} transition-all duration-200 hover:shadow-lg`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
@@ -144,8 +180,17 @@ const Pricing = () => {
                       : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
                   }`}
                   size="lg"
+                  onClick={() => handleSelectPlan(plan.id)}
+                  disabled={isProcessing && selectedPlan === plan.id}
                 >
-                  {plan.price === '0' ? 'ابدأ مجاناً' : 'اختر هذه الخطة'}
+                  {isProcessing && selectedPlan === plan.id ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                      جاري المعالجة...
+                    </>
+                  ) : (
+                    plan.price === '0' ? 'ابدأ مجاناً' : 'اختر هذه الخطة'
+                  )}
                 </Button>
               </CardContent>
             </Card>

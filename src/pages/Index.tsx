@@ -1,24 +1,50 @@
 
-import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MessageSquare, FileSearch, Upload, Settings, User, CreditCard, LogOut, Scale, Gavel, BookOpen, Users } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
+import ChatInterface from '@/components/ChatInterface';
 import { LegalConsultationWithFiles } from '@/components/LegalConsultationWithFiles';
 import { SmartLegalSearch } from '@/components/SmartLegalSearch';
-import { EnhancedDocumentUpload } from '@/components/EnhancedDocumentUpload';
-import ChatInterface from '@/components/ChatInterface';
-import { MessageSquare, Search, FileText, Upload, Scale, Shield, Clock, Users, BookOpen, Settings, CreditCard, User } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const { toast } = useToast();
+  const [user, setUser] = useState<any>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('chat');
 
-  const handleLogin = (userData) => {
-    setUser(userData);
-    setIsAuthModalOpen(false);
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    toast({
+      title: "تم تسجيل الخروج",
+      description: "تم تسجيل خروجك بنجاح",
+    });
   };
+
+  const stats = [
+    { icon: <Scale className="h-8 w-8 text-blue-500" />, title: "القوانين المتاحة", value: "500+" },
+    { icon: <Gavel className="h-8 w-8 text-green-500" />, title: "الاستشارات المقدمة", value: "10,000+" },
+    { icon: <BookOpen className="h-8 w-8 text-purple-500" />, title: "المواد القانونية", value: "2,500+" },
+    { icon: <Users className="h-8 w-8 text-orange-500" />, title: "المستخدمون النشطون", value: "1,200+" }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100" dir="rtl">
@@ -27,47 +53,52 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-600 rounded-lg">
-                <Scale className="h-8 w-8 text-white" />
+              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Scale className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">المستشار القانوني السوري</h1>
+                <h1 className="text-xl font-bold text-gray-900">المستشار القانوني السوري</h1>
                 <p className="text-sm text-gray-600">نظام ذكي للاستشارات القانونية</p>
               </div>
             </div>
+            
             <div className="flex items-center gap-4">
-              <Link to="/pricing">
-                <Button variant="outline" size="sm">
-                  <CreditCard className="h-4 w-4 ml-2" />
-                  الأسعار
-                </Button>
-              </Link>
-              <Link to="/settings">
-                <Button variant="outline" size="sm">
-                  <Settings className="h-4 w-4 ml-2" />
-                  الإعدادات
-                </Button>
-              </Link>
-              <Link to="/admin">
-                <Button variant="outline" size="sm">
-                  <Settings className="h-4 w-4 ml-2" />
-                  لوحة الإدارة
-                </Button>
-              </Link>
               {user ? (
-                <div className="flex items-center gap-2">
-                  <Link to="/profile">
-                    <Button variant="outline" size="sm">
-                      <User className="h-4 w-4 ml-2" />
-                      {user.name}
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-600">مرحباً، {user.email}</span>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to="/profile">
+                        <User className="h-4 w-4 ml-1" />
+                        الملف الشخصي
+                      </Link>
                     </Button>
-                  </Link>
-                  <Button variant="outline" onClick={() => setUser(null)}>
-                    تسجيل الخروج
-                  </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to="/settings">
+                        <Settings className="h-4 w-4 ml-1" />
+                        الإعدادات
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to="/pricing">
+                        <CreditCard className="h-4 w-4 ml-1" />
+                        الاشتراكات
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to="/admin">
+                        <Settings className="h-4 w-4 ml-1" />
+                        الإدارة
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleSignOut}>
+                      <LogOut className="h-4 w-4 ml-1" />
+                      تسجيل الخروج
+                    </Button>
+                  </div>
                 </div>
               ) : (
-                <Button onClick={() => setIsAuthModalOpen(true)}>
+                <Button onClick={() => setShowAuthModal(true)}>
                   تسجيل الدخول
                 </Button>
               )}
@@ -76,143 +107,207 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-12 px-4">
-        <div className="container mx-auto text-center">
+      <div className="container mx-auto px-4 py-8">
+        {/* Welcome Section */}
+        <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            استشارات قانونية ذكية بناءً على القوانين السورية
+            مرحباً بك في المستشار القانوني السوري
           </h2>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            احصل على إجابات دقيقة وسريعة لاستفساراتك القانونية مع نظام ذكي يعتمد على أحدث تقنيات الذكاء الاصطناعي
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            نظام ذكي متطور يوفر استشارات قانونية دقيقة وموثوقة باللغة العربية، 
+            مع إمكانية البحث في القوانين السورية وتحليل الوثائق القانونية
           </p>
+        </div>
+
+        {/* Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {stats.map((stat, index) => (
+            <Card key={index} className="text-center">
+              <CardContent className="p-6">
+                <div className="flex justify-center mb-4">
+                  {stat.icon}
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">{stat.value}</h3>
+                <p className="text-gray-600">{stat.title}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Main Services */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center">الخدمات القانونية المتاحة</CardTitle>
+            <CardDescription className="text-center">
+              اختر نوع الخدمة التي تحتاجها للحصول على المساعدة القانونية المناسبة
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="chat" className="flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  الاستشارة المباشرة
+                </TabsTrigger>
+                <TabsTrigger value="consultation" className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  تحليل الوثائق
+                </TabsTrigger>
+                <TabsTrigger value="search" className="flex items-center gap-2">
+                  <FileSearch className="h-4 w-4" />
+                  البحث القانوني
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="chat" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MessageSquare className="h-5 w-5" />
+                      الاستشارة القانونية المباشرة
+                    </CardTitle>
+                    <CardDescription>
+                      تحدث مع المستشار القانوني الذكي واحصل على إجابات فورية لاستفساراتك القانونية
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {user ? (
+                      <ChatInterface />
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-gray-600 mb-4">يرجى تسجيل الدخول للوصول إلى الاستشارة المباشرة</p>
+                        <Button onClick={() => setShowAuthModal(true)}>
+                          تسجيل الدخول
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="consultation" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Upload className="h-5 w-5" />
+                      تحليل الوثائق القانونية
+                    </CardTitle>
+                    <CardDescription>
+                      ارفع وثائقك القانونية واحصل على تحليل مفصل وتوضيحات قانونية شاملة
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {user ? (
+                      <LegalConsultationWithFiles />
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-gray-600 mb-4">يرجى تسجيل الدخول للوصول إلى خدمة تحليل الوثائق</p>
+                        <Button onClick={() => setShowAuthModal(true)}>
+                          تسجيل الدخول
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="search" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileSearch className="h-5 w-5" />
+                      البحث في القوانين السورية
+                    </CardTitle>
+                    <CardDescription>
+                      ابحث في قاعدة بيانات شاملة للقوانين واللوائح السورية واحصل على النصوص القانونية ذات الصلة
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <SmartLegalSearch />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+
+        {/* Features Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-blue-500" />
+                استشارات فورية
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                احصل على استشارات قانونية فورية ودقيقة من خلال نظام الذكاء الاصطناعي المتطور
+              </p>
+            </CardContent>
+          </Card>
           
-          {/* Feature Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-12">
-            <Card className="legal-card-hover">
-              <CardContent className="p-6 text-center">
-                <MessageSquare className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">استشارة قانونية فورية</h3>
-                <p className="text-sm text-gray-600">احصل على مشورة قانونية دقيقة بناءً على القوانين السورية</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="legal-card-hover">
-              <CardContent className="p-6 text-center">
-                <Search className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">بحث ذكي في القوانين</h3>
-                <p className="text-sm text-gray-600">ابحث في جميع القوانين السورية بالرقم أو المحتوى</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="legal-card-hover">
-              <CardContent className="p-6 text-center">
-                <FileText className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">تحليل الوثائق</h3>
-                <p className="text-sm text-gray-600">ارفع وثائقك واحصل على تحليل قانوني شامل</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="legal-card-hover">
-              <CardContent className="p-6 text-center">
-                <MessageSquare className="h-12 w-12 text-orange-600 mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">محادثة تفاعلية</h3>
-                <p className="text-sm text-gray-600">تفاعل مع المساعد القانوني لتوضيحات إضافية</p>
-              </CardContent>
-            </Card>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-green-500" />
+                قاعدة بيانات شاملة
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                وصول إلى قاعدة بيانات شاملة تضم جميع القوانين واللوائح السورية المحدثة
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Upload className="h-5 w-5 text-purple-500" />
+                تحليل الوثائق
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                تحليل ذكي للوثائق القانونية مع توضيحات مفصلة وتفسيرات قانونية دقيقة
+              </p>
+            </CardContent>
+          </Card>
         </div>
-      </section>
 
-      {/* Main Services */}
-      <section className="py-12 px-4 bg-white">
-        <div className="container mx-auto">
-          <Tabs defaultValue="consultation" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
-              <TabsTrigger value="consultation" className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
-                استشارة
-              </TabsTrigger>
-              <TabsTrigger value="search" className="flex items-center gap-2">
-                <Search className="h-4 w-4" />
-                بحث
-              </TabsTrigger>
-              <TabsTrigger value="documents" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                وثائق
-              </TabsTrigger>
-              <TabsTrigger value="chat" className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
-                محادثة
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="consultation">
-              <LegalConsultationWithFiles />
-            </TabsContent>
-
-            <TabsContent value="search">
-              <SmartLegalSearch />
-            </TabsContent>
-
-            <TabsContent value="documents">
-              <EnhancedDocumentUpload />
-            </TabsContent>
-
-            <TabsContent value="chat">
-              <ChatInterface />
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
-
-      {/* Trust Indicators */}
-      <section className="py-12 px-4 bg-gray-50">
-        <div className="container mx-auto">
-          <h3 className="text-2xl font-bold text-center mb-8">لماذا تثق بالمستشار القانوني السوري؟</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="text-center">
-              <Shield className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <h4 className="font-semibold mb-2">أمان وسرية</h4>
-              <p className="text-gray-600">جميع البيانات محمية ومشفرة بأعلى معايير الأمان</p>
-            </div>
-            <div className="text-center">
-              <BookOpen className="h-12 w-12 text-green-600 mx-auto mb-4" />
-              <h4 className="font-semibold mb-2">مصادر موثوقة</h4>
-              <p className="text-gray-600">يعتمد على النصوص الرسمية للقوانين السورية</p>
-            </div>
-            <div className="text-center">
-              <Clock className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-              <h4 className="font-semibold mb-2">إجابات فورية</h4>
-              <p className="text-gray-600">احصل على إجابات سريعة ودقيقة على مدار الساعة</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8 px-4">
-        <div className="container mx-auto text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Scale className="h-8 w-8" />
-            <h3 className="text-xl font-bold">المستشار القانوني السوري</h3>
-          </div>
-          <p className="text-gray-400 mb-4">
-            نظام ذكي للاستشارات القانونية يوفر إجابات دقيقة وموثوقة بناءً على القوانين السورية
-          </p>
-          <div className="text-sm text-gray-500">
-            <p>جميع الحقوق محفوظة © 2024</p>
-            <p className="mt-2">
-              هذا التطبيق يقدم استشارات قانونية عامة وليس بديلاً عن الاستشارة القانونية المهنية
+        {/* Call to Action */}
+        <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center">
+          <CardContent className="p-8">
+            <h3 className="text-2xl font-bold mb-4">ابدأ رحلتك القانونية اليوم</h3>
+            <p className="text-blue-100 mb-6">
+              انضم إلى آلاف المستخدمين الذين يثقون في خدماتنا القانونية المتطورة
             </p>
-          </div>
-        </div>
-      </footer>
+            <div className="flex gap-4 justify-center">
+              {!user ? (
+                <Button variant="secondary" size="lg" onClick={() => setShowAuthModal(true)}>
+                  ابدأ الآن مجاناً
+                </Button>
+              ) : (
+                <Button variant="secondary" size="lg" asChild>
+                  <Link to="/pricing">
+                    اشترك في الخطة المميزة
+                  </Link>
+                </Button>
+              )}
+              <Button variant="outline" size="lg" className="bg-white text-blue-600 hover:bg-gray-100" asChild>
+                <Link to="/pricing">
+                  عرض الأسعار
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* Auth Modal */}
-      <AuthModal
-        open={isAuthModalOpen}
-        onOpenChange={setIsAuthModalOpen}
-        onLogin={handleLogin}
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
       />
     </div>
   );
