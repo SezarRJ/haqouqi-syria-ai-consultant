@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
@@ -8,7 +7,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { PWAInstaller } from '@/components/PWAInstaller';
 import { useCapacitor } from '@/hooks/useCapacitor';
 import { User } from '@supabase/supabase-js';
-import { Scale, Users, Shield, Settings as SettingsIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Scale, Users, Shield, Settings as SettingsIcon, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Admin from './Admin';
@@ -19,6 +18,7 @@ import BalancePage from './BalancePage';
 import VoucherPage from './VoucherPage';
 import TransactionHistory from './TransactionHistory';
 import PaymentMethodsPage from './PaymentMethods';
+import AILegalTools from './AILegalTools';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -100,6 +100,7 @@ const Index = () => {
         <Route path="/vouchers" element={<VoucherPage />} />
         <Route path="/transactions" element={<TransactionHistory />} />
         <Route path="/payment-methods" element={<PaymentMethodsPage />} />
+        <Route path="/ai-tools" element={<AILegalTools />} />
         
         <Route path="/" element={
           <div className="container mx-auto px-4 py-6 max-w-6xl">
@@ -136,6 +137,18 @@ const Index = () => {
 
             {/* Quick Access Buttons */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <Button
+                onClick={() => {
+                  if (isNative) hapticFeedback();
+                  navigate('/ai-tools');
+                }}
+                variant="outline"
+                className={`h-16 flex flex-col items-center gap-2 border-blue-200 hover:bg-blue-50 text-blue-700 ${language === 'ar' ? 'flex-col-reverse' : 'flex-col'} col-span-2 md:col-span-1`}
+              >
+                <Brain className="h-5 w-5" />
+                <span className="text-xs font-medium">AI Tools</span>
+              </Button>
+
               <Button
                 onClick={() => {
                   if (isNative) hapticFeedback();
