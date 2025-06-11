@@ -9,13 +9,24 @@ import { Badge } from '@/components/ui/badge';
 import { Wallet, CreditCard, Plus, History } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+interface UserBalance {
+  id: string;
+  user_id: string;
+  balance: number;
+  currency: string;
+  updated_at: string;
+  created_at: string;
+}
+
 interface Transaction {
   id: string;
+  user_id: string;
   amount: number;
   type: 'deposit' | 'withdrawal' | 'subscription';
   description: string;
   created_at: string;
   status: string;
+  stripe_payment_id?: string;
 }
 
 export const UserBalance = () => {
@@ -30,12 +41,12 @@ export const UserBalance = () => {
       if (!user) return null;
 
       const { data, error } = await supabase
-        .from('user_balances')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        .rpc('get_user_balance', { p_user_id: user.id });
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) {
+        console.error('Balance fetch error:', error);
+        return { balance: 0, currency: 'SAR' };
+      }
       
       return data || { balance: 0, currency: 'SAR' };
     }
@@ -48,14 +59,13 @@ export const UserBalance = () => {
       if (!user) return [];
 
       const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
+        .rpc('get_user_transactions', { p_user_id: user.id, p_limit: 10 });
 
-      if (error) throw error;
-      return data as Transaction[];
+      if (error) {
+        console.error('Transactions fetch error:', error);
+        return [];
+      }
+      return data || [];
     }
   });
 
@@ -64,31 +74,15 @@ export const UserBalance = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Create transaction record
-      const { error: transactionError } = await supabase
-        .from('transactions')
-        .insert({
-          user_id: user.id,
-          amount: amount,
-          type: 'deposit',
-          description: `إيداع رصيد - ${amount} ريال`,
-          status: 'completed'
+      const { data, error } = await supabase
+        .rpc('add_user_balance', { 
+          p_user_id: user.id, 
+          p_amount: amount, 
+          p_description: `إيداع رصيد - ${amount} ريال`
         });
 
-      if (transactionError) throw transactionError;
-
-      // Update or create user balance
-      const { error: balanceError } = await supabase
-        .from('user_balances')
-        .upsert({
-          user_id: user.id,
-          balance: (balance?.balance || 0) + amount,
-          currency: 'SAR'
-        }, { onConflict: 'user_id' });
-
-      if (balanceError) throw balanceError;
-
-      return { success: true, newBalance: (balance?.balance || 0) + amount };
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-balance'] });
@@ -229,7 +223,7 @@ export const UserBalance = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {transactions?.map((transaction) => (
+            {transactions?.map((transaction: Transaction) => (
               <div key={transaction.id} className="flex items-center justify-between border-b pb-2">
                 <div>
                   <p className="font-medium">{transaction.description}</p>

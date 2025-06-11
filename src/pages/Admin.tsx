@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,18 +37,18 @@ const Admin = () => {
       if (user) {
         setUser(user);
         
-        // Check if user is admin in database
-        const { data: adminData } = await supabase
-          .from('admin_users')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('is_active', true)
-          .maybeSingle();
+        // Check if user is admin using the is_admin function
+        const { data: isAdminResult, error } = await supabase
+          .rpc('is_admin', { user_id: user.id });
 
-        if (adminData || user.email === 'admin@example.com') {
-          setIsAdmin(true);
-        } else {
+        if (error) {
+          console.error('Admin check error:', error);
           setIsAdmin(false);
+        } else {
+          setIsAdmin(isAdminResult || user.email === 'admin@example.com');
+        }
+
+        if (!isAdminResult && user.email !== 'admin@example.com') {
           toast({
             title: "غير مصرح",
             description: "ليس لديك صلاحية للوصول إلى لوحة الإدارة",
@@ -82,15 +81,15 @@ const Admin = () => {
       if (data.user) {
         setUser(data.user);
         
-        // Check admin status after login
-        const { data: adminData } = await supabase
-          .from('admin_users')
-          .select('*')
-          .eq('user_id', data.user.id)
-          .eq('is_active', true)
-          .maybeSingle();
+        // Check admin status after login using the function
+        const { data: isAdminResult, error: adminError } = await supabase
+          .rpc('is_admin', { user_id: data.user.id });
 
-        if (adminData || data.user.email === 'admin@example.com') {
+        if (adminError) {
+          console.error('Admin check error:', adminError);
+        }
+
+        if (isAdminResult || data.user.email === 'admin@example.com') {
           setIsAdmin(true);
           toast({
             title: "تم تسجيل الدخول",
@@ -130,13 +129,16 @@ const Admin = () => {
       if (error) throw error;
 
       if (data.user) {
-        // Add to admin_users table
-        await supabase
-          .from('admin_users')
-          .insert({
-            user_id: data.user.id,
-            is_active: true
+        // Add to admin_users table using RPC function
+        const { error: adminError } = await supabase
+          .rpc('create_admin_user', { 
+            p_user_id: data.user.id,
+            p_admin_role: 'super_admin'
           });
+
+        if (adminError) {
+          console.error('Error creating admin user:', adminError);
+        }
 
         toast({
           title: "تم إنشاء حساب المشرف",
