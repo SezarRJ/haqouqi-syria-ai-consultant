@@ -1,94 +1,64 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Arabic Legal Consultant Design System */
+/* --- FONT IMPORT --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
 @layer base {
   :root {
+    /* UPDATED: More formal and subdued color palette */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 240 10% 3.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 3.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 240 10% 3.9%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 221 83% 35%; /* UPDATED: Deeper, more professional navy blue */
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 13% 91%; /* UPDATED: Lighter grey for subtle backgrounds */
+    --secondary-foreground: 240 5.9% 10%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 13% 96%; /* UPDATED: Very light grey for muted text */
+    --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 220 13% 91%;
+    --accent-foreground: 240 5.9% 10%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 53%;
+    --border: 220 13% 88%; /* UPDATED: Slightly darker border for clarity */
+    --input: 220 13% 88%;
+    --ring: 221 83% 45%; /* UPDATED: Ring color to match new primary */
 
     --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-
-    /* Legal theme colors */
-    --legal-blue: 221 83% 53%;
-    --legal-blue-dark: 221 83% 35%;
-    --legal-gold: 45 93% 47%;
-    --legal-gold-light: 45 93% 85%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
   }
 }
 
@@ -99,216 +69,19 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-    overflow-x: hidden;
-    width: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif; /* UPDATED: Added 'Inter' font */
     min-height: 100vh;
-    touch-action: manipulation;
-  }
-
-  /* Enhanced Arabic RTL Support */
-  [dir="rtl"] {
-    direction: rtl;
-    text-align: right;
-  }
-
-  [dir="rtl"] * {
-    font-feature-settings: "liga" 1, "calt" 1, "kern" 1;
-    text-rendering: optimizeLegibility;
-  }
-
-  /* RTL Margin and Padding Fixes */
-  [dir="rtl"] .ml-1 { margin-right: 0.25rem !important; margin-left: 0 !important; }
-  [dir="rtl"] .mr-1 { margin-left: 0.25rem !important; margin-right: 0 !important; }
-  [dir="rtl"] .ml-2 { margin-right: 0.5rem !important; margin-left: 0 !important; }
-  [dir="rtl"] .mr-2 { margin-left: 0.5rem !important; margin-right: 0 !important; }
-  [dir="rtl"] .ml-3 { margin-right: 0.75rem !important; margin-left: 0 !important; }
-  [dir="rtl"] .mr-3 { margin-left: 0.75rem !important; margin-right: 0 !important; }
-  [dir="rtl"] .ml-4 { margin-right: 1rem !important; margin-left: 0 !important; }
-  [dir="rtl"] .mr-4 { margin-left: 1rem !important; margin-right: 0 !important; }
-  [dir="rtl"] .ml-auto { margin-right: auto !important; margin-left: 0 !important; }
-  [dir="rtl"] .mr-auto { margin-left: auto !important; margin-right: 0 !important; }
-
-  [dir="rtl"] .pl-1 { padding-right: 0.25rem !important; padding-left: 0 !important; }
-  [dir="rtl"] .pr-1 { padding-left: 0.25rem !important; padding-right: 0 !important; }
-  [dir="rtl"] .pl-2 { padding-right: 0.5rem !important; padding-left: 0 !important; }
-  [dir="rtl"] .pr-2 { padding-left: 0.5rem !important; padding-right: 0 !important; }
-  [dir="rtl"] .pl-3 { padding-right: 0.75rem !important; padding-left: 0 !important; }
-  [dir="rtl"] .pr-3 { padding-left: 0.75rem !important; padding-right: 0 !important; }
-  [dir="rtl"] .pl-4 { padding-right: 1rem !important; padding-left: 0 !important; }
-  [dir="rtl"] .pr-4 { padding-left: 1rem !important; padding-right: 0 !important; }
-  [dir="rtl"] .pl-6 { padding-right: 1.5rem !important; padding-left: 0 !important; }
-  [dir="rtl"] .pr-6 { padding-left: 1.5rem !important; padding-right: 0 !important; }
-  [dir="rtl"] .pl-8 { padding-right: 2rem !important; padding-left: 0 !important; }
-  [dir="rtl"] .pr-8 { padding-left: 2rem !important; padding-right: 0 !important; }
-  [dir="rtl"] .pl-10 { padding-right: 2.5rem !important; padding-left: 0 !important; }
-  [dir="rtl"] .pr-10 { padding-left: 2.5rem !important; padding-right: 0 !important; }
-
-  /* RTL Position Fixes */
-  [dir="rtl"] .left-0 { right: 0 !important; left: auto !important; }
-  [dir="rtl"] .right-0 { left: 0 !important; right: auto !important; }
-  [dir="rtl"] .left-1 { right: 0.25rem !important; left: auto !important; }
-  [dir="rtl"] .right-1 { left: 0.25rem !important; right: auto !important; }
-  [dir="rtl"] .left-2 { right: 0.5rem !important; left: auto !important; }
-  [dir="rtl"] .right-2 { left: 0.5rem !important; right: auto !important; }
-  [dir="rtl"] .left-3 { right: 0.75rem !important; left: auto !important; }
-  [dir="rtl"] .right-3 { left: 0.75rem !important; right: auto !important; }
-  [dir="rtl"] .left-4 { right: 1rem !important; left: auto !important; }
-  [dir="rtl"] .right-4 { left: 1rem !important; right: auto !important; }
-
-  /* RTL Border Radius Fixes */
-  [dir="rtl"] .rounded-l { border-radius: 0 0.25rem 0.25rem 0 !important; }
-  [dir="rtl"] .rounded-r { border-radius: 0.25rem 0 0 0.25rem !important; }
-  [dir="rtl"] .rounded-tl { border-radius: 0 0.25rem 0 0 !important; }
-  [dir="rtl"] .rounded-tr { border-radius: 0.25rem 0 0 0 !important; }
-  [dir="rtl"] .rounded-bl { border-radius: 0 0 0.25rem 0 !important; }
-  [dir="rtl"] .rounded-br { border-radius: 0 0 0 0.25rem !important; }
-
-  /* RTL Flex Direction */
-  [dir="rtl"] .flex-row { flex-direction: row-reverse !important; }
-  [dir="rtl"] .space-x-1 > :not([hidden]) ~ :not([hidden]) { 
-    margin-right: 0.25rem !important; 
-    margin-left: 0 !important; 
-  }
-  [dir="rtl"] .space-x-2 > :not([hidden]) ~ :not([hidden]) { 
-    margin-right: 0.5rem !important; 
-    margin-left: 0 !important; 
-  }
-  [dir="rtl"] .space-x-3 > :not([hidden]) ~ :not([hidden]) { 
-    margin-right: 0.75rem !important; 
-    margin-left: 0 !important; 
-  }
-
-  /* Enhanced Arabic Typography */
-  .arabic-text {
-    font-feature-settings: "liga" 1, "calt" 1, "kern" 1, "mark" 1, "mkmk" 1;
-    text-rendering: optimizeLegibility;
-    line-height: 1.7;
-    letter-spacing: 0.02em;
-  }
-
-  .arabic-heading {
-    font-weight: 700;
-    line-height: 1.4;
-    letter-spacing: 0.01em;
-  }
-
-  /* PWA and Mobile Optimizations */
-  @media (max-width: 768px) {
-    body {
-      font-size: 16px; /* Prevents zoom on iOS */
-      -webkit-text-size-adjust: 100%;
-    }
-    
-    .container {
-      padding-left: 1rem;
-      padding-right: 1rem;
-    }
-    
-    /* Better touch targets */
-    .mobile-touch {
-      min-height: 44px;
-      min-width: 44px;
-      padding: 0.75rem;
-    }
-    
-    /* Prevent layout shift on mobile */
-    .mobile-stable {
-      contain: layout style;
-      content-visibility: auto;
-    }
-    
-    /* Better mobile text sizing */
-    .text-mobile-xs { font-size: 0.75rem; line-height: 1.4; }
-    .text-mobile-sm { font-size: 0.875rem; line-height: 1.5; }
-    .text-mobile-base { font-size: 1rem; line-height: 1.6; }
-    .text-mobile-lg { font-size: 1.125rem; line-height: 1.6; }
-    .text-mobile-xl { font-size: 1.25rem; line-height: 1.5; }
-    
-    /* Mobile-specific Arabic text improvements */
-    [dir="rtl"] .text-mobile-xs,
-    [dir="rtl"] .text-mobile-sm,
-    [dir="rtl"] .text-mobile-base,
-    [dir="rtl"] .text-mobile-lg,
-    [dir="rtl"] .text-mobile-xl {
-      line-height: 1.8;
-      letter-spacing: 0.01em;
-    }
-  }
-
-  /* Enhanced Mobile Responsiveness */
-  @media (max-width: 640px) {
-    .mobile-grid-1 { grid-template-columns: 1fr !important; }
-    .mobile-grid-2 { grid-template-columns: repeat(2, 1fr) !important; }
-    .mobile-full-width { width: 100% !important; }
-    .mobile-hidden { display: none !important; }
-    .mobile-block { display: block !important; }
-    .mobile-flex { display: flex !important; }
-  }
-
-  /* Safe area handling for PWA */
-  .safe-area-top { padding-top: env(safe-area-inset-top); }
-  .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
-  .safe-area-left { padding-left: env(safe-area-inset-left); }
-  .safe-area-right { padding-right: env(safe-area-inset-right); }
-  .safe-area-inset {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-
-  /* Custom scrollbar improvements */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-gray-100;
-    border-radius: 10px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-blue-300;
-    border-radius: 10px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-blue-400;
-  }
-
-  /* Improved focus states for accessibility */
-  .focus-visible:focus-visible {
-    outline: 2px solid hsl(var(--ring));
-    outline-offset: 2px;
-  }
-
-  /* No text selection for UI elements */
-  .no-select {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
   }
 }
 
-/* Legal consultation interface components */
 @layer components {
-  .legal-gradient {
-    background: linear-gradient(135deg, hsl(var(--legal-blue)) 0%, hsl(var(--legal-blue-dark)) 100%);
-  }
-
-  .legal-accent-gradient {
-    background: linear-gradient(135deg, hsl(var(--legal-gold-light)) 0%, hsl(var(--legal-gold)) 100%);
-  }
-
+  /* SIMPLIFIED: Cleaner chat bubbles using theme variables */
   .chat-message-user {
-    @apply bg-blue-600 text-white rounded-lg p-3 max-w-[85%] ml-auto break-words;
+    @apply bg-primary text-primary-foreground rounded-xl p-3 max-w-[85%] ml-auto break-words shadow-sm;
   }
 
   .chat-message-bot {
-    @apply bg-gray-100 text-gray-900 rounded-lg p-3 max-w-[85%] mr-auto break-words;
+    @apply bg-card border border-border text-card-foreground rounded-xl p-3 max-w-[85%] mr-auto break-words shadow-sm;
   }
 
   [dir="rtl"] .chat-message-user {
@@ -318,73 +91,4 @@
   [dir="rtl"] .chat-message-bot {
     @apply ml-auto mr-0;
   }
-
-  .legal-card-hover {
-    @apply transition-all duration-300 hover:shadow-lg hover:shadow-blue-100 hover:border-blue-200;
-  }
-
-  /* Enhanced Mobile Components */
-  .mobile-card {
-    @apply p-4 m-2 shadow-sm rounded-lg bg-white border border-gray-200 mobile-stable;
-  }
-
-  .mobile-button {
-    @apply text-sm px-4 py-3 min-h-[44px] mobile-touch focus-visible;
-  }
-
-  .mobile-input {
-    @apply text-base min-h-[44px] px-4 py-3 mobile-touch;
-  }
-
-  .mobile-tab {
-    @apply text-xs px-3 py-3 min-h-[44px] flex-shrink-0 mobile-touch;
-  }
-
-  /* RTL-aware components */
-  .rtl-flex {
-    @apply flex;
-  }
-
-  [dir="rtl"] .rtl-flex {
-    flex-direction: row-reverse;
-  }
-
-  .rtl-text-left {
-    text-align: left;
-  }
-
-  [dir="rtl"] .rtl-text-left {
-    text-align: right;
-  }
-
-  .rtl-text-right {
-    text-align: right;
-  }
-
-  [dir="rtl"] .rtl-text-right {
-    text-align: left;
-  }
-
-  /* PWA Loading states */
-  .pwa-loading {
-    @apply animate-pulse bg-gray-200 rounded;
-  }
-
-  .pwa-skeleton {
-    @apply bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite];
-  }
-}
-
-/* PWA Animations */
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* Print styles for documents */
-@media print {
-  .no-print { display: none !important; }
-  .print-break { page-break-before: always; }
-  body { font-size: 12pt; line-height: 1.5; }
-  [dir="rtl"] { direction: rtl; text-align: right; }
 }
