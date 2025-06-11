@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,6 +35,14 @@ const Index = () => {
     toast({
       title: "تم تسجيل الخروج",
       description: "تم تسجيل خروجك بنجاح",
+    });
+  };
+
+  const handleLogin = (userData: any) => {
+    setUser(userData);
+    toast({
+      title: "مرحباً بك",
+      description: "تم تسجيل الدخول بنجاح",
     });
   };
 
@@ -307,7 +314,8 @@ const Index = () => {
 
       <AuthModal 
         open={showAuthModal} 
-        onOpenChange={setShowAuthModal} 
+        onOpenChange={setShowAuthModal}
+        onLogin={handleLogin}
       />
     </div>
   );
