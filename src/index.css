@@ -10,32 +10,23 @@
     /* FORMAL COLOR PALETTE */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
-
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-
-    --primary: 221 83% 35%; /* Deep, professional navy blue */
+    --primary: 221 83% 35%;
     --primary-foreground: 0 0% 98%;
-
-    --secondary: 220 13% 91%; /* Lighter grey for subtle backgrounds */
+    --secondary: 220 13% 91%;
     --secondary-foreground: 240 5.9% 10%;
-
-    --muted: 220 13% 96%; /* Very light grey for muted text */
+    --muted: 220 13% 96%;
     --muted-foreground: 240 3.8% 46.1%;
-
     --accent: 220 13% 91%;
     --accent-foreground: 240 5.9% 10%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 220 13% 88%; /* Slightly darker border for clarity */
+    --border: 220 13% 88%;
     --input: 220 13% 88%;
-    --ring: 221 83% 45%; /* Ring color to match new primary */
-
+    --ring: 221 83% 45%;
     --radius: 0.5rem;
   }
 
@@ -75,21 +66,15 @@
 }
 
 @layer components {
-  /* SIMPLIFIED CHAT BUBBLES */
+  /* UPDATED: Using modern logical properties for RTL support */
   .chat-message-user {
-    @apply bg-primary text-primary-foreground rounded-xl p-3 max-w-[85%] ml-auto break-words shadow-sm;
+    /* ms-auto aligns to the right in LTR and to the left in RTL */
+    @apply bg-primary text-primary-foreground rounded-xl p-3 max-w-[85%] ms-auto break-words shadow-sm;
   }
 
   .chat-message-bot {
-    @apply bg-card border border-border text-card-foreground rounded-xl p-3 max-w-[85%] mr-auto break-words shadow-sm;
-  }
-
-  [dir="rtl"] .chat-message-user {
-    @apply mr-auto ml-0;
-  }
-
-  [dir="rtl"] .chat-message-bot {
-    @apply ml-auto mr-0;
+    /* me-auto aligns to the left in LTR and to the right in RTL */
+    @apply bg-card border border-border text-card-foreground rounded-xl p-3 max-w-[85%] me-auto break-words shadow-sm;
   }
 
   /*
@@ -97,30 +82,24 @@
   MOBILE VIEW ENHANCEMENTS
   ==========================================================================
   */
-
-  /* Makes the main header more compact on small screens */
   .mobile-header {
     @apply px-2 py-2 sm:px-4 sm:py-3;
   }
 
-  /* Reduces font size of the main title on small screens */
   .mobile-title {
-    /* UPDATED: Made font size smaller. Now 14px on mobile, 16px on small screens and up. */
-    @apply text-sm sm:text-base;
+    /* UPDATED: Made font size smaller and !important to force the change */
+    @apply text-sm sm:text-base font-semibold !important;
   }
 
-  /* Hides the subtitle on very small screens to save space */
   .mobile-subtitle {
     @apply hidden sm:block text-xs;
   }
   
-  /* Reduces padding on the main content area for mobile */
   .mobile-content-padding {
     @apply p-2 sm:p-4 md:p-6;
   }
 
-  /* ADDED: New class to control the text size within chat bubbles */
   .chat-text {
-    @apply text-sm leading-relaxed; /* 14px font size with comfortable line spacing */
+    @apply text-sm leading-relaxed;
   }
 }
