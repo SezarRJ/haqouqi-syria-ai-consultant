@@ -1,60 +1,45 @@
+// You might need to install Shadcn UI's select component:
+// npx shadcn-ui@latest add select
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Globe } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import * as React from 'react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'; // Adjust path if necessary
+import { Globe } from 'lucide-react'; // For a small icon if desired
 
 interface LanguageSwitcherProps {
   language: 'ar' | 'en';
   onLanguageChange: (lang: 'ar' | 'en') => void;
-  variant?: 'default' | 'compact';
-  className?: string;
+  // You can still accept a className if you want to apply external styles to the trigger
+  className?: string; 
 }
 
-export const LanguageSwitcher = ({ language, onLanguageChange, variant = 'default', className }: LanguageSwitcherProps) => {
-  if (variant === 'compact') {
-    return (
-      <div className={cn("flex items-center gap-1", className)}>
-        <Globe className="h-4 w-4 text-blue-600" />
-        <Button
-          variant={language === 'ar' ? 'default' : 'ghost'}
-          size="sm"
-          onClick={() => onLanguageChange('ar')}
-          className="h-8 px-2 text-xs"
-        >
-          عربي
-        </Button>
-        <Button
-          variant={language === 'en' ? 'default' : 'ghost'}
-          size="sm"
-          onClick={() => onLanguageChange('en')}
-          className="h-8 px-2 text-xs"
-        >
-          EN
-        </Button>
-      </div>
-    );
-  }
+export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
+  language,
+  onLanguageChange,
+  className
+}) => {
+  const handleValueChange = (value: string) => {
+    onLanguageChange(value as 'ar' | 'en');
+  };
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <Globe className="h-5 w-5 text-blue-600" />
-      <Button
-        variant={language === 'ar' ? 'default' : 'outline'}
-        size="sm"
-        onClick={() => onLanguageChange('ar')}
-        className="flex-1"
+    <Select value={language} onValueChange={handleValueChange}>
+      <SelectTrigger 
+        className={`w-[60px] h-9 text-sm focus:ring-offset-0 focus:ring-0 ${className || ''}`}
+        aria-label="Select Language"
       >
-        العربية
-      </Button>
-      <Button
-        variant={language === 'en' ? 'default' : 'outline'}
-        size="sm"
-        onClick={() => onLanguageChange('en')}
-        className="flex-1"
-      >
-        English
-      </Button>
-    </div>
+        {/* <Globe className="h-4 w-4 text-blue-600 mr-2" /> Removed for extreme compactness if needed */}
+        <SelectValue placeholder={language.toUpperCase()} className="min-w-0" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="ar">العربية</SelectItem>
+        <SelectItem value="en">English</SelectItem>
+      </SelectContent>
+    </Select>
   );
 };
