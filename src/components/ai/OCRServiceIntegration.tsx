@@ -2,13 +2,21 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileUpload } from '@/components/FileUpload';
+import FileUpload from '@/components/FileUpload';
 import { Upload, FileText, CheckCircle, AlertCircle, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface OCRServiceIntegrationProps {
   language: 'ar' | 'en';
+}
+
+interface UploadedFile {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url?: string;
 }
 
 export const OCRServiceIntegration: React.FC<OCRServiceIntegrationProps> = ({ language }) => {
@@ -56,15 +64,15 @@ export const OCRServiceIntegration: React.FC<OCRServiceIntegrationProps> = ({ la
 
   const t = texts[language];
 
-  const handleFilesSelected = (files: File[]) => {
+  const handleFilesChange = (files: UploadedFile[]) => {
     const newFiles = files.map(file => ({
-      id: Date.now() + Math.random(),
-      file,
+      id: file.id,
+      file: file,
       status: 'pending',
       extractedText: '',
       confidence: 0
     }));
-    setUploadedFiles(prev => [...prev, ...newFiles]);
+    setUploadedFiles(newFiles);
   };
 
   const handleProcessDocuments = async () => {
@@ -175,10 +183,9 @@ export const OCRServiceIntegration: React.FC<OCRServiceIntegrationProps> = ({ la
           <div>
             <label className="block text-sm font-medium mb-2">{t.uploadDocuments}</label>
             <FileUpload
-              onFilesSelected={handleFilesSelected}
-              acceptedTypes={['application/pdf', 'image/jpeg', 'image/png']}
+              onFilesChange={handleFilesChange}
               maxFiles={10}
-              multiple
+              acceptedTypes={['application/pdf', 'image/jpeg', 'image/png']}
             />
             <p className="text-xs text-gray-500 mt-2">{t.supportedFormats}</p>
           </div>
@@ -202,7 +209,7 @@ export const OCRServiceIntegration: React.FC<OCRServiceIntegrationProps> = ({ la
                     <div className="flex items-center gap-3">
                       {getStatusIcon(fileItem.status)}
                       <div>
-                        <p className="text-sm font-medium">{fileItem.file.name}</p>
+                        <p className="text-sm font-medium">{fileItem.file.name || 'Unknown file'}</p>
                         <p className="text-xs text-gray-500">
                           {t.status}: {getStatusText(fileItem.status)}
                           {fileItem.confidence > 0 && (
