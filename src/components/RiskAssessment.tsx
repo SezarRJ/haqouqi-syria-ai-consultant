@@ -70,10 +70,13 @@ export const RiskAssessment = ({ language, caseDetails }: RiskAssessmentProps) =
       const successProb = Math.floor(Math.random() * 40) + 60; // 60-100%
       const legalStrength = Math.floor(Math.random() * 30) + 70; // 70-100%
       
+      // Fix the type issue by explicitly typing the riskLevel
+      const riskLevel: 'low' | 'medium' | 'high' = successProb > 80 ? 'low' : successProb > 60 ? 'medium' : 'high';
+      
       const mockAssessment = {
         successProbability: successProb,
         legalStrength,
-        riskLevel: successProb > 80 ? 'low' : successProb > 60 ? 'medium' : 'high' as const,
+        riskLevel,
         timeframe: language === 'ar' ? '6-12 شهر' : '6-12 months',
         costs: language === 'ar' ? '50,000 - 150,000 ل.س' : '50,000 - 150,000 SYP',
         risks: [
