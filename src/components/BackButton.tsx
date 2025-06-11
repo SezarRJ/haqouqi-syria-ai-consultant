@@ -25,21 +25,29 @@ export const BackButton: React.FC<BackButtonProps> = ({
 
   console.log('BackButton render - isMobile:', isMobile);
 
+  // Render different buttons based on mobile state to avoid Slot issues
+  if (isMobile) {
+    return (
+      <Button
+        variant={variant}
+        size="icon"
+        onClick={handleBack}
+        className={className}
+      >
+        <ArrowLeft className="h-4 w-4" />
+      </Button>
+    );
+  }
+
   return (
     <Button
       variant={variant}
-      size={isMobile ? "icon" : size}
+      size={size}
       onClick={handleBack}
       className={`flex items-center gap-2 ${className}`}
     >
-      {isMobile ? (
-        <ArrowLeft className="h-4 w-4" />
-      ) : (
-        <span className="flex items-center gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          العودة
-        </span>
-      )}
+      <ArrowLeft className="h-4 w-4" />
+      العودة
     </Button>
   );
 };
