@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthModal } from '@/components/AuthModal';
@@ -29,7 +28,7 @@ const Index = () => {
         setUser(session?.user ?? null);
         
         // If user just signed in and it's an admin account, ensure admin privileges
-        if (event === 'SIGNED_IN' && session?.user?.email === 'admin@legaladvisor.sy') {
+        if (event === 'SIGNED_IN' && session?.user?.email === 'admin@legaladvisor.com') {
           try {
             // Check if admin record exists, if not create it
             const { data: adminCheck } = await supabase

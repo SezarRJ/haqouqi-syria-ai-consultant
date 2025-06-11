@@ -99,7 +99,7 @@ const Admin = () => {
       console.log('Attempting admin login with:', loginData.email);
       
       // Check if it's the demo admin credentials (using proper email format)
-      if (loginData.email === 'admin@legaladvisor.sy' && loginData.password === 'admin123456') {
+      if (loginData.email === 'admin@legaladvisor.com' && loginData.password === 'admin123456') {
         // Try to sign in first
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: loginData.email,
@@ -280,7 +280,7 @@ const Admin = () => {
                     type="email"
                     value={loginData.email}
                     onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="admin@legaladvisor.sy"
+                    placeholder="admin@legaladvisor.com"
                     className="h-12 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-right"
                     required
                   />
@@ -322,7 +322,7 @@ const Admin = () => {
                 <div className="space-y-2 text-sm text-blue-700">
                   <div className="flex justify-between items-center">
                     <span className="font-medium">{t.email}:</span>
-                    <code className="bg-white px-2 py-1 rounded text-xs">admin@legaladvisor.sy</code>
+                    <code className="bg-white px-2 py-1 rounded text-xs">admin@legaladvisor.com</code>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="font-medium">{t.password}:</span>
@@ -521,3 +521,5 @@ const Admin = () => {
 };
 
 export default Admin;
+
+</edits_to_apply>
