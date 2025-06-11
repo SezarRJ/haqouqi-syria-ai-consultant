@@ -70,25 +70,35 @@ const Settings = () => {
 
         <Tabs defaultValue="profile" className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <SettingsIcon className="h-4 w-4" />
-              الملف الشخصي
+            <TabsTrigger value="profile">
+              <div className="flex items-center gap-2">
+                <SettingsIcon className="h-4 w-4" />
+                <span>الملف الشخصي</span>
+              </div>
             </TabsTrigger>
-            <TabsTrigger value="balance" className="flex items-center gap-2">
-              <SettingsIcon className="h-4 w-4" />
-              الرصيد
+            <TabsTrigger value="balance">
+              <div className="flex items-center gap-2">
+                <SettingsIcon className="h-4 w-4" />
+                <span>الرصيد</span>
+              </div>
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2">
-              <Bell className="h-4 w-4" />
-              الإشعارات
+            <TabsTrigger value="notifications">
+              <div className="flex items-center gap-2">
+                <Bell className="h-4 w-4" />
+                <span>الإشعارات</span>
+              </div>
             </TabsTrigger>
-            <TabsTrigger value="privacy" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              الخصوصية
+            <TabsTrigger value="privacy">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                <span>الخصوصية</span>
+              </div>
             </TabsTrigger>
-            <TabsTrigger value="appearance" className="flex items-center gap-2">
-              <Palette className="h-4 w-4" />
-              المظهر
+            <TabsTrigger value="appearance">
+              <div className="flex items-center gap-2">
+                <Palette className="h-4 w-4" />
+                <span>المظهر</span>
+              </div>
             </TabsTrigger>
           </TabsList>
 
