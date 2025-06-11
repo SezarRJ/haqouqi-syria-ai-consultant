@@ -1,9 +1,11 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* --- FONT IMPORT --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;700&display=swap');
 
 @layer base {
   :root {
@@ -63,31 +65,82 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     min-height: 100vh;
   }
+
+  /* Enhanced RTL Support */
+  [dir="rtl"] {
+    font-family: 'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  }
+
+  [dir="rtl"] * {
+    text-align: right;
+  }
+
+  [dir="rtl"] input, [dir="rtl"] textarea {
+    text-align: right;
+    direction: rtl;
+  }
+
+  [dir="rtl"] .text-left {
+    text-align: right !important;
+  }
+
+  [dir="rtl"] .text-right {
+    text-align: left !important;
+  }
+
+  [dir="rtl"] .justify-start {
+    justify-content: flex-end !important;
+  }
+
+  [dir="rtl"] .justify-end {
+    justify-content: flex-start !important;
+  }
+
+  [dir="rtl"] .items-start {
+    align-items: flex-end !important;
+  }
+
+  [dir="rtl"] .items-end {
+    align-items: flex-start !important;
+  }
 }
 
 @layer components {
-  /* UPDATED: Using modern logical properties for RTL support */
+  /* Enhanced RTL Chat Messages */
   .chat-message-user {
-    /* ms-auto aligns to the right in LTR and to the left in RTL */
-    @apply bg-primary text-primary-foreground rounded-xl p-3 max-w-[85%] ms-auto break-words shadow-sm;
+    @apply bg-primary text-primary-foreground rounded-xl p-3 max-w-[85%] shadow-sm break-words;
+  }
+
+  [dir="rtl"] .chat-message-user {
+    @apply mr-auto ml-0;
+    border-radius: 1rem 1rem 0.25rem 1rem;
+  }
+
+  [dir="ltr"] .chat-message-user {
+    @apply ml-auto mr-0;
+    border-radius: 1rem 1rem 1rem 0.25rem;
   }
 
   .chat-message-bot {
-    /* me-auto aligns to the left in LTR and to the right in RTL */
-    @apply bg-card border border-border text-card-foreground rounded-xl p-3 max-w-[85%] me-auto break-words shadow-sm;
+    @apply bg-card border border-border text-card-foreground rounded-xl p-3 max-w-[85%] shadow-sm break-words;
   }
 
-  /*
-  ==========================================================================
-  MOBILE VIEW ENHANCEMENTS
-  ==========================================================================
-  */
+  [dir="rtl"] .chat-message-bot {
+    @apply ml-auto mr-0;
+    border-radius: 1rem 1rem 1rem 0.25rem;
+  }
+
+  [dir="ltr"] .chat-message-bot {
+    @apply mr-auto ml-0;
+    border-radius: 1rem 1rem 0.25rem 1rem;
+  }
+
+  /* Enhanced Mobile View with RTL */
   .mobile-header {
     @apply px-2 py-2 sm:px-4 sm:py-3;
   }
 
   .mobile-title {
-    /* UPDATED: Made font size smaller and !important to force the change */
     @apply text-sm sm:text-base font-semibold !important;
   }
 
@@ -101,5 +154,85 @@
 
   .chat-text {
     @apply text-sm leading-relaxed;
+  }
+
+  /* RTL Specific Utilities */
+  .rtl-text-right {
+    text-align: right !important;
+  }
+
+  .rtl-text-left {
+    text-align: left !important;
+  }
+
+  [dir="rtl"] .space-x-reverse > * + * {
+    margin-right: var(--tw-space-x-reverse) !important;
+    margin-left: calc(1 * var(--tw-space-x-reverse, 0)) !important;
+  }
+
+  /* Enhanced Form Controls for RTL */
+  [dir="rtl"] select, [dir="rtl"] input[type="text"], [dir="rtl"] input[type="email"], [dir="rtl"] input[type="password"] {
+    text-align: right;
+    direction: rtl;
+  }
+
+  [dir="rtl"] button {
+    direction: rtl;
+  }
+
+  /* Enhanced Flex Direction for RTL */
+  [dir="rtl"] .flex-row {
+    flex-direction: row-reverse;
+  }
+
+  [dir="rtl"] .flex-row-reverse {
+    flex-direction: row;
+  }
+
+  /* Enhanced Grid for RTL */
+  [dir="rtl"] .grid {
+    direction: rtl;
+  }
+
+  /* Enhanced Navigation for RTL */
+  [dir="rtl"] .justify-between {
+    direction: rtl;
+  }
+
+  /* Dropdown and Popover RTL Support */
+  [dir="rtl"] [data-radix-popper-content-wrapper] {
+    direction: rtl;
+  }
+
+  [dir="rtl"] [data-radix-select-content] {
+    direction: rtl;
+  }
+
+  [dir="rtl"] [data-radix-dropdown-menu-content] {
+    direction: rtl;
+  }
+}
+
+/* Arabic Typography Enhancements */
+@layer utilities {
+  .arabic-text {
+    font-family: 'Noto Sans Arabic', system-ui, sans-serif;
+    line-height: 1.8;
+    letter-spacing: 0.025em;
+  }
+
+  .english-text {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  /* Enhanced Mobile Touch Targets */
+  .mobile-touch {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Improved Focus States for RTL */
+  [dir="rtl"] .focus\:ring {
+    direction: rtl;
   }
 }

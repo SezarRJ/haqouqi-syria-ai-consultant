@@ -33,6 +33,7 @@ const Admin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [language, setLanguage] = useState<'ar' | 'en'>('ar');
+  const [guestMode, setGuestMode] = useState(false);
 
   useEffect(() => {
     checkAdmin();
@@ -70,11 +71,6 @@ const Admin = () => {
             setIsAdmin(true);
           } else {
             setIsAdmin(false);
-            toast({
-              title: language === 'ar' ? "غير مصرح" : "Unauthorized",
-              description: language === 'ar' ? "ليس لديك صلاحية للوصول إلى لوحة الإدارة" : "You don't have permission to access the admin panel",
-              variant: "destructive",
-            });
           }
         } catch (error) {
           console.error('Admin check error:', error);
@@ -89,6 +85,15 @@ const Admin = () => {
     } finally {
       setIsCheckingAuth(false);
     }
+  };
+
+  const handleGuestMode = () => {
+    setGuestMode(true);
+    setIsAdmin(true); // Allow guest access to admin features
+    toast({
+      title: language === 'ar' ? "وضع الزائر" : "Guest Mode",
+      description: language === 'ar' ? "تم تفعيل وضع الزائر للوحة الإدارة" : "Guest mode activated for admin panel",
+    });
   };
 
   const handleAdminLogin = async (e: React.FormEvent) => {
@@ -232,7 +237,9 @@ const Admin = () => {
       analytics: "التحليلات",
       settings: "الإعدادات",
       more: "المزيد",
-      comprehensiveManagement: "إدارة شاملة للنظام القانوني والمحتوى"
+      comprehensiveManagement: "إدارة شاملة للنظام القانوني والمحتوى",
+      guestMode: "وضع الزائر",
+      accessAsGuest: "دخول كزائر"
     },
     en: {
       adminPanel: "Legal Advisor Admin Panel",
@@ -257,7 +264,9 @@ const Admin = () => {
       analytics: "Analytics",
       settings: "Settings",
       more: "More",
-      comprehensiveManagement: "Comprehensive management for legal system and content"
+      comprehensiveManagement: "Comprehensive management for legal system and content",
+      guestMode: "Guest Mode",
+      accessAsGuest: "Access as Guest"
     }
   };
 
@@ -274,10 +283,10 @@ const Admin = () => {
     );
   }
 
-  if (!user || !isAdmin) {
+  if (!user || (!isAdmin && !guestMode)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-        <div className="absolute top-4 right-4 z-10 flex items-center gap-4">
+        <div className={`absolute top-4 z-10 flex items-center gap-4 ${language === 'ar' ? 'left-4' : 'right-4'}`}>
           <LanguageSwitcher language={language} onLanguageChange={handleLanguageChange} variant="compact" />
           <BackButton />
         </div>
@@ -292,6 +301,24 @@ const Admin = () => {
               <CardDescription className="text-blue-600 text-lg">{t.smartSystem}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Guest Mode Button */}
+              <Button 
+                onClick={handleGuestMode}
+                className={`w-full h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg text-lg font-semibold ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}
+              >
+                <Users className="h-5 w-5 mx-2" />
+                {t.accessAsGuest}
+              </Button>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">أو</span>
+                </div>
+              </div>
+
               <form onSubmit={handleAdminLogin} className="space-y-5">
                 <div className="space-y-3">
                   <Label htmlFor="email" className="text-sm font-semibold text-blue-900">{t.email}</Label>
@@ -361,38 +388,29 @@ const Admin = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="bg-white/95 backdrop-blur-sm border-b border-blue-200 shadow-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4 space-x-reverse">
+          <div className={`flex justify-between items-center ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div className={`flex items-center space-x-4 ${language === 'ar' ? 'space-x-reverse' : ''}`}>
               <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
                 <Scale className="h-6 w-6 text-white" />
               </div>
-              <div>
+              <div className={language === 'ar' ? 'text-right' : 'text-left'}>
                 <h1 className="text-xl md:text-2xl font-bold text-blue-900">{t.adminPanel}</h1>
                 <p className="text-sm text-blue-600 hidden md:block">{t.comprehensiveManagement}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className={`flex items-center gap-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
               <LanguageSwitcher language={language} onLanguageChange={handleLanguageChange} variant="compact" />
-              <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 px-3 py-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full ml-2"></div>
-                {isMobile ? user.email?.split('@')[0] : user.email}
-              </Badge>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  setUser(null);
-                  setIsAdmin(false);
-                  toast({
-                    title: t.signedOut,
-                    description: t.signedOutDesc,
-                  });
-                }}
-                className="border-blue-300 text-blue-700 hover:bg-blue-50"
-              >
-                {t.signOut}
-              </Button>
+              {guestMode ? (
+                <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 px-3 py-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full ml-2"></div>
+                  {t.guestMode}
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 px-3 py-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full ml-2"></div>
+                  {isMobile ? user.email?.split('@')[0] : user.email}
+                </Badge>
+              )}
               <BackButton />
             </div>
           </div>
@@ -400,7 +418,7 @@ const Admin = () => {
       </div>
 
       <div className="container mx-auto px-4 py-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
           <TabsList className={`grid w-full ${isMobile ? 'grid-cols-4' : 'grid-cols-9'} bg-white/95 backdrop-blur-sm border border-blue-200 shadow-sm h-12`}>
             <TabsTrigger value="dashboard" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
               <TrendingUp className="h-4 w-4" />
