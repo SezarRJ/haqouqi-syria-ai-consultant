@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthModal } from '@/components/AuthModal';
@@ -60,7 +59,7 @@ const Index = () => {
   }
 
   if (!user) {
-    return <AuthModal language={language} />;
+    return <AuthModal language={language} onLanguageChange={handleLanguageChange} />;
   }
 
   const texts = {
