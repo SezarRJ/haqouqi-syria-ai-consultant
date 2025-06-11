@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    /* UPDATED: More formal and subdued color palette */
+    /* FORMAL COLOR PALETTE */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
 
@@ -17,13 +17,13 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
 
-    --primary: 221 83% 35%; /* UPDATED: Deeper, more professional navy blue */
+    --primary: 221 83% 35%; /* Deep, professional navy blue */
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 220 13% 91%; /* UPDATED: Lighter grey for subtle backgrounds */
+    --secondary: 220 13% 91%; /* Lighter grey for subtle backgrounds */
     --secondary-foreground: 240 5.9% 10%;
 
-    --muted: 220 13% 96%; /* UPDATED: Very light grey for muted text */
+    --muted: 220 13% 96%; /* Very light grey for muted text */
     --muted-foreground: 240 3.8% 46.1%;
 
     --accent: 220 13% 91%;
@@ -32,9 +32,9 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 13% 88%; /* UPDATED: Slightly darker border for clarity */
+    --border: 220 13% 88%; /* Slightly darker border for clarity */
     --input: 220 13% 88%;
-    --ring: 221 83% 45%; /* UPDATED: Ring color to match new primary */
+    --ring: 221 83% 45%; /* Ring color to match new primary */
 
     --radius: 0.5rem;
   }
@@ -69,13 +69,13 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif; /* UPDATED: Added 'Inter' font */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     min-height: 100vh;
   }
 }
 
 @layer components {
-  /* SIMPLIFIED: Cleaner chat bubbles using theme variables */
+  /* SIMPLIFIED CHAT BUBBLES */
   .chat-message-user {
     @apply bg-primary text-primary-foreground rounded-xl p-3 max-w-[85%] ml-auto break-words shadow-sm;
   }
@@ -90,5 +90,31 @@
 
   [dir="rtl"] .chat-message-bot {
     @apply ml-auto mr-0;
+  }
+
+  /*
+  ==========================================================================
+  MOBILE VIEW ENHANCEMENTS
+  ==========================================================================
+  */
+
+  /* Makes the main header more compact on small screens */
+  .mobile-header {
+    @apply px-2 py-2 sm:px-4 sm:py-3;
+  }
+
+  /* Reduces font size of the main title on small screens */
+  .mobile-title {
+    @apply text-base sm:text-lg;
+  }
+
+  /* Hides the subtitle on very small screens to save space */
+  .mobile-subtitle {
+    @apply hidden sm:block text-xs;
+  }
+  
+  /* Reduces padding on the main content area for mobile */
+  .mobile-content-padding {
+    @apply p-2 sm:p-4 md:p-6;
   }
 }
