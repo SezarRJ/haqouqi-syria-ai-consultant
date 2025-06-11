@@ -7,8 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { CreditCard, Building, Gift, Loader2 } from 'lucide-react';
+import { CreditCard, Building, Gift, Loader2, Banknote } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -123,34 +122,36 @@ export const PaymentMethods = () => {
       case 'scratch_card':
         return <Gift className="h-5 w-5" />;
       default:
-        return <CreditCard className="h-5 w-5" />;
+        return <Banknote className="h-5 w-5" />;
     }
   };
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center p-6">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span className="mr-2">جاري التحميل...</span>
+      <Card className="border-blue-200">
+        <CardContent className="flex items-center justify-center p-8">
+          <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+          <span className="mr-2 text-blue-700">جاري التحميل...</span>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <CreditCard className="h-5 w-5" />
+    <Card className="border-blue-200 shadow-sm">
+      <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+        <CardTitle className="flex items-center gap-3 text-blue-900">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <CreditCard className="h-4 w-4 text-white" />
+          </div>
           طرق الدفع
         </CardTitle>
-        <CardDescription>اختر طريقة الدفع المناسبة لك</CardDescription>
+        <CardDescription className="text-blue-600">اختر طريقة الدفع المناسبة لشحن رصيدك</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="amount">المبلغ (ريال سعودي)</Label>
+      <CardContent className="space-y-6 p-6">
+        <div className="grid gap-5">
+          <div className="space-y-3">
+            <Label htmlFor="amount" className="text-sm font-semibold text-blue-900">المبلغ (ريال سعودي)</Label>
             <Input
               id="amount"
               type="number"
@@ -159,19 +160,20 @@ export const PaymentMethods = () => {
               onChange={(e) => setAmount(e.target.value)}
               min="1"
               step="0.01"
+              className="h-11 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-right"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="payment-method">طريقة الدفع</Label>
+          <div className="space-y-3">
+            <Label htmlFor="payment-method" className="text-sm font-semibold text-blue-900">طريقة الدفع</Label>
             <Select value={selectedMethod} onValueChange={setSelectedMethod}>
-              <SelectTrigger>
+              <SelectTrigger className="h-11 border-blue-200 focus:border-blue-500 focus:ring-blue-500">
                 <SelectValue placeholder="اختر طريقة الدفع" />
               </SelectTrigger>
               <SelectContent>
                 {paymentMethods?.map((method) => (
                   <SelectItem key={method.id} value={method.id}>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       {getPaymentIcon(method.type)}
                       <span>{method.name}</span>
                     </div>
@@ -181,25 +183,26 @@ export const PaymentMethods = () => {
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="reference">رقم المرجع / رقم التحويل</Label>
+          <div className="space-y-3">
+            <Label htmlFor="reference" className="text-sm font-semibold text-blue-900">رقم المرجع / رقم التحويل</Label>
             <Input
               id="reference"
               placeholder="أدخل رقم المرجع أو رقم التحويل"
               value={referenceNumber}
               onChange={(e) => setReferenceNumber(e.target.value)}
+              className="h-11 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-right"
             />
           </div>
 
           <Button 
             onClick={handlePayment}
             disabled={paymentMutation.isPending}
-            className="w-full"
+            className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg font-semibold"
             size={isMobile ? "lg" : "default"}
           >
             {paymentMutation.isPending ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                <Loader2 className="h-5 w-5 animate-spin ml-2" />
                 جاري المعالجة...
               </>
             ) : (
@@ -208,25 +211,28 @@ export const PaymentMethods = () => {
           </Button>
         </div>
 
-        <div className="space-y-3">
-          <h4 className="font-medium">تعليمات الدفع:</h4>
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <div className="flex items-start gap-2">
-              <Building className="h-4 w-4 mt-0.5 flex-shrink-0" />
+        <div className="space-y-4 mt-8">
+          <h4 className="font-semibold text-blue-900 text-lg">تعليمات الدفع:</h4>
+          <div className="space-y-4">
+            <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg border border-blue-100">
+              <Building className="h-5 w-5 mt-0.5 flex-shrink-0 text-blue-600" />
               <div>
-                <strong>التحويل البنكي:</strong> أرسل المبلغ إلى الحساب المحدد وأدخل رقم التحويل
+                <p className="font-medium text-blue-900">التحويل البنكي</p>
+                <p className="text-sm text-blue-700 mt-1">أرسل المبلغ إلى الحساب المحدد وأدخل رقم التحويل</p>
               </div>
             </div>
-            <div className="flex items-start gap-2">
-              <CreditCard className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            <div className="flex items-start gap-3 p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+              <CreditCard className="h-5 w-5 mt-0.5 flex-shrink-0 text-indigo-600" />
               <div>
-                <strong>البطاقة الائتمانية:</strong> ادفع عبر نظام الدفع الآمن
+                <p className="font-medium text-indigo-900">البطاقة الائتمانية</p>
+                <p className="text-sm text-indigo-700 mt-1">ادفع عبر نظام الدفع الآمن</p>
               </div>
             </div>
-            <div className="flex items-start gap-2">
-              <Gift className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            <div className="flex items-start gap-3 p-4 bg-green-50 rounded-lg border border-green-100">
+              <Gift className="h-5 w-5 mt-0.5 flex-shrink-0 text-green-600" />
               <div>
-                <strong>كرت الشحن:</strong> أدخل رقم كرت الشحن في خانة رقم المرجع
+                <p className="font-medium text-green-900">كرت الشحن</p>
+                <p className="text-sm text-green-700 mt-1">أدخل رقم كرت الشحن في خانة رقم المرجع</p>
               </div>
             </div>
           </div>

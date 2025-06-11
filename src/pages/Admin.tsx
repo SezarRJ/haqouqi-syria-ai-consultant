@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Users, FileText, AlertCircle, TrendingUp, Settings, BookOpen, Database, Globe, Shield, Eye, EyeOff, Gift, CreditCard } from 'lucide-react';
+import { Users, FileText, AlertCircle, TrendingUp, Settings, BookOpen, Database, Globe, Shield, Eye, EyeOff, Gift, CreditCard, Scale } from 'lucide-react';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { LawsManagement } from '@/components/admin/LawsManagement';
 import { UpdatesManagement } from '@/components/admin/UpdatesManagement';
@@ -27,7 +27,7 @@ const Admin = () => {
   const isMobile = useIsMobile();
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loginData, setLoginData] = useState({ email: 'admin@example.com', password: 'admin123' });
+  const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -44,32 +44,28 @@ const Admin = () => {
       if (user) {
         setUser(user);
         
-        // Check if user is admin - allow admin@example.com or check admin status
-        if (user.email === 'admin@example.com') {
-          setIsAdmin(true);
-        } else {
-          try {
-            const { data: isAdminResult, error } = await supabase
-              .rpc('is_admin', { user_id: user.id });
+        // Check if user is admin
+        try {
+          const { data: adminCheck, error } = await supabase
+            .from('admin_users')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('is_active', true)
+            .single();
 
-            if (error) {
-              console.error('Admin check error:', error);
-              setIsAdmin(false);
-            } else {
-              setIsAdmin(isAdminResult || false);
-            }
-
-            if (!isAdminResult) {
-              toast({
-                title: "غير مصرح",
-                description: "ليس لديك صلاحية للوصول إلى لوحة الإدارة",
-                variant: "destructive",
-              });
-            }
-          } catch (error) {
-            console.error('RPC function error:', error);
+          if (adminCheck && !error) {
+            setIsAdmin(true);
+          } else {
             setIsAdmin(false);
+            toast({
+              title: "غير مصرح",
+              description: "ليس لديك صلاحية للوصول إلى لوحة الإدارة",
+              variant: "destructive",
+            });
           }
+        } catch (error) {
+          console.error('Admin check error:', error);
+          setIsAdmin(false);
         }
       } else {
         setUser(null);
@@ -87,63 +83,75 @@ const Admin = () => {
     setIsLoggingIn(true);
 
     try {
-      // Try to sign in first
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: loginData.email,
-        password: loginData.password,
-      });
-
-      if (signInData.user) {
-        setUser(signInData.user);
-        setIsAdmin(true);
-        toast({
-          title: "تم تسجيل الدخول",
-          description: "مرحباً بك في لوحة الإدارة",
-        });
-        return;
-      }
-
-      // If sign in fails, try to sign up
-      if (signInError && signInError.message.includes('Invalid login credentials')) {
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      // Create admin account if it doesn't exist
+      if (loginData.email === 'admin@legal.com' && loginData.password === 'Admin123!') {
+        // Try to sign in first
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: loginData.email,
           password: loginData.password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/admin`
-          }
         });
 
-        if (signUpError) {
-          throw signUpError;
+        if (signInData.user) {
+          // Check if admin record exists
+          const { data: adminCheck } = await supabase
+            .from('admin_users')
+            .select('*')
+            .eq('user_id', signInData.user.id)
+            .single();
+
+          if (!adminCheck) {
+            // Create admin record
+            await supabase.from('admin_users').insert({
+              user_id: signInData.user.id,
+              admin_role: 'super_admin',
+              is_active: true
+            });
+          }
+
+          setUser(signInData.user);
+          setIsAdmin(true);
+          toast({
+            title: "تم تسجيل الدخول",
+            description: "مرحباً بك في لوحة الإدارة",
+          });
+          return;
         }
 
-        if (signUpData.user) {
-          // Create admin user record
-          try {
+        // If sign in fails, try to sign up
+        if (signInError && signInError.message.includes('Invalid login credentials')) {
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email: loginData.email,
+            password: loginData.password,
+          });
+
+          if (signUpData.user && !signUpError) {
+            // Create admin user record
             await supabase.from('admin_users').insert({
               user_id: signUpData.user.id,
               admin_role: 'super_admin',
               is_active: true
             });
-          } catch (adminError) {
-            console.log('Admin user creation error (might already exist):', adminError);
-          }
 
-          setUser(signUpData.user);
-          setIsAdmin(true);
-          toast({
-            title: "تم إنشاء حساب المشرف",
-            description: "تم إنشاء حساب المشرف وتسجيل الدخول بنجاح",
-          });
+            setUser(signUpData.user);
+            setIsAdmin(true);
+            toast({
+              title: "تم إنشاء حساب المشرف",
+              description: "تم إنشاء حساب المشرف وتسجيل الدخول بنجاح",
+            });
+          } else {
+            throw signUpError || new Error('Failed to create admin account');
+          }
+        } else {
+          throw signInError;
         }
       } else {
-        throw signInError;
+        throw new Error('Invalid admin credentials');
       }
     } catch (error: any) {
       console.error('Login error:', error);
       toast({
         title: "خطأ في تسجيل الدخول",
-        description: error.message || "حدث خطأ غير متوقع",
+        description: "بيانات تسجيل الدخول غير صحيحة",
         variant: "destructive",
       });
     } finally {
@@ -153,7 +161,7 @@ const Admin = () => {
 
   if (isCheckingAuth) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4" dir="rtl">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
           <p className="text-slate-600 font-medium">جاري التحميل...</p>
@@ -164,95 +172,105 @@ const Admin = () => {
 
   if (!user || !isAdmin) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4" dir="rtl">
         <div className="absolute top-4 right-4 z-10">
           <BackButton />
         </div>
-        <Card className="w-full max-w-md shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
-          <CardHeader className="text-center pb-2">
-            <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mb-4 shadow-lg">
-              <Shield className="h-8 w-8 text-white" />
-            </div>
-            <CardTitle className="text-2xl font-bold text-slate-800">لوحة الإدارة</CardTitle>
-            <CardDescription className="text-slate-600">
-              أدخل بيانات المشرف للوصول إلى النظام
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <form onSubmit={handleAdminLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-slate-700">البريد الإلكتروني</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={loginData.email}
-                  onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
-                  placeholder="admin@example.com"
-                  className="border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-                  required
-                />
+        
+        <div className="w-full max-w-md">
+          <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+            <CardHeader className="text-center pb-4">
+              <div className="mx-auto w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                <Scale className="h-10 w-10 text-white" />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-slate-700">كلمة المرور</Label>
-                <div className="relative">
+              <CardTitle className="text-2xl font-bold text-blue-900 mb-2">لوحة إدارة المستشار القانوني</CardTitle>
+              <CardDescription className="text-blue-600 text-lg">
+                نظام ذكي للاستشارات القانونية
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <form onSubmit={handleAdminLogin} className="space-y-5">
+                <div className="space-y-3">
+                  <Label htmlFor="email" className="text-sm font-semibold text-blue-900">البريد الإلكتروني</Label>
                   <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={loginData.password}
-                    onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
-                    placeholder="admin123"
-                    className="border-slate-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
+                    id="email"
+                    type="email"
+                    value={loginData.email}
+                    onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder="admin@legal.com"
+                    className="h-12 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-right"
                     required
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute left-2 top-1/2 transform -translate-y-1/2 h-8 w-8"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
+                </div>
+                <div className="space-y-3">
+                  <Label htmlFor="password" className="text-sm font-semibold text-blue-900">كلمة المرور</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={loginData.password}
+                      onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                      placeholder="Admin123!"
+                      className="h-12 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-right pr-12"
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 h-8 w-8 text-blue-600"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <Button 
+                  type="submit" 
+                  className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg text-lg font-semibold"
+                  disabled={isLoggingIn}
+                >
+                  {isLoggingIn ? 'جاري تسجيل الدخول...' : 'دخول لوحة الإدارة'}
+                </Button>
+              </form>
+              
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
+                <h4 className="font-semibold text-blue-900 mb-3 text-center">بيانات تسجيل الدخول</h4>
+                <div className="space-y-2 text-sm text-blue-700">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">البريد الإلكتروني:</span>
+                    <code className="bg-white px-2 py-1 rounded text-xs">admin@legal.com</code>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">كلمة المرور:</span>
+                    <code className="bg-white px-2 py-1 rounded text-xs">Admin123!</code>
+                  </div>
                 </div>
               </div>
-              <Button 
-                type="submit" 
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
-                disabled={isLoggingIn}
-              >
-                {isLoggingIn ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
-              </Button>
-            </form>
-            
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
-              <h4 className="font-semibold text-blue-900 mb-2">بيانات تسجيل الدخول</h4>
-              <div className="space-y-1 text-sm text-blue-700">
-                <p><span className="font-medium">البريد:</span> admin@example.com</p>
-                <p><span className="font-medium">كلمة المرور:</span> admin123</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50" dir="rtl">
-      <div className="bg-white/90 backdrop-blur-sm border-b border-slate-200 shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50" dir="rtl">
+      <div className="bg-white/95 backdrop-blur-sm border-b border-blue-200 shadow-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-3 space-x-reverse">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
-                <Shield className="h-5 w-5 md:h-6 md:w-6 text-white" />
+            <div className="flex items-center space-x-4 space-x-reverse">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
+                <Scale className="h-6 w-6 text-white" />
               </div>
-              <div className="hidden sm:block">
-                <h1 className="text-lg md:text-2xl font-bold text-slate-800">لوحة إدارة المستشار القانوني</h1>
-                <p className="text-sm text-slate-600 hidden md:block">إدارة شاملة للنظام القانوني والمحتوى</p>
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-blue-900">لوحة إدارة المستشار القانوني</h1>
+                <p className="text-sm text-blue-600 hidden md:block">إدارة شاملة للنظام القانوني والمحتوى</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 text-xs md:text-sm">
+            <div className="flex items-center gap-3">
+              <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 px-3 py-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full ml-2"></div>
                 {isMobile ? user.email?.split('@')[0] : user.email}
               </Badge>
               <Button 
@@ -267,9 +285,9 @@ const Admin = () => {
                     description: "تم تسجيل خروجك من لوحة الإدارة",
                   });
                 }}
-                className="border-slate-300 text-slate-700 hover:bg-slate-50 text-xs md:text-sm"
+                className="border-blue-300 text-blue-700 hover:bg-blue-50"
               >
-                خروج
+                تسجيل الخروج
               </Button>
               <BackButton />
             </div>
@@ -279,54 +297,54 @@ const Admin = () => {
 
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-4' : 'grid-cols-9'} bg-white/90 backdrop-blur-sm border border-slate-200 shadow-sm ${isMobile ? 'text-xs' : ''}`}>
-            <TabsTrigger value="dashboard" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
-              <TrendingUp className="h-3 w-3 md:h-4 md:w-4" />
+          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-4' : 'grid-cols-9'} bg-white/95 backdrop-blur-sm border border-blue-200 shadow-sm h-12`}>
+            <TabsTrigger value="dashboard" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
+              <TrendingUp className="h-4 w-4" />
               <span className="hidden sm:inline">لوحة التحكم</span>
-              <span className="sm:hidden">التحكم</span>
+              <span className="sm:hidden text-xs">التحكم</span>
             </TabsTrigger>
-            <TabsTrigger value="laws" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
-              <BookOpen className="h-3 w-3 md:h-4 md:w-4" />
+            <TabsTrigger value="laws" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
+              <BookOpen className="h-4 w-4" />
               <span className="hidden sm:inline">القوانين</span>
-              <span className="sm:hidden">قوانين</span>
+              <span className="sm:hidden text-xs">قوانين</span>
             </TabsTrigger>
             {!isMobile && (
               <>
-                <TabsTrigger value="vouchers" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                <TabsTrigger value="vouchers" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
                   <Gift className="h-4 w-4" />
                   الكوبونات
                 </TabsTrigger>
-                <TabsTrigger value="payments" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                <TabsTrigger value="payments" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
                   <CreditCard className="h-4 w-4" />
                   المدفوعات
                 </TabsTrigger>
-                <TabsTrigger value="database" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                <TabsTrigger value="database" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
                   <Database className="h-4 w-4" />
                   قاعدة البيانات
                 </TabsTrigger>
-                <TabsTrigger value="integrations" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                <TabsTrigger value="integrations" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
                   <Globe className="h-4 w-4" />
                   التكاملات
                 </TabsTrigger>
-                <TabsTrigger value="users" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                <TabsTrigger value="users" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
                   <Users className="h-4 w-4" />
                   المستخدمون
                 </TabsTrigger>
-                <TabsTrigger value="analytics" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                <TabsTrigger value="analytics" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
                   <TrendingUp className="h-4 w-4" />
                   التحليلات
                 </TabsTrigger>
               </>
             )}
-            <TabsTrigger value="settings" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
-              <Settings className="h-3 w-3 md:h-4 md:w-4" />
+            <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
+              <Settings className="h-4 w-4" />
               <span className="hidden sm:inline">الإعدادات</span>
-              <span className="sm:hidden">إعدادات</span>
+              <span className="sm:hidden text-xs">إعدادات</span>
             </TabsTrigger>
             {isMobile && (
-              <TabsTrigger value="more" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
-                <AlertCircle className="h-3 w-3" />
-                المزيد
+              <TabsTrigger value="more" className="flex items-center gap-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white text-blue-700">
+                <AlertCircle className="h-4 w-4" />
+                <span className="text-xs">المزيد</span>
               </TabsTrigger>
             )}
           </TabsList>
@@ -368,72 +386,27 @@ const Admin = () => {
           ) : (
             <TabsContent value="more">
               <div className="grid grid-cols-1 gap-4">
-                <Card 
-                  className="cursor-pointer hover:shadow-md transition-shadow" 
-                  onClick={() => setActiveTab('vouchers')}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Gift className="h-5 w-5" />
-                      الكوبونات
-                    </CardTitle>
-                  </CardHeader>
-                </Card>
-                <Card 
-                  className="cursor-pointer hover:shadow-md transition-shadow" 
-                  onClick={() => setActiveTab('payments')}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <CreditCard className="h-5 w-5" />
-                      المدفوعات
-                    </CardTitle>
-                  </CardHeader>
-                </Card>
-                <Card 
-                  className="cursor-pointer hover:shadow-md transition-shadow" 
-                  onClick={() => setActiveTab('database')}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Database className="h-5 w-5" />
-                      قاعدة البيانات
-                    </CardTitle>
-                  </CardHeader>
-                </Card>
-                <Card 
-                  className="cursor-pointer hover:shadow-md transition-shadow" 
-                  onClick={() => setActiveTab('integrations')}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Globe className="h-5 w-5" />
-                      التكاملات
-                    </CardTitle>
-                  </CardHeader>
-                </Card>
-                <Card 
-                  className="cursor-pointer hover:shadow-md transition-shadow" 
-                  onClick={() => setActiveTab('users')}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Users className="h-5 w-5" />
-                      المستخدمون
-                    </CardTitle>
-                  </CardHeader>
-                </Card>
-                <Card 
-                  className="cursor-pointer hover:shadow-md transition-shadow" 
-                  onClick={() => setActiveTab('analytics')}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <TrendingUp className="h-5 w-5" />
-                      التحليلات
-                    </CardTitle>
-                  </CardHeader>
-                </Card>
+                {[
+                  { key: 'vouchers', icon: Gift, title: 'الكوبونات' },
+                  { key: 'payments', icon: CreditCard, title: 'المدفوعات' },
+                  { key: 'database', icon: Database, title: 'قاعدة البيانات' },
+                  { key: 'integrations', icon: Globe, title: 'التكاملات' },
+                  { key: 'users', icon: Users, title: 'المستخدمون' },
+                  { key: 'analytics', icon: TrendingUp, title: 'التحليلات' }
+                ].map(({ key, icon: Icon, title }) => (
+                  <Card 
+                    key={key}
+                    className="cursor-pointer hover:shadow-md transition-all duration-200 border-blue-200 hover:border-blue-300" 
+                    onClick={() => setActiveTab(key)}
+                  >
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-3 text-lg text-blue-900">
+                        <Icon className="h-5 w-5 text-blue-600" />
+                        {title}
+                      </CardTitle>
+                    </CardHeader>
+                  </Card>
+                ))}
               </div>
             </TabsContent>
           )}
