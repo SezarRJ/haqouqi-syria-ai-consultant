@@ -284,6 +284,80 @@ export type Database = {
           },
         ]
       }
+      payment_methods: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      payment_records: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          payment_method_id: string | null
+          reference_number: string | null
+          status: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method_id?: string | null
+          reference_number?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method_id?: string | null
+          reference_number?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_records_payment_method_id_fkey"
+            columns: ["payment_method_id"]
+            isOneToOne: false
+            referencedRelation: "payment_methods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -404,6 +478,45 @@ export type Database = {
         }
         Relationships: []
       }
+      vouchers: {
+        Row: {
+          amount: number
+          code: string
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          expires_at: string | null
+          id: string
+          is_used: boolean | null
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          amount: number
+          code: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          expires_at?: string | null
+          id?: string
+          is_used?: boolean | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          amount?: number
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          expires_at?: string | null
+          id?: string
+          is_used?: boolean | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -416,6 +529,26 @@ export type Database = {
       create_admin_user: {
         Args: { p_user_id: string; p_admin_role: string }
         Returns: undefined
+      }
+      create_voucher: {
+        Args: { p_amount: number; p_expires_at?: string; p_created_by?: string }
+        Returns: {
+          voucher_code: string
+        }[]
+      }
+      get_transaction_history: {
+        Args: { p_user_id?: string; p_limit?: number }
+        Returns: {
+          id: string
+          user_id: string
+          amount: number
+          type: string
+          description: string
+          status: string
+          created_at: string
+          payment_method: string
+          reference_number: string
+        }[]
       }
       get_user_balance: {
         Args: { p_user_id: string }
@@ -440,6 +573,14 @@ export type Database = {
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
+      }
+      redeem_voucher: {
+        Args: { p_code: string; p_user_id: string }
+        Returns: {
+          success: boolean
+          message: string
+          amount: number
+        }[]
       }
     }
     Enums: {

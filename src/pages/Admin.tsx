@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Users, FileText, AlertCircle, TrendingUp, Settings, BookOpen, Database, Globe, Shield, Eye, EyeOff } from 'lucide-react';
+import { Users, FileText, AlertCircle, TrendingUp, Settings, BookOpen, Database, Globe, Shield, Eye, EyeOff, Gift, CreditCard } from 'lucide-react';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { LawsManagement } from '@/components/admin/LawsManagement';
 import { UpdatesManagement } from '@/components/admin/UpdatesManagement';
@@ -16,6 +16,8 @@ import { SystemSettings } from '@/components/admin/SystemSettings';
 import { Analytics } from '@/components/admin/Analytics';
 import { DatabaseManagement } from '@/components/admin/DatabaseManagement';
 import { Integrations } from '@/components/admin/Integrations';
+import { VoucherManagement } from '@/components/admin/VoucherManagement';
+import { PaymentManagement } from '@/components/admin/PaymentManagement';
 import { BackButton } from '@/components/BackButton';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -85,42 +87,57 @@ const Admin = () => {
     setIsLoggingIn(true);
 
     try {
-      // First try to sign up the admin user if it doesn't exist
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      // Try to sign in first
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email: loginData.email,
         password: loginData.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/admin`
-        }
       });
 
-      // If sign up fails because user already exists, try to sign in
-      if (signUpError && signUpError.message.includes('already registered')) {
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-          email: loginData.email,
-          password: loginData.password,
-        });
-
-        if (signInError) throw signInError;
-
-        if (signInData.user) {
-          setUser(signInData.user);
-          setIsAdmin(true);
-          toast({
-            title: "تم تسجيل الدخول",
-            description: "مرحباً بك في لوحة الإدارة",
-          });
-        }
-      } else if (signUpError) {
-        throw signUpError;
-      } else if (signUpData.user) {
-        // New user created successfully
-        setUser(signUpData.user);
+      if (signInData.user) {
+        setUser(signInData.user);
         setIsAdmin(true);
         toast({
-          title: "تم إنشاء حساب المشرف",
-          description: "تم إنشاء حساب المشرف وتسجيل الدخول بنجاح",
+          title: "تم تسجيل الدخول",
+          description: "مرحباً بك في لوحة الإدارة",
         });
+        return;
+      }
+
+      // If sign in fails, try to sign up
+      if (signInError && signInError.message.includes('Invalid login credentials')) {
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: loginData.email,
+          password: loginData.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/admin`
+          }
+        });
+
+        if (signUpError) {
+          throw signUpError;
+        }
+
+        if (signUpData.user) {
+          // Create admin user record
+          try {
+            await supabase.from('admin_users').insert({
+              user_id: signUpData.user.id,
+              admin_role: 'super_admin',
+              is_active: true
+            });
+          } catch (adminError) {
+            console.log('Admin user creation error (might already exist):', adminError);
+          }
+
+          setUser(signUpData.user);
+          setIsAdmin(true);
+          toast({
+            title: "تم إنشاء حساب المشرف",
+            description: "تم إنشاء حساب المشرف وتسجيل الدخول بنجاح",
+          });
+        }
+      } else {
+        throw signInError;
       }
     } catch (error: any) {
       console.error('Login error:', error);
@@ -262,7 +279,7 @@ const Admin = () => {
 
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-4' : 'grid-cols-8'} bg-white/90 backdrop-blur-sm border border-slate-200 shadow-sm ${isMobile ? 'text-xs' : ''}`}>
+          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-4' : 'grid-cols-9'} bg-white/90 backdrop-blur-sm border border-slate-200 shadow-sm ${isMobile ? 'text-xs' : ''}`}>
             <TabsTrigger value="dashboard" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
               <TrendingUp className="h-3 w-3 md:h-4 md:w-4" />
               <span className="hidden sm:inline">لوحة التحكم</span>
@@ -275,6 +292,14 @@ const Admin = () => {
             </TabsTrigger>
             {!isMobile && (
               <>
+                <TabsTrigger value="vouchers" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                  <Gift className="h-4 w-4" />
+                  الكوبونات
+                </TabsTrigger>
+                <TabsTrigger value="payments" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+                  <CreditCard className="h-4 w-4" />
+                  المدفوعات
+                </TabsTrigger>
                 <TabsTrigger value="database" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
                   <Database className="h-4 w-4" />
                   قاعدة البيانات
@@ -282,10 +307,6 @@ const Admin = () => {
                 <TabsTrigger value="integrations" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
                   <Globe className="h-4 w-4" />
                   التكاملات
-                </TabsTrigger>
-                <TabsTrigger value="updates" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
-                  <FileText className="h-4 w-4" />
-                  التحديثات
                 </TabsTrigger>
                 <TabsTrigger value="users" className="flex items-center gap-1 data-[state=active]:bg-blue-500 data-[state=active]:text-white">
                   <Users className="h-4 w-4" />
@@ -318,6 +339,14 @@ const Admin = () => {
             <LawsManagement />
           </TabsContent>
 
+          <TabsContent value="vouchers">
+            <VoucherManagement />
+          </TabsContent>
+
+          <TabsContent value="payments">
+            <PaymentManagement />
+          </TabsContent>
+
           {!isMobile ? (
             <>
               <TabsContent value="database">
@@ -326,10 +355,6 @@ const Admin = () => {
 
               <TabsContent value="integrations">
                 <Integrations />
-              </TabsContent>
-
-              <TabsContent value="updates">
-                <UpdatesManagement />
               </TabsContent>
 
               <TabsContent value="users">
@@ -343,6 +368,28 @@ const Admin = () => {
           ) : (
             <TabsContent value="more">
               <div className="grid grid-cols-1 gap-4">
+                <Card 
+                  className="cursor-pointer hover:shadow-md transition-shadow" 
+                  onClick={() => setActiveTab('vouchers')}
+                >
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Gift className="h-5 w-5" />
+                      الكوبونات
+                    </CardTitle>
+                  </CardHeader>
+                </Card>
+                <Card 
+                  className="cursor-pointer hover:shadow-md transition-shadow" 
+                  onClick={() => setActiveTab('payments')}
+                >
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <CreditCard className="h-5 w-5" />
+                      المدفوعات
+                    </CardTitle>
+                  </CardHeader>
+                </Card>
                 <Card 
                   className="cursor-pointer hover:shadow-md transition-shadow" 
                   onClick={() => setActiveTab('database')}
@@ -362,17 +409,6 @@ const Admin = () => {
                     <CardTitle className="flex items-center gap-2 text-lg">
                       <Globe className="h-5 w-5" />
                       التكاملات
-                    </CardTitle>
-                  </CardHeader>
-                </Card>
-                <Card 
-                  className="cursor-pointer hover:shadow-md transition-shadow" 
-                  onClick={() => setActiveTab('updates')}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <FileText className="h-5 w-5" />
-                      التحديثات
                     </CardTitle>
                   </CardHeader>
                 </Card>
@@ -408,10 +444,6 @@ const Admin = () => {
 
           <TabsContent value="integrations">
             <Integrations />
-          </TabsContent>
-
-          <TabsContent value="updates">
-            <UpdatesManagement />
           </TabsContent>
 
           <TabsContent value="users">

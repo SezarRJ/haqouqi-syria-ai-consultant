@@ -6,8 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Wallet, CreditCard, Plus, History } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { PaymentMethods } from './PaymentMethods';
+import { VoucherRedemption } from './VoucherRedemption';
 
 interface UserBalanceData {
   balance: number;
@@ -161,104 +164,79 @@ export const UserBalance = () => {
         </CardContent>
       </Card>
 
-      {/* Top Up */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5" />
-            شحن الرصيد
-          </CardTitle>
-          <CardDescription>أضف رصيد إلى حسابك</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              type="number"
-              placeholder="أدخل المبلغ"
-              value={topUpAmount}
-              onChange={(e) => setTopUpAmount(e.target.value)}
-              className="flex-1"
-            />
-            <Button 
-              onClick={handleTopUp}
-              disabled={topUpMutation.isPending}
-              className="flex items-center gap-2"
-            >
-              {topUpMutation.isPending ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  جاري المعالجة...
-                </>
-              ) : (
-                <>
-                  <CreditCard className="h-4 w-4" />
-                  شحن الرصيد
-                </>
-              )}
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-3 gap-2">
-            {[50, 100, 200].map((amount) => (
-              <Button
-                key={amount}
-                variant="outline"
-                onClick={() => setTopUpAmount(amount.toString())}
-                className="text-sm"
-              >
-                {amount} ريال
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Transaction History */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <History className="h-5 w-5" />
-            سجل المعاملات
-          </CardTitle>
-          <CardDescription>آخر المعاملات المالية</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {transactions && transactions.length > 0 ? (
-              transactions.map((transaction: Transaction) => (
-                <div key={transaction.id} className="flex items-center justify-between border-b pb-2">
-                  <div>
-                    <p className="font-medium">{transaction.description}</p>
-                    <p className="text-sm text-gray-600">
-                      {new Date(transaction.created_at).toLocaleDateString('ar-SA', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`font-bold ${getTransactionColor(transaction.type)}`}>
-                      {getTransactionSign(transaction.type)}{Math.abs(transaction.amount).toFixed(2)} ريال
-                    </p>
-                    <Badge 
-                      variant={transaction.type === 'deposit' ? 'default' : 'secondary'}
-                      className="text-xs"
-                    >
-                      {transaction.type === 'deposit' ? 'إيداع' : 
-                       transaction.type === 'withdrawal' ? 'سحب' : 'اشتراك'}
-                    </Badge>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-500 text-center py-4">لا توجد معاملات</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Payment Methods */}
+      <Tabs defaultValue="payment" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="payment" className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4" />
+            طرق الدفع
+          </TabsTrigger>
+          <TabsTrigger value="voucher" className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            كوبون الشحن
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex items-center gap-2">
+            <History className="h-4 w-4" />
+            السجل
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="payment">
+          <PaymentMethods />
+        </TabsContent>
+        
+        <TabsContent value="voucher">
+          <VoucherRedemption />
+        </TabsContent>
+        
+        <TabsContent value="history">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5" />
+                سجل المعاملات
+              </CardTitle>
+              <CardDescription>آخر المعاملات المالية</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {transactions && transactions.length > 0 ? (
+                  transactions.map((transaction: Transaction) => (
+                    <div key={transaction.id} className="flex items-center justify-between border-b pb-2">
+                      <div>
+                        <p className="font-medium">{transaction.description}</p>
+                        <p className="text-sm text-gray-600">
+                          {new Date(transaction.created_at).toLocaleDateString('ar-SA', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className={`font-bold ${getTransactionColor(transaction.type)}`}>
+                          {getTransactionSign(transaction.type)}{Math.abs(transaction.amount).toFixed(2)} ريال
+                        </p>
+                        <Badge 
+                          variant={transaction.type === 'deposit' ? 'default' : 'secondary'}
+                          className="text-xs"
+                        >
+                          {transaction.type === 'deposit' ? 'إيداع' : 
+                           transaction.type === 'withdrawal' ? 'سحب' : 'اشتراك'}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-center py-4">لا توجد معاملات</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
