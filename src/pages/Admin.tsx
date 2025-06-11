@@ -23,28 +23,47 @@ const Admin = () => {
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
+  const [loginData, setLoginData] = useState({ email: 'admin@example.com', password: 'admin123' });
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
     checkAdmin();
   }, []);
 
   const checkAdmin = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      setUser(user);
-      // For demo purposes, check if user email is admin
-      if (user.email === 'admin@example.com') {
-        setIsAdmin(true);
+    setIsCheckingAuth(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        
+        // Check if user is admin in database
+        const { data: adminData } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (adminData || user.email === 'admin@example.com') {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+          toast({
+            title: "غير مصرح",
+            description: "ليس لديك صلاحية للوصول إلى لوحة الإدارة",
+            variant: "destructive",
+          });
+        }
       } else {
+        setUser(null);
         setIsAdmin(false);
-        toast({
-          title: "غير مصرح",
-          description: "ليس لديك صلاحية للوصول إلى لوحة الإدارة",
-          variant: "destructive",
-        });
       }
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+    } finally {
+      setIsCheckingAuth(false);
     }
   };
 
@@ -60,20 +79,32 @@ const Admin = () => {
 
       if (error) throw error;
 
-      if (data.user && loginData.email === 'admin@example.com') {
+      if (data.user) {
         setUser(data.user);
-        setIsAdmin(true);
-        toast({
-          title: "تم تسجيل الدخول",
-          description: "مرحباً بك في لوحة الإدارة",
-        });
-      } else {
-        toast({
-          title: "خطأ في صلاحيات الدخول",
-          description: "ليس لديك صلاحية للوصول إلى لوحة الإدارة",
-          variant: "destructive",
-        });
-        await supabase.auth.signOut();
+        
+        // Check admin status after login
+        const { data: adminData } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('user_id', data.user.id)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (adminData || data.user.email === 'admin@example.com') {
+          setIsAdmin(true);
+          toast({
+            title: "تم تسجيل الدخول",
+            description: "مرحباً بك في لوحة الإدارة",
+          });
+        } else {
+          setIsAdmin(false);
+          toast({
+            title: "خطأ في صلاحيات الدخول",
+            description: "ليس لديك صلاحية للوصول إلى لوحة الإدارة",
+            variant: "destructive",
+          });
+          await supabase.auth.signOut();
+        }
       }
     } catch (error: any) {
       toast({
@@ -85,6 +116,49 @@ const Admin = () => {
       setIsLoggingIn(false);
     }
   };
+
+  const handleSignUp = async () => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: 'admin@example.com',
+        password: 'admin123',
+        options: {
+          emailRedirectTo: `${window.location.origin}/admin`
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        // Add to admin_users table
+        await supabase
+          .from('admin_users')
+          .insert({
+            user_id: data.user.id,
+            is_active: true
+          });
+
+        toast({
+          title: "تم إنشاء حساب المشرف",
+          description: "تم إنشاء حساب المشرف بنجاح",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "خطأ في إنشاء الحساب",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   if (!user || !isAdmin) {
     return (
@@ -132,6 +206,16 @@ const Admin = () => {
               </Button>
             </form>
             
+            <div className="mt-4">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={handleSignUp}
+              >
+                إنشاء حساب مشرف جديد
+              </Button>
+            </div>
+            
             <div className="mt-6 p-4 bg-blue-50 rounded-lg">
               <h4 className="font-medium text-blue-900 mb-2">بيانات تسجيل الدخول للمشرف</h4>
               <div className="space-y-1 text-sm text-blue-700">
@@ -152,8 +236,27 @@ const Admin = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">لوحة إدارة المستشار القانوني</h1>
             <p className="text-gray-600">إدارة شاملة للنظام القانوني والمحتوى</p>
+            <Badge variant="secondary" className="mt-2">
+              مرحباً، {user.email}
+            </Badge>
           </div>
-          <BackButton />
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={async () => {
+                await supabase.auth.signOut();
+                setUser(null);
+                setIsAdmin(false);
+                toast({
+                  title: "تم تسجيل الخروج",
+                  description: "تم تسجيل خروجك من لوحة الإدارة",
+                });
+              }}
+            >
+              تسجيل الخروج
+            </Button>
+            <BackButton />
+          </div>
         </div>
 
         <Tabs defaultValue="dashboard" className="space-y-6">

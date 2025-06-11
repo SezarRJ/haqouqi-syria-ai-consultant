@@ -15,6 +15,7 @@ interface Transaction {
   type: 'deposit' | 'withdrawal' | 'subscription';
   description: string;
   created_at: string;
+  status: string;
 }
 
 export const UserBalance = () => {
@@ -22,46 +23,72 @@ export const UserBalance = () => {
   const queryClient = useQueryClient();
   const [topUpAmount, setTopUpAmount] = useState('');
 
-  // Mock balance data - in real implementation, this would come from your database
   const { data: balance } = useQuery({
     queryKey: ['user-balance'],
     queryFn: async () => {
-      // Mock data - replace with actual database query
-      return {
-        current: 150.00,
-        currency: 'SAR'
-      };
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { data, error } = await supabase
+        .from('user_balances')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      
+      return data || { balance: 0, currency: 'SAR' };
     }
   });
 
   const { data: transactions } = useQuery({
     queryKey: ['user-transactions'],
     queryFn: async () => {
-      // Mock data - replace with actual database query
-      return [
-        {
-          id: '1',
-          amount: 100.00,
-          type: 'deposit',
-          description: 'إيداع رصيد',
-          created_at: '2024-01-15T10:00:00Z'
-        },
-        {
-          id: '2',
-          amount: -50.00,
-          type: 'subscription',
-          description: 'اشتراك شهري - الخطة المتقدمة',
-          created_at: '2024-01-10T09:00:00Z'
-        }
-      ] as Transaction[];
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      return data as Transaction[];
     }
   });
 
   const topUpMutation = useMutation({
     mutationFn: async (amount: number) => {
-      // Mock payment processing - integrate with actual payment gateway
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      return { success: true, newBalance: (balance?.current || 0) + amount };
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Create transaction record
+      const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          amount: amount,
+          type: 'deposit',
+          description: `إيداع رصيد - ${amount} ريال`,
+          status: 'completed'
+        });
+
+      if (transactionError) throw transactionError;
+
+      // Update or create user balance
+      const { error: balanceError } = await supabase
+        .from('user_balances')
+        .upsert({
+          user_id: user.id,
+          balance: (balance?.balance || 0) + amount,
+          currency: 'SAR'
+        }, { onConflict: 'user_id' });
+
+      if (balanceError) throw balanceError;
+
+      return { success: true, newBalance: (balance?.balance || 0) + amount };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-balance'] });
@@ -72,7 +99,8 @@ export const UserBalance = () => {
         description: "تم إضافة الرصيد بنجاح",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Top up error:', error);
       toast({
         title: "خطأ",
         description: "فشل في إضافة الرصيد",
@@ -131,7 +159,7 @@ export const UserBalance = () => {
         <CardContent>
           <div className="text-center">
             <p className="text-4xl font-bold text-blue-600">
-              {balance?.current?.toFixed(2) || '0.00'} {balance?.currency || 'SAR'}
+              {balance?.balance?.toFixed(2) || '0.00'} {balance?.currency || 'ريال'}
             </p>
             <p className="text-gray-600 mt-2">الرصيد المتاح في حسابك</p>
           </div>

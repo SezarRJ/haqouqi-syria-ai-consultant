@@ -17,21 +17,44 @@ const Index = () => {
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [activeTab, setActiveTab] = useState('chat');
+  const [subscription, setSubscription] = useState<any>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        checkSubscription(session.user);
+      }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        checkSubscription(session.user);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
+  const checkSubscription = async (currentUser: any) => {
+    if (!currentUser) return;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('check-subscription');
+      if (error) {
+        console.error('Error checking subscription:', error);
+        return;
+      }
+      setSubscription(data);
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+    }
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+    setSubscription(null);
     toast({
       title: "تم تسجيل الخروج",
       description: "تم تسجيل خروجك بنجاح",
@@ -40,6 +63,7 @@ const Index = () => {
 
   const handleLogin = (userData: any) => {
     setUser(userData);
+    checkSubscription(userData);
     toast({
       title: "مرحباً بك",
       description: "تم تسجيل الدخول بنجاح",
@@ -150,6 +174,44 @@ const Index = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Subscription status indicator */}
+            {user && (
+              <div className="mb-6 p-4 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-blue-900">حالة الاشتراك</h3>
+                    {subscription?.subscribed ? (
+                      <p className="text-green-600">
+                        مشترك - {subscription.subscription_tier}
+                        {subscription.subscription_end && (
+                          <span className="text-sm text-gray-600 mr-2">
+                            (ينتهي: {new Date(subscription.subscription_end).toLocaleDateString('ar-SA')})
+                          </span>
+                        )}
+                      </p>
+                    ) : (
+                      <p className="text-orange-600">غير مشترك - وصول محدود</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => checkSubscription(user)}
+                    >
+                      تحديث الحالة
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to="/pricing">
+                        <CreditCard className="h-4 w-4 ml-1" />
+                        إدارة الاشتراك
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="chat" className="flex items-center gap-2">
@@ -172,6 +234,11 @@ const Index = () => {
                     <CardTitle className="flex items-center gap-2">
                       <MessageSquare className="h-5 w-5" />
                       الاستشارة القانونية المباشرة
+                      {subscription?.subscribed && (
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          متاح
+                        </Badge>
+                      )}
                     </CardTitle>
                     <CardDescription>
                       تحدث مع المستشار القانوني الذكي واحصل على إجابات فورية لاستفساراتك القانونية
@@ -198,6 +265,11 @@ const Index = () => {
                     <CardTitle className="flex items-center gap-2">
                       <Upload className="h-5 w-5" />
                       تحليل الوثائق القانونية
+                      {subscription?.subscribed && (
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          متاح
+                        </Badge>
+                      )}
                     </CardTitle>
                     <CardDescription>
                       ارفع وثائقك القانونية واحصل على تحليل مفصل وتوضيحات قانونية شاملة
@@ -205,7 +277,19 @@ const Index = () => {
                   </CardHeader>
                   <CardContent>
                     {user ? (
-                      <LegalConsultationWithFiles />
+                      subscription?.subscribed ? (
+                        <LegalConsultationWithFiles />
+                      ) : (
+                        <div className="text-center py-8 border-2 border-dashed border-orange-200 rounded-lg bg-orange-50">
+                          <Upload className="h-12 w-12 mx-auto mb-4 text-orange-400" />
+                          <p className="text-orange-700 mb-4">تحليل الوثائق متاح للمشتركين فقط</p>
+                          <Button variant="outline" asChild>
+                            <Link to="/pricing">
+                              اشترك الآن
+                            </Link>
+                          </Button>
+                        </div>
+                      )
                     ) : (
                       <div className="text-center py-8">
                         <p className="text-gray-600 mb-4">يرجى تسجيل الدخول للوصول إلى خدمة تحليل الوثائق</p>
@@ -224,6 +308,9 @@ const Index = () => {
                     <CardTitle className="flex items-center gap-2">
                       <FileSearch className="h-5 w-5" />
                       البحث في القوانين السورية
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                        مجاني
+                      </Badge>
                     </CardTitle>
                     <CardDescription>
                       ابحث في قاعدة بيانات شاملة للقوانين واللوائح السورية واحصل على النصوص القانونية ذات الصلة
@@ -322,3 +409,5 @@ const Index = () => {
 };
 
 export default Index;
+
+}
