@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Admin from './Admin';
 import Profile from './Profile';
-import Settings from './Settings';
+import SettingsPage from './Settings';
 import Pricing from './Pricing';
 import BalancePage from './BalancePage';
 import VoucherPage from './VoucherPage';
@@ -94,7 +94,7 @@ const Index = () => {
       <Routes>
         <Route path="/admin" element={<Admin />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/balance" element={<BalancePage />} />
         <Route path="/vouchers" element={<VoucherPage />} />
