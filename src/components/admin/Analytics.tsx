@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -238,7 +239,7 @@ export const Analytics = () => {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">زمن الاستجابة</span>
-                <Badge variant="secondary">< 2 ثانية</Badge>
+                <Badge variant="secondary">{"< 2 ثانية"}</Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">استخدام الخادم</span>
