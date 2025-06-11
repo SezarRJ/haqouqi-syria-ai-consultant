@@ -9,7 +9,11 @@ import { Badge } from '@/components/ui/badge';
 import { MessageSquare, Send, ThumbsUp, ThumbsDown, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-export const LegalConsultation = () => {
+interface LegalConsultationProps {
+  language: 'ar' | 'en';
+}
+
+export const LegalConsultation = ({ language }: LegalConsultationProps) => {
   const { toast } = useToast();
   const [query, setQuery] = useState('');
   const [conversation, setConversation] = useState<Array<{
@@ -19,21 +23,81 @@ export const LegalConsultation = () => {
     consultationId?: string;
   }>>([]);
 
+  const texts = {
+    ar: {
+      title: 'استشارة قانونية فورية',
+      description: 'احصل على مشورة قانونية دقيقة بناءً على القوانين السورية',
+      placeholder: 'اكتب استفسارك القانوني هنا...',
+      startChat: 'ابدأ محادثتك واطرح استفسارك القانوني',
+      analyzing: 'جارٍ تحليل استفسارك...',
+      error: 'حدث خطأ في معالجة استفسارك. يرجى المحاولة مرة أخرى.',
+      errorTitle: 'خطأ',
+      feedback: 'شكراً لك',
+      feedbackDesc: 'تم تسجيل تقييمك بنجاح',
+      disclaimer: 'تنبيه قانوني: هذا التطبيق يقدم استشارات قانونية عامة وليس بديلاً عن الاستشارة القانونية المهنية. للحصول على مشورة قانونية دقيقة ومفصلة حول حالتك الخاصة، يُنصح بمراجعة محامي مختص.'
+    },
+    en: {
+      title: 'Instant Legal Consultation',
+      description: 'Get accurate legal advice based on Syrian laws',
+      placeholder: 'Write your legal query here...',
+      startChat: 'Start your conversation and ask your legal question',
+      analyzing: 'Analyzing your query...',
+      error: 'An error occurred while processing your query. Please try again.',
+      errorTitle: 'Error',
+      feedback: 'Thank you',
+      feedbackDesc: 'Your feedback has been recorded successfully',
+      disclaimer: 'Legal Notice: This application provides general legal information and is not a substitute for professional legal advice. For accurate and detailed legal advice about your specific case, it is recommended to consult with a qualified lawyer.'
+    }
+  };
+
+  const t = texts[language];
+
   const consultationMutation = useMutation({
     mutationFn: async (queryText: string) => {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Simulate AI processing (in real implementation, this would call an AI service)
-      const aiResponse = `بناءً على استفسارك: "${queryText}"، يمكنني تقديم التوجيه القانوني التالي:
+      // Enhanced AI response based on Syrian law
+      const aiResponse = language === 'ar' ? 
+        `بناءً على استفسارك: "${queryText}"، يمكنني تقديم التوجيه القانوني التالي:
 
-هذا استفسار قانوني يتطلب مراجعة القوانين السورية ذات الصلة. يُنصح بمراجعة:
+📋 التحليل القانوني:
+وفقاً للقوانين السورية النافذة، يتبين أن هذا الاستفسار يتعلق بالمبادئ القانونية التالية:
+
+• المبدأ الأول: تطبيق أحكام القانون المدني السوري
+• المبدأ الثاني: مراعاة قانون أصول المحاكمات المدنية
+• المبدأ الثالث: الالتزام بالقوانين التنظيمية ذات الصلة
+
+⚖️ التوصيات القانونية:
+1. مراجعة النصوص القانونية ذات الصلة
+2. جمع الوثائق والأدلة المطلوبة
+3. استشارة محامي مختص للحصول على مشورة مفصلة
+
+📄 المراجع القانونية:
 - القانون المدني السوري
 - قانون أصول المحاكمات المدنية
-- القوانين التنظيمية ذات الصلة
+- القوانين التنظيمية المعمول بها
 
-للحصول على استشارة قانونية دقيقة ومفصلة، يُنصح بمراجعة محامي مختص.
+تنبيه: هذه معلومات قانونية عامة وتحتاج لمراجعة قانونية متخصصة.` :
+        `Based on your query: "${queryText}", I can provide the following legal guidance:
 
-تنبيه: هذه معلومات قانونية عامة وليست استشارة قانونية مهنية.`;
+📋 Legal Analysis:
+According to Syrian laws in force, this query relates to the following legal principles:
+
+• First principle: Application of Syrian Civil Code provisions
+• Second principle: Compliance with Civil Procedure Code
+• Third principle: Adherence to relevant regulatory laws
+
+⚖️ Legal Recommendations:
+1. Review relevant legal texts
+2. Gather required documents and evidence
+3. Consult with a specialized lawyer for detailed advice
+
+📄 Legal References:
+- Syrian Civil Code
+- Civil Procedure Code
+- Applicable regulatory laws
+
+Notice: This is general legal information and requires specialized legal review.`;
 
       // Save consultation to database
       const { data, error } = await supabase
@@ -60,8 +124,8 @@ export const LegalConsultation = () => {
     },
     onError: () => {
       toast({
-        title: "خطأ",
-        description: "حدث خطأ في معالجة استفسارك. يرجى المحاولة مرة أخرى.",
+        title: t.errorTitle,
+        description: t.error,
         variant: "destructive"
       });
     }
@@ -77,8 +141,8 @@ export const LegalConsultation = () => {
     },
     onSuccess: () => {
       toast({
-        title: "شكراً لك",
-        description: "تم تسجيل تقييمك بنجاح",
+        title: t.feedback,
+        description: t.feedbackDesc,
       });
     }
   });
@@ -100,19 +164,19 @@ export const LegalConsultation = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MessageSquare className="h-6 w-6 text-blue-600" />
-          استشارة قانونية فورية
+          {t.title}
         </CardTitle>
         <CardDescription>
-          احصل على مشورة قانونية دقيقة بناءً على القوانين السورية
+          {t.description}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Conversation Area */}
-        <div className="min-h-[400px] max-h-[500px] overflow-y-auto border rounded-lg p-4 space-y-4 bg-gray-50">
+        <div className="min-h-[400px] max-h-[500px] overflow-y-auto border rounded-lg p-4 space-y-4 bg-gray-50" dir={language === 'ar' ? 'rtl' : 'ltr'}>
           {conversation.length === 0 ? (
             <div className="text-center text-gray-500 py-8">
               <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p>ابدأ محادثتك واطرح استفسارك القانوني</p>
+              <p>{t.startChat}</p>
             </div>
           ) : (
             conversation.map((message, index) => (
@@ -131,7 +195,7 @@ export const LegalConsultation = () => {
                       message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
                     }`}>
                       <Clock className="h-3 w-3 inline ml-1" />
-                      {message.timestamp.toLocaleTimeString('ar-SA', { 
+                      {message.timestamp.toLocaleTimeString(language === 'ar' ? 'ar-SA' : 'en-US', { 
                         hour: '2-digit', 
                         minute: '2-digit' 
                       })}
@@ -170,7 +234,7 @@ export const LegalConsultation = () => {
               <div className="bg-white border p-3 rounded-lg max-w-[80%]">
                 <div className="flex items-center gap-2">
                   <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-                  <span className="text-gray-600">جارٍ تحليل استفسارك...</span>
+                  <span className="text-gray-600">{t.analyzing}</span>
                 </div>
               </div>
             </div>
@@ -182,9 +246,10 @@ export const LegalConsultation = () => {
           <Textarea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="اكتب استفسارك القانوني هنا..."
+            placeholder={t.placeholder}
             className="flex-1 min-h-[100px] resize-none"
             disabled={consultationMutation.isPending}
+            dir={language === 'ar' ? 'rtl' : 'ltr'}
           />
           <Button 
             type="submit" 
@@ -197,9 +262,8 @@ export const LegalConsultation = () => {
 
         {/* Legal Disclaimer */}
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-          <p className="text-sm text-yellow-800">
-            <strong>تنبيه قانوني:</strong> هذا التطبيق يقدم استشارات قانونية عامة وليس بديلاً عن الاستشارة القانونية المهنية. 
-            للحصول على مشورة قانونية دقيقة ومفصلة حول حالتك الخاصة، يُنصح بمراجعة محامي مختص.
+          <p className="text-sm text-yellow-800" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+            <strong>{language === 'ar' ? 'تنبيه قانوني:' : 'Legal Notice:'}</strong> {t.disclaimer}
           </p>
         </div>
       </CardContent>

@@ -9,10 +9,57 @@ import { Badge } from '@/components/ui/badge';
 import { Search, FileText, Calendar, Tag } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-export const SmartLegalSearch = () => {
+interface SmartLegalSearchProps {
+  language: 'ar' | 'en';
+}
+
+export const SmartLegalSearch = ({ language }: SmartLegalSearchProps) => {
   const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchType, setSearchType] = useState<'content' | 'number'>('content');
+
+  const texts = {
+    ar: {
+      title: 'بحث ذكي في القوانين',
+      description: 'ابحث في جميع القوانين السورية بالرقم أو المحتوى',
+      searchContent: 'بحث في المحتوى',
+      searchNumber: 'بحث برقم القانون',
+      placeholderNumber: 'أدخل رقم القانون (مثال: 84)',
+      placeholderContent: 'ابحث في أسماء ووصف القوانين...',
+      searching: 'جارٍ البحث...',
+      results: 'نتائج البحث',
+      noResults: 'لم يتم العثور على نتائج لبحثك',
+      tryDifferent: 'جرب استخدام كلمات مفتاحية مختلفة',
+      articles: 'المواد',
+      showMore: 'عرض',
+      additionalArticles: 'مواد إضافية...',
+      searchTips: 'نصائح للبحث:',
+      tip1: '• استخدم كلمات مفتاحية دقيقة مثل "عقد البيع" أو "الحضانة"',
+      tip2: '• ابحث برقم القانون للوصول المباشر (مثل: 84)',
+      tip3: '• استخدم المصطلحات القانونية الصحيحة للحصول على نتائج أفضل'
+    },
+    en: {
+      title: 'Smart Legal Search',
+      description: 'Search all Syrian laws by number or content',
+      searchContent: 'Search Content',
+      searchNumber: 'Search by Law Number',
+      placeholderNumber: 'Enter law number (example: 84)',
+      placeholderContent: 'Search in law names and descriptions...',
+      searching: 'Searching...',
+      results: 'Search Results',
+      noResults: 'No results found for your search',
+      tryDifferent: 'Try using different keywords',
+      articles: 'Articles',
+      showMore: 'Show',
+      additionalArticles: 'additional articles...',
+      searchTips: 'Search Tips:',
+      tip1: '• Use precise keywords like "sales contract" or "custody"',
+      tip2: '• Search by law number for direct access (e.g., 84)',
+      tip3: '• Use correct legal terminology for better results'
+    }
+  };
+
+  const t = texts[language];
 
   const { data: searchResults, isLoading, refetch } = useQuery({
     queryKey: ['legal-search', searchQuery, searchType],
@@ -54,10 +101,10 @@ export const SmartLegalSearch = () => {
       <CardHeader className={isMobile ? 'pb-4' : ''}>
         <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-lg' : 'text-xl'}`}>
           <Search className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'} text-blue-600`} />
-          بحث ذكي في القوانين
+          {t.title}
         </CardTitle>
         <CardDescription className={isMobile ? 'text-sm' : ''}>
-          ابحث في جميع القوانين السورية بالرقم أو المحتوى
+          {t.description}
         </CardDescription>
       </CardHeader>
       <CardContent className={`space-y-6 ${isMobile ? 'space-y-4' : ''}`}>
@@ -71,7 +118,7 @@ export const SmartLegalSearch = () => {
               size={isMobile ? "sm" : "default"}
               className={isMobile ? 'text-xs' : ''}
             >
-              بحث في المحتوى
+              {t.searchContent}
             </Button>
             <Button
               type="button"
@@ -80,7 +127,7 @@ export const SmartLegalSearch = () => {
               size={isMobile ? "sm" : "default"}
               className={isMobile ? 'text-xs' : ''}
             >
-              بحث برقم القانون
+              {t.searchNumber}
             </Button>
           </div>
           
@@ -90,10 +137,11 @@ export const SmartLegalSearch = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={
                 searchType === 'number' 
-                  ? "أدخل رقم القانون (مثال: 84)"
-                  : "ابحث في أسماء ووصف القوانين..."
+                  ? t.placeholderNumber
+                  : t.placeholderContent
               }
               className={`flex-1 ${isMobile ? 'text-sm' : ''}`}
+              dir={language === 'ar' ? 'rtl' : 'ltr'}
             />
             <Button 
               type="submit" 
@@ -110,13 +158,13 @@ export const SmartLegalSearch = () => {
           {isLoading ? (
             <div className="text-center py-8">
               <div className="animate-spin h-8 w-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
-              <p className={`text-gray-600 ${isMobile ? 'text-sm' : ''}`}>جارٍ البحث...</p>
+              <p className={`text-gray-600 ${isMobile ? 'text-sm' : ''}`}>{t.searching}</p>
             </div>
           ) : searchResults && searchResults.length > 0 ? (
             <>
               <div className="flex items-center justify-between">
-                <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold`}>نتائج البحث</h3>
-                <Badge variant="secondary">{searchResults.length} نتيجة</Badge>
+                <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold`}>{t.results}</h3>
+                <Badge variant="secondary">{searchResults.length} {language === 'ar' ? 'نتيجة' : 'results'}</Badge>
               </div>
               
               <div className="space-y-4">
@@ -129,7 +177,9 @@ export const SmartLegalSearch = () => {
                           <div className={`flex items-center gap-2 ${isMobile ? 'gap-1 flex-wrap' : 'gap-4'} text-sm text-gray-600 mb-2`}>
                             <span className="flex items-center gap-1">
                               <FileText className="h-3 w-3" />
-                              <span className={isMobile ? 'text-xs' : 'text-sm'}>رقم {law.number}</span>
+                              <span className={isMobile ? 'text-xs' : 'text-sm'}>
+                                {language === 'ar' ? 'رقم' : 'No.'} {law.number}
+                              </span>
                             </span>
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
@@ -140,28 +190,32 @@ export const SmartLegalSearch = () => {
                               <span className={isMobile ? 'text-xs' : 'text-sm'}>{law.category}</span>
                             </span>
                           </div>
-                          <p className={`text-gray-700 ${isMobile ? 'text-xs' : 'text-sm'}`}>{law.description}</p>
+                          <p className={`text-gray-700 ${isMobile ? 'text-xs' : 'text-sm'}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
+                            {law.description}
+                          </p>
                         </div>
                       </div>
                       
                       {law.law_articles && law.law_articles.length > 0 && (
                         <div className="border-t pt-3 mt-3">
                           <p className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-800 mb-2`}>
-                            المواد ({law.law_articles.length}):
+                            {t.articles} ({law.law_articles.length}):
                           </p>
                           <div className="space-y-2">
                             {law.law_articles.slice(0, isMobile ? 2 : 3).map((article) => (
                               <div key={article.id} className={`bg-gray-50 p-2 rounded ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                                <span className="font-medium">المادة {article.article_number}:</span>
+                                <span className="font-medium">
+                                  {language === 'ar' ? 'المادة' : 'Article'} {article.article_number}:
+                                </span>
                                 {article.title && <span className="mx-2">{article.title}</span>}
-                                <p className="text-gray-600 mt-1 line-clamp-2">
+                                <p className="text-gray-600 mt-1 line-clamp-2" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                                   {article.content.substring(0, isMobile ? 100 : 150)}...
                                 </p>
                               </div>
                             ))}
                             {law.law_articles.length > (isMobile ? 2 : 3) && (
                               <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-blue-600 cursor-pointer hover:underline`}>
-                                عرض {law.law_articles.length - (isMobile ? 2 : 3)} مواد إضافية...
+                                {t.showMore} {law.law_articles.length - (isMobile ? 2 : 3)} {t.additionalArticles}
                               </p>
                             )}
                           </div>
@@ -175,8 +229,8 @@ export const SmartLegalSearch = () => {
           ) : searchQuery && !isLoading ? (
             <div className="text-center py-8 text-gray-500">
               <Search className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p className={isMobile ? 'text-sm' : ''}>لم يتم العثور على نتائج لبحثك</p>
-              <p className="text-xs">جرب استخدام كلمات مفتاحية مختلفة</p>
+              <p className={isMobile ? 'text-sm' : ''}>{t.noResults}</p>
+              <p className="text-xs">{t.tryDifferent}</p>
             </div>
           ) : null}
         </div>
@@ -184,11 +238,11 @@ export const SmartLegalSearch = () => {
         {/* Search Tips */}
         {!searchQuery && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className={`font-medium text-blue-900 mb-2 ${isMobile ? 'text-sm' : ''}`}>نصائح للبحث:</h4>
-            <ul className={`text-blue-800 space-y-1 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-              <li>• استخدم كلمات مفتاحية دقيقة مثل "عقد البيع" أو "الحضانة"</li>
-              <li>• ابحث برقم القانون للوصول المباشر (مثل: 84)</li>
-              <li>• استخدم المصطلحات القانونية الصحيحة للحصول على نتائج أفضل</li>
+            <h4 className={`font-medium text-blue-900 mb-2 ${isMobile ? 'text-sm' : ''}`}>{t.searchTips}</h4>
+            <ul className={`text-blue-800 space-y-1 ${isMobile ? 'text-xs' : 'text-sm'}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <li>{t.tip1}</li>
+              <li>{t.tip2}</li>
+              <li>{t.tip3}</li>
             </ul>
           </div>
         )}
