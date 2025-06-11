@@ -72,20 +72,20 @@ const Index = () => {
 
   const texts = {
     ar: {
-      title: "المستشار القانوني السوري",
+      title: "المستشار القانوني", // Shortened for mobile
       subtitle: "نظام ذكي للاستشارات القانونية",
       welcome: isGuestMode ? "أهلاً بك ضيفنا الكريم" : "أهلاً بك",
       description: "منصة شاملة للاستشارات القانونية في سوريا. ابدأ بطرح سؤالك أدناه.",
-      guestMode: "وضع الضيف",
+      guestMode: "ضيف", // Shortened for mobile
       nativeApp: "تطبيق أصلي",
       loading: "جاري التحميل..."
     },
     en: {
-      title: "Syrian Legal Advisor",
+      title: "Legal Advisor", // Shortened for mobile
       subtitle: "Smart Legal Consultation System",
       welcome: isGuestMode ? "Welcome, Guest" : "Welcome",
       description: "A comprehensive platform for legal consultation in Syria. Start by asking your question below.",
-      guestMode: "Guest Mode",
+      guestMode: "Guest", // Shortened for mobile
       nativeApp: "Native App",
       loading: "Loading..."
     }
@@ -124,10 +124,9 @@ const Index = () => {
         onLanguageChange={handleLanguageChange}
       />
 
-      <main className="flex flex-1 flex-col overflow-hidden">
-        {/* Formal Header */}
-        <header className="flex items-center justify-between border-b border-border bg-background px-4 py-3 shadow-sm sticky top-0 z-40 safe-area-top">
-          <div className="flex items-center gap-3">
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <header className="flex items-center justify-between border-b border-border bg-background shadow-sm sticky top-0 z-40 safe-area-top mobile-header">
+          <div className="flex items-center gap-3 overflow-hidden">
             <SidebarTrigger className="lg:hidden">
               <Button
                 variant="ghost"
@@ -137,17 +136,14 @@ const Index = () => {
                 <Menu className="h-5 w-5 text-foreground" />
               </Button>
             </SidebarTrigger>
-            <div>
-              <h1 className="font-bold text-base text-foreground truncate">{t.title}</h1>
-              <p className="text-xs text-muted-foreground truncate">{t.subtitle}</p>
+            <div className="overflow-hidden">
+              <h1 className="font-bold text-foreground truncate mobile-title">{t.title}</h1>
+              <p className="text-muted-foreground truncate mobile-subtitle">{t.subtitle}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-shrink-0 items-center gap-1 sm:gap-2">
             {isGuestMode && (
-              <Badge variant="outline" className="hidden sm:inline-flex">{t.guestMode}</Badge>
-            )}
-            {isNative && (
-              <Badge variant="outline" className="text-green-600 border-green-300 hidden sm:inline-flex">{t.nativeApp}</Badge>
+              <Badge variant="outline">{t.guestMode}</Badge>
             )}
             <LanguageSwitcher
               language={language}
@@ -157,15 +153,13 @@ const Index = () => {
           </div>
         </header>
 
-        {/* Main Content Area */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 safe-area-bottom">
-          <div className="mx-auto max-w-6xl space-y-6">
-            <EnhancedLegalConsultation language={language} />
+        <main className="flex-1 overflow-y-auto custom-scrollbar mobile-content-padding safe-area-bottom">
+          <div className="mx-auto h-full max-w-6xl">
+              <EnhancedLegalConsultation language={language} />
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
 
-      {/* PWA Installer - only show on web */}
       {!isNative && <PWAInstaller language={language} />}
     </div>
   );
