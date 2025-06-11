@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthModal } from '@/components/AuthModal';
@@ -114,10 +115,8 @@ const Index = () => {
         <header className="bg-white/95 backdrop-blur-sm border-b border-blue-200 shadow-sm sticky top-0 z-10 safe-area-inset-top">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-3">
-              <SidebarTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden touch-target">
-                  <Menu className="h-5 w-5" />
-                </Button>
+              <SidebarTrigger className="lg:hidden touch-target">
+                <Menu className="h-5 w-5" />
               </SidebarTrigger>
               {/* MODIFIED: Made header title smaller on mobile */}
               <h1 className="font-bold text-blue-900 text-sm sm:text-base truncate-mobile max-w-[calc(100vw-220px)] sm:max-w-none">
