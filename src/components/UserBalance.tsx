@@ -9,13 +9,9 @@ import { Badge } from '@/components/ui/badge';
 import { Wallet, CreditCard, Plus, History } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-interface UserBalance {
-  id: string;
-  user_id: string;
+interface UserBalanceData {
   balance: number;
   currency: string;
-  updated_at: string;
-  created_at: string;
 }
 
 interface Transaction {
@@ -36,30 +32,33 @@ export const UserBalance = () => {
 
   const { data: balance } = useQuery({
     queryKey: ['user-balance'],
-    queryFn: async () => {
+    queryFn: async (): Promise<UserBalanceData> => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      if (!user) return { balance: 0, currency: 'SAR' };
 
-      const { data, error } = await supabase
-        .rpc('get_user_balance', { p_user_id: user.id });
+      const { data, error } = await supabase.rpc('get_user_balance', { 
+        p_user_id: user.id 
+      });
 
       if (error) {
         console.error('Balance fetch error:', error);
         return { balance: 0, currency: 'SAR' };
       }
       
-      return data || { balance: 0, currency: 'SAR' };
+      return data?.[0] || { balance: 0, currency: 'SAR' };
     }
   });
 
   const { data: transactions } = useQuery({
     queryKey: ['user-transactions'],
-    queryFn: async () => {
+    queryFn: async (): Promise<Transaction[]> => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
-      const { data, error } = await supabase
-        .rpc('get_user_transactions', { p_user_id: user.id, p_limit: 10 });
+      const { data, error } = await supabase.rpc('get_user_transactions', { 
+        p_user_id: user.id, 
+        p_limit: 10 
+      });
 
       if (error) {
         console.error('Transactions fetch error:', error);
@@ -74,15 +73,14 @@ export const UserBalance = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const { data, error } = await supabase
-        .rpc('add_user_balance', { 
-          p_user_id: user.id, 
-          p_amount: amount, 
-          p_description: `إيداع رصيد - ${amount} ريال`
-        });
+      const { error } = await supabase.rpc('add_user_balance', { 
+        p_user_id: user.id, 
+        p_amount: amount, 
+        p_description: `إيداع رصيد - ${amount} ريال`
+      });
 
       if (error) throw error;
-      return data;
+      return true;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-balance'] });
@@ -223,35 +221,36 @@ export const UserBalance = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {transactions?.map((transaction: Transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between border-b pb-2">
-                <div>
-                  <p className="font-medium">{transaction.description}</p>
-                  <p className="text-sm text-gray-600">
-                    {new Date(transaction.created_at).toLocaleDateString('ar-SA', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </p>
+            {transactions && transactions.length > 0 ? (
+              transactions.map((transaction: Transaction) => (
+                <div key={transaction.id} className="flex items-center justify-between border-b pb-2">
+                  <div>
+                    <p className="font-medium">{transaction.description}</p>
+                    <p className="text-sm text-gray-600">
+                      {new Date(transaction.created_at).toLocaleDateString('ar-SA', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className={`font-bold ${getTransactionColor(transaction.type)}`}>
+                      {getTransactionSign(transaction.type)}{Math.abs(transaction.amount).toFixed(2)} ريال
+                    </p>
+                    <Badge 
+                      variant={transaction.type === 'deposit' ? 'default' : 'secondary'}
+                      className="text-xs"
+                    >
+                      {transaction.type === 'deposit' ? 'إيداع' : 
+                       transaction.type === 'withdrawal' ? 'سحب' : 'اشتراك'}
+                    </Badge>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className={`font-bold ${getTransactionColor(transaction.type)}`}>
-                    {getTransactionSign(transaction.type)}{Math.abs(transaction.amount).toFixed(2)} ريال
-                  </p>
-                  <Badge 
-                    variant={transaction.type === 'deposit' ? 'default' : 'secondary'}
-                    className="text-xs"
-                  >
-                    {transaction.type === 'deposit' ? 'إيداع' : 
-                     transaction.type === 'withdrawal' ? 'سحب' : 'اشتراك'}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-            {(!transactions || transactions.length === 0) && (
+              ))
+            ) : (
               <p className="text-gray-500 text-center py-4">لا توجد معاملات</p>
             )}
           </div>

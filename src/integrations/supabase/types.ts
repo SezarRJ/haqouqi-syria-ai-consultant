@@ -344,11 +344,99 @@ export type Database = {
         }
         Relationships: []
       }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          status: string | null
+          stripe_payment_id: string | null
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          status?: string | null
+          stripe_payment_id?: string | null
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          status?: string | null
+          stripe_payment_id?: string | null
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_balances: {
+        Row: {
+          balance: number | null
+          created_at: string
+          currency: string | null
+          id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          balance?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          balance?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      add_user_balance: {
+        Args: { p_user_id: string; p_amount: number; p_description: string }
+        Returns: undefined
+      }
+      create_admin_user: {
+        Args: { p_user_id: string; p_admin_role: string }
+        Returns: undefined
+      }
+      get_user_balance: {
+        Args: { p_user_id: string }
+        Returns: {
+          balance: number
+          currency: string
+        }[]
+      }
+      get_user_transactions: {
+        Args: { p_user_id: string; p_limit?: number }
+        Returns: {
+          id: string
+          user_id: string
+          amount: number
+          type: string
+          description: string
+          stripe_payment_id: string
+          status: string
+          created_at: string
+        }[]
+      }
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
