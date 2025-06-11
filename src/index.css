@@ -1,8 +1,9 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+/* Arabic Legal Consultant Design System */
 
 @layer base {
   :root {
@@ -15,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 221 83% 53%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -32,25 +33,24 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 221 83% 53%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Legal theme colors */
+    --legal-blue: 221 83% 53%;
+    --legal-blue-dark: 221 83% 35%;
+    --legal-gold: 45 93% 47%;
+    --legal-gold-light: 45 93% 85%;
   }
 
   .dark {
@@ -99,5 +99,106 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  }
+
+  /* Arabic RTL Support */
+  [dir="rtl"] {
+    direction: rtl;
+  }
+
+  [dir="rtl"] .ml-2 {
+    @apply mr-2 ml-0;
+  }
+
+  [dir="rtl"] .mr-2 {
+    @apply ml-2 mr-0;
+  }
+
+  [dir="rtl"] .ml-1 {
+    @apply mr-1 ml-0;
+  }
+
+  [dir="rtl"] .mr-1 {
+    @apply ml-1 mr-0;
+  }
+
+  [dir="rtl"] .pl-10 {
+    @apply pr-10 pl-0;
+  }
+
+  [dir="rtl"] .pr-10 {
+    @apply pl-10 pr-0;
+  }
+
+  [dir="rtl"] .left-3 {
+    @apply right-3 left-auto;
+  }
+
+  [dir="rtl"] .right-3 {
+    @apply left-3 right-auto;
+  }
+
+  /* Legal Theme Typography */
+  .legal-heading {
+    @apply text-blue-900 font-bold;
+  }
+
+  .legal-text {
+    @apply text-blue-700 leading-relaxed;
+  }
+
+  .legal-card {
+    @apply bg-white border border-blue-100 shadow-sm hover:shadow-md transition-shadow;
+  }
+
+  /* Arabic Font Improvements */
+  .arabic-text {
+    font-feature-settings: "liga" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Custom scrollbar for Arabic interface */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-blue-300 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-blue-400;
+  }
+}
+
+/* Legal consultation interface specific styles */
+@layer components {
+  .legal-gradient {
+    background: linear-gradient(135deg, hsl(var(--legal-blue)) 0%, hsl(var(--legal-blue-dark)) 100%);
+  }
+
+  .legal-accent-gradient {
+    background: linear-gradient(135deg, hsl(var(--legal-gold-light)) 0%, hsl(var(--legal-gold)) 100%);
+  }
+
+  .chat-message-user {
+    @apply bg-blue-600 text-white rounded-lg p-3 max-w-[80%] ml-auto;
+  }
+
+  .chat-message-bot {
+    @apply bg-gray-100 text-gray-900 rounded-lg p-3 max-w-[80%] mr-auto;
+  }
+
+  .legal-card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-blue-100 hover:border-blue-200;
+  }
+
+  .arabic-number {
+    font-variant-numeric: lining-nums;
   }
 }
