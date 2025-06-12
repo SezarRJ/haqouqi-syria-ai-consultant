@@ -138,11 +138,11 @@ export const AdminDashboard = ({ language }: AdminDashboardProps) => {
         </TabsContent>
 
         <TabsContent value="vouchers">
-          <VoucherManagement language={language} />
+          <VoucherManagement />
         </TabsContent>
 
         <TabsContent value="payments">
-          <PaymentManagement language={language} />
+          <PaymentManagement />
         </TabsContent>
 
         <TabsContent value="database">
