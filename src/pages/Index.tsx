@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -27,16 +26,15 @@ const Index = () => {
     });
 
     const savedLanguage = localStorage.getItem('language');
-    if (savedLanguage && (savedLanguage === 'ar' || savedLanguage === 'en')) {
-      const validLanguage = savedLanguage as 'ar' | 'en';
-      setLanguage(validLanguage);
-      document.documentElement.dir = validLanguage === 'ar' ? 'rtl' : 'ltr';
-      document.documentElement.lang = validLanguage;
+    if (savedLanguage === 'ar' || savedLanguage === 'en') {
+      setLanguage(savedLanguage);
+      document.documentElement.dir = savedLanguage === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.lang = savedLanguage;
     } else {
-      const defaultLang = 'en' as const;
+      const defaultLang = 'en';
       setLanguage(defaultLang);
       localStorage.setItem('language', defaultLang);
-      document.documentElement.dir = defaultLang === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.dir = 'ltr';
       document.documentElement.lang = defaultLang;
     }
 
