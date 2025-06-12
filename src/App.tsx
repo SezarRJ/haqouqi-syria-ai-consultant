@@ -17,6 +17,15 @@ import VoucherPage from '@/pages/VoucherPage';
 import TransactionHistory from '@/pages/TransactionHistory';
 import PaymentMethodsPage from '@/pages/PaymentMethods';
 import AILegalTools from '@/pages/AILegalTools';
+import ConsultationPage from '@/pages/ConsultationPage';
+import RiskAssessmentPage from '@/pages/RiskAssessmentPage';
+import DocumentDraftingPage from '@/pages/DocumentDraftingPage';
+import LegalSearchPage from '@/pages/LegalSearchPage';
+import OCRServicePage from '@/pages/OCRServicePage';
+import CaseAnalysisPage from '@/pages/CaseAnalysisPage';
+import ExplanationsPage from '@/pages/ExplanationsPage';
+import CollaborationPage from '@/pages/CollaborationPage';
+import NotificationsPage from '@/pages/NotificationsPage';
 
 const App = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -72,6 +81,14 @@ const App = () => {
           <SidebarInset className="flex-1">
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/consultation" element={<ConsultationPage />} />
+              <Route path="/risk-assessment" element={<RiskAssessmentPage />} />
+              <Route path="/document-drafting" element={<DocumentDraftingPage />} />
+              <Route path="/legal-search" element={<LegalSearchPage />} />
+              <Route path="/ocr-service" element={<OCRServicePage />} />
+              <Route path="/case-analysis" element={<CaseAnalysisPage />} />
+              <Route path="/explanations" element={<ExplanationsPage />} />
+              <Route path="/collaboration" element={<CollaborationPage />} />
               <Route path="/ai-tools" element={<AILegalTools />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/profile" element={<Profile />} />
@@ -81,6 +98,7 @@ const App = () => {
               <Route path="/voucher" element={<VoucherPage />} />
               <Route path="/history" element={<TransactionHistory />} />
               <Route path="/payment-methods" element={<PaymentMethodsPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
             </Routes>
           </SidebarInset>
         </div>

@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { EnhancedLegalConsultation } from '@/components/EnhancedLegalConsultation';
 import { useCapacitor } from '@/hooks/useCapacitor';
 import { User } from '@supabase/supabase-js';
-import { Scale, Users, Shield, Settings as SettingsIcon, Brain, CreditCard } from 'lucide-react';
+import { Scale, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -43,21 +43,13 @@ const Index = () => {
     ar: {
       title: "المستشار القانوني الذكي",
       subtitle: "استشارات قانونية متقدمة بالذكاء الاصطناعي",
-      aiTools: "أدوات الذكاء الاصطناعي",
-      adminPanel: "لوحة الإدارة",
       profile: "الملف الشخصي",
-      settings: "الإعدادات",
-      pricing: "الأسعار",
       description: "احصل على استشارات قانونية دقيقة ومفصلة باستخدام تقنيات الذكاء الاصطناعي المتطورة. نظام شامل يدعم القانون السوري والعربي."
     },
     en: {
       title: "Smart Legal Advisor",
       subtitle: "Advanced AI-Powered Legal Consultations",
-      aiTools: "AI Tools",
-      adminPanel: "Admin Panel",
       profile: "Profile",
-      settings: "Settings",
-      pricing: "Pricing",
       description: "Get accurate and detailed legal consultations using advanced AI technologies. Comprehensive system supporting Syrian and Arabic law."
     }
   };
@@ -91,33 +83,9 @@ const Index = () => {
       </div>
 
       <div className="container mx-auto px-4 py-6 max-w-6xl">
-        {/* Quick Access Buttons */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-          <Button
-            onClick={() => {
-              if (isNative) hapticFeedback();
-              navigate('/ai-tools');
-            }}
-            variant="outline"
-            className={`h-20 flex flex-col items-center gap-2 border-blue-200 hover:bg-blue-50 text-blue-700 ${language === 'ar' ? 'flex-col-reverse' : 'flex-col'}`}
-          >
-            <Brain className="h-6 w-6" />
-            <span className="text-sm font-medium">{t.aiTools}</span>
-          </Button>
-
-          <Button
-            onClick={() => {
-              if (isNative) hapticFeedback();
-              navigate('/admin');
-            }}
-            variant="outline"
-            className={`h-20 flex flex-col items-center gap-2 border-blue-200 hover:bg-blue-50 text-blue-700 ${language === 'ar' ? 'flex-col-reverse' : 'flex-col'}`}
-          >
-            <Shield className="h-6 w-6" />
-            <span className="text-sm font-medium">{t.adminPanel}</span>
-          </Button>
-
-          {user && (
+        {/* Quick Access Buttons - Only Profile if user exists */}
+        {user && (
+          <div className="grid grid-cols-1 gap-4 mb-8">
             <Button
               onClick={() => {
                 if (isNative) hapticFeedback();
@@ -129,32 +97,8 @@ const Index = () => {
               <Users className="h-6 w-6" />
               <span className="text-sm font-medium">{t.profile}</span>
             </Button>
-          )}
-
-          <Button
-            onClick={() => {
-              if (isNative) hapticFeedback();
-              navigate('/settings');
-            }}
-            variant="outline"
-            className={`h-20 flex flex-col items-center gap-2 border-blue-200 hover:bg-blue-50 text-blue-700 ${language === 'ar' ? 'flex-col-reverse' : 'flex-col'}`}
-          >
-            <SettingsIcon className="h-6 w-6" />
-            <span className="text-sm font-medium">{t.settings}</span>
-          </Button>
-
-          <Button
-            onClick={() => {
-              if (isNative) hapticFeedback();
-              navigate('/pricing');
-            }}
-            variant="outline"
-            className={`h-20 flex flex-col items-center gap-2 border-blue-200 hover:bg-blue-50 text-blue-700 ${language === 'ar' ? 'flex-col-reverse' : 'flex-col'}`}
-          >
-            <CreditCard className="h-6 w-6" />
-            <span className="text-sm font-medium">{t.pricing}</span>
-          </Button>
-        </div>
+          </div>
+        )}
 
         {/* Main Content */}
         <div className="space-y-6">

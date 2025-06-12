@@ -25,7 +25,16 @@ import {
   DollarSign,
   Scale,
   Brain,
-  Home
+  Home,
+  MessageSquare,
+  AlertTriangle,
+  FileText,
+  Search,
+  ScanText,
+  BarChart3,
+  BookOpen,
+  Users,
+  Bell
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -57,15 +66,25 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       legalAdvisor: 'المستشار القانوني',
       smartSystem: 'نظام ذكي للاستشارات',
       mainMenu: 'القائمة الرئيسية',
+      legalServices: 'الخدمات القانونية',
       aiFeatures: 'الذكاء الاصطناعي',
       accountPayment: 'الحساب والدفع',
       home: 'الرئيسية',
+      consultation: 'الاستشارة',
+      riskAssessment: 'تقييم المخاطر',
+      documentDrafting: 'صياغة الوثائق',
+      legalSearch: 'البحث القانوني',
+      ocrService: 'خدمة OCR',
+      caseAnalysis: 'تحليل القضايا',
+      explanations: 'الشروحات',
+      collaboration: 'التعاون',
       aiTools: 'أدوات الذكاء الاصطناعي',
       profile: 'الملف الشخصي',
       settings: 'الإعدادات',
       subscriptions: 'الاشتراكات',
       admin: 'الإدارة',
       balance: 'الرصيد',
+      notifications: 'الإشعارات',
       paymentMethods: 'طرق الدفع',
       voucher: 'كوبون الشحن',
       history: 'السجل',
@@ -76,15 +95,25 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       legalAdvisor: 'Legal Advisor',
       smartSystem: 'Smart Legal System',
       mainMenu: 'Main Menu',
+      legalServices: 'Legal Services',
       aiFeatures: 'AI Features',
       accountPayment: 'Account & Payment',
       home: 'Home',
+      consultation: 'Consultation',
+      riskAssessment: 'Risk Assessment',
+      documentDrafting: 'Document Drafting',
+      legalSearch: 'Legal Search',
+      ocrService: 'OCR Service',
+      caseAnalysis: 'Case Analysis',
+      explanations: 'Explanations',
+      collaboration: 'Collaboration',
       aiTools: 'AI Tools',
       profile: 'Profile',
       settings: 'Settings',
       subscriptions: 'Subscriptions',
       admin: 'Admin',
       balance: 'Balance',
+      notifications: 'Notifications',
       paymentMethods: 'Payment Methods',
       voucher: 'Voucher',
       history: 'History',
@@ -107,6 +136,16 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       path: '/profile'
     },
     {
+      title: t.balance,
+      icon: DollarSign,
+      path: '/balance'
+    },
+    {
+      title: t.notifications,
+      icon: Bell,
+      path: '/notifications'
+    },
+    {
       title: t.settings,
       icon: Settings,
       path: '/settings'
@@ -115,6 +154,49 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       title: t.subscriptions,
       icon: CreditCard,
       path: '/pricing'
+    }
+  ];
+
+  const legalServiceItems = [
+    {
+      title: t.consultation,
+      icon: MessageSquare,
+      path: '/consultation'
+    },
+    {
+      title: t.riskAssessment,
+      icon: AlertTriangle,
+      path: '/risk-assessment'
+    },
+    {
+      title: t.documentDrafting,
+      icon: FileText,
+      path: '/document-drafting'
+    },
+    {
+      title: t.legalSearch,
+      icon: Search,
+      path: '/legal-search'
+    },
+    {
+      title: t.ocrService,
+      icon: ScanText,
+      path: '/ocr-service'
+    },
+    {
+      title: t.caseAnalysis,
+      icon: BarChart3,
+      path: '/case-analysis'
+    },
+    {
+      title: t.explanations,
+      icon: BookOpen,
+      path: '/explanations'
+    },
+    {
+      title: t.collaboration,
+      icon: Users,
+      path: '/collaboration'
     }
   ];
 
@@ -132,11 +214,6 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
   ];
 
   const accountItems = [
-    {
-      title: t.balance,
-      icon: DollarSign,
-      path: '/balance'
-    },
     {
       title: t.paymentMethods,
       icon: Wallet,
@@ -180,6 +257,30 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
           <SidebarGroupContent>
             <SidebarMenu>
               {mainMenuItems.map((item) => (
+                <SidebarMenuItem key={item.path}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={location.pathname === item.path}
+                    className="h-9 sm:h-10"
+                  >
+                    <Link to={item.path} className={`flex items-center gap-2 sm:gap-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <span className={`text-sm truncate ${language === 'ar' ? 'text-right' : 'text-left'}`}>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className={`text-xs sm:text-sm ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+            {t.legalServices}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {legalServiceItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton 
                     asChild 
