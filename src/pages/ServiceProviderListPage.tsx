@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { ArrowLeft, Search, Star, UserCheck, Filter, Users, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Search, Star, UserCheck, Filter, Users, MessageSquare, Loader2 } from 'lucide-react'; // Added Loader2
 
 interface ServiceProvider {
   id: string;
@@ -27,16 +26,21 @@ interface ServiceProvider {
   is_active: boolean;
 }
 
-const ServiceProvidersPage = () => {
+const ServiceProviderListPage = () => { // Renamed component
   const navigate = useNavigate();
   const [providers, setProviders] = useState<ServiceProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'lawyer' | 'judge'>('all');
   const [sortBy, setSortBy] = useState<'rating' | 'experience' | 'price_low' | 'price_high'>('rating');
-  const [language] = useState<'ar' | 'en'>('ar');
+  const [language, setLanguage] = useState<'ar' | 'en'>('ar'); // Use state for language
 
   useEffect(() => {
+    // Load language preference
+    const savedLanguage = localStorage.getItem('language') as 'ar' | 'en';
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    }
     fetchProviders();
   }, []);
 
@@ -48,7 +52,7 @@ const ServiceProvidersPage = () => {
         .select('*')
         .eq('is_verified', true)
         .eq('is_active', true)
-        .order('rating', { ascending: false });
+        .order('rating', { ascending: false }); // Default sort
 
       if (error) throw error;
 
@@ -67,13 +71,14 @@ const ServiceProvidersPage = () => {
 
   const filteredAndSortedProviders = providers
     .filter(provider => {
-      const matchesSearch = searchTerm === '' || 
+      const matchesSearch = searchTerm === '' ||
         provider.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         provider.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        provider.specialties.some(specialty => specialty.toLowerCase().includes(searchTerm.toLowerCase()));
-      
+        provider.specialties.some(specialty => specialty.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        provider.activities.some(activity => activity.toLowerCase().includes(searchTerm.toLowerCase())); // Also search activities
+
       const matchesType = filterType === 'all' || provider.provider_type === filterType;
-      
+
       return matchesSearch && matchesType;
     })
     .sort((a, b) => {
@@ -101,17 +106,22 @@ const ServiceProvidersPage = () => {
       filterJudge: "قاضي",
       sortByRating: "الأعلى تقييماً",
       sortByExperience: "الأكثر خبرة",
-      sortByPriceLow: "السعر من الأقل للأعلى",
-      sortByPriceHigh: "السعر من الأعلى للأقل",
+      sortByPriceLow: "السعر: من الأقل للأعلى",
+      sortByPriceHigh: "السعر: من الأعلى للأقل",
       yearsExperience: "سنوات خبرة",
       consultations: "استشارة",
-      hourlyRate: "الساعة",
+      hourlyRate: "للساعة", // Changed from "الساعة" for better clarity
       bookConsultation: "احجز استشارة",
       verified: "موثق",
       specialties: "التخصصات",
       services: "الخدمات",
       sortBy: "ترتيب حسب",
-      filterBy: "تصفية حسب"
+      filterBy: "تصفية حسب",
+      back: "العودة",
+      noResults: "لا توجد نتائج",
+      tryChangingFilters: "جرب تغيير مصطلح البحث أو المرشحات",
+      lawyerType: "محامي", // For displaying type, previously only filter text
+      judgeType: "قاضي", // For displaying type
     },
     en: {
       title: "Legal Service Providers",
@@ -132,7 +142,12 @@ const ServiceProvidersPage = () => {
       specialties: "Specialties",
       services: "Services",
       sortBy: "Sort by",
-      filterBy: "Filter by"
+      filterBy: "Filter by",
+      back: "Back",
+      noResults: "No Results Found",
+      tryChangingFilters: "Try changing your search term or filters",
+      lawyerType: "Lawyer",
+      judgeType: "Judge",
     }
   };
 
@@ -140,16 +155,16 @@ const ServiceProvidersPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 flex items-center justify-center">
+        <Loader2 className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 dark:border-blue-400 border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 text-gray-900 dark:text-gray-100" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="bg-white/95 backdrop-blur-lg border-b border-blue-100 sticky top-0 z-40 shadow-sm">
+      <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border-b border-blue-100 dark:border-gray-700 sticky top-0 z-40 shadow-sm">
         <div className={`flex items-center gap-4 p-4 max-w-7xl mx-auto ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
           <div className={`flex items-center gap-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
             <SidebarTrigger />
@@ -157,16 +172,16 @@ const ServiceProvidersPage = () => {
               variant="ghost"
               size="sm"
               onClick={() => navigate('/')}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               <ArrowLeft className="h-4 w-4" />
-              {language === 'ar' ? 'العودة' : 'Back'}
+              {t.back}
             </Button>
           </div>
-          
+
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-gray-900">{t.title}</h1>
-            <p className="text-sm text-blue-600">{t.subtitle}</p>
+            <h1 className="text-xl font-bold">{t.title}</h1>
+            <p className="text-sm text-blue-600 dark:text-blue-400">{t.subtitle}</p>
           </div>
         </div>
       </div>
@@ -176,37 +191,37 @@ const ServiceProvidersPage = () => {
         <div className="mb-8 space-y-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className={`absolute ${language === 'ar' ? 'right-3' : 'left-3'} top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400`} />
               <Input
                 placeholder={t.search}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className={`pl-10 pr-4 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 ${language === 'ar' ? 'text-right pr-10 pl-4' : 'text-left pl-10 pr-4'}`}
               />
             </div>
-            
-            <div className="flex gap-2">
+
+            <div className="flex flex-col sm:flex-row gap-2">
               <Select value={filterType} onValueChange={(value: 'all' | 'lawyer' | 'judge') => setFilterType(value)}>
-                <SelectTrigger className="w-40">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue />
+                <SelectTrigger className="w-full sm:w-40 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100">
+                  <Filter className={`h-4 w-4 ${language === 'ar' ? 'ml-2' : 'mr-2'}`} />
+                  <SelectValue placeholder={t.filterBy} />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t.filterAll}</SelectItem>
-                  <SelectItem value="lawyer">{t.filterLawyer}</SelectItem>
-                  <SelectItem value="judge">{t.filterJudge}</SelectItem>
+                <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+                  <SelectItem value="all" className="dark:text-gray-100">{t.filterAll}</SelectItem>
+                  <SelectItem value="lawyer" className="dark:text-gray-100">{t.filterLawyer}</SelectItem>
+                  <SelectItem value="judge" className="dark:text-gray-100">{t.filterJudge}</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-                <SelectTrigger className="w-48">
-                  <SelectValue />
+                <SelectTrigger className="w-full sm:w-48 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100">
+                  <SelectValue placeholder={t.sortBy} />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="rating">{t.sortByRating}</SelectItem>
-                  <SelectItem value="experience">{t.sortByExperience}</SelectItem>
-                  <SelectItem value="price_low">{t.sortByPriceLow}</SelectItem>
-                  <SelectItem value="price_high">{t.sortByPriceHigh}</SelectItem>
+                <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+                  <SelectItem value="rating" className="dark:text-gray-100">{t.sortByRating}</SelectItem>
+                  <SelectItem value="experience" className="dark:text-gray-100">{t.sortByExperience}</SelectItem>
+                  <SelectItem value="price_low" className="dark:text-gray-100">{t.sortByPriceLow}</SelectItem>
+                  <SelectItem value="price_high" className="dark:text-gray-100">{t.sortByPriceHigh}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -216,26 +231,27 @@ const ServiceProvidersPage = () => {
         {/* Results */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredAndSortedProviders.map((provider) => (
-            <Card 
+            <Card
               key={provider.id}
-              className="group transition-all duration-300 hover:shadow-xl hover:scale-105 border-2 border-blue-200"
+              className="group transition-all duration-300 hover:shadow-xl hover:scale-105 border-2 border-blue-200 dark:border-gray-700 dark:bg-gray-800"
+              onClick={() => navigate(`/providers/${provider.id}`)} {/* Navigate to individual profile */}
             >
-              <CardHeader className="bg-gradient-to-br from-blue-50 to-indigo-100 pb-4">
+              <CardHeader className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-700 dark:to-gray-900 pb-4">
                 <div className={`flex items-start justify-between ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
                   <div className={`flex items-start gap-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
-                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                      <UserCheck className="h-6 w-6 text-blue-600" />
+                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                      <UserCheck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
-                      <CardTitle className={`text-lg font-bold ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+                      <CardTitle className={`text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                         {provider.first_name} {provider.last_name}
                       </CardTitle>
                       <div className={`flex items-center gap-2 mt-1 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
-                        <Badge variant="secondary" className="text-xs capitalize">
-                          {provider.provider_type}
+                        <Badge variant="secondary" className="text-xs capitalize dark:bg-gray-700 dark:text-gray-200">
+                          {provider.provider_type === 'lawyer' ? t.lawyerType : t.judgeType}
                         </Badge>
                         {provider.is_verified && (
-                          <Badge className="text-xs bg-green-100 text-green-800">
+                          <Badge className="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
                             {t.verified}
                           </Badge>
                         )}
@@ -244,18 +260,18 @@ const ServiceProvidersPage = () => {
                   </div>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="pt-4 pb-6 space-y-4">
                 {/* Rating and Experience */}
                 <div className={`flex items-center justify-between ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
                   <div className={`flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
                     <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                    <span className="font-medium">{provider.rating?.toFixed(1) || '0.0'}</span>
-                    <span className="text-sm text-gray-500">
+                    <span className="font-medium text-gray-800 dark:text-gray-100">{provider.rating?.toFixed(1) || '0.0'}</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
                       ({provider.total_consultations || 0} {t.consultations})
                     </span>
                   </div>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     {provider.experience_years || 0} {t.yearsExperience}
                   </span>
                 </div>
@@ -263,17 +279,17 @@ const ServiceProvidersPage = () => {
                 {/* Specialties */}
                 {provider.specialties && provider.specialties.length > 0 && (
                   <div>
-                    <h4 className={`text-sm font-semibold text-gray-800 mb-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+                    <h4 className={`text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                       {t.specialties}:
                     </h4>
                     <div className="flex flex-wrap gap-1">
                       {provider.specialties.slice(0, 3).map((specialty, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
+                        <Badge key={idx} variant="outline" className="text-xs dark:border-gray-600 dark:text-gray-200">
                           {specialty}
                         </Badge>
                       ))}
                       {provider.specialties.length > 3 && (
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className="text-xs dark:bg-gray-700 dark:text-gray-200">
                           +{provider.specialties.length - 3}
                         </Badge>
                       )}
@@ -284,17 +300,17 @@ const ServiceProvidersPage = () => {
                 {/* Services */}
                 {provider.activities && provider.activities.length > 0 && (
                   <div>
-                    <h4 className={`text-sm font-semibold text-gray-800 mb-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+                    <h4 className={`text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                       {t.services}:
                     </h4>
                     <div className="flex flex-wrap gap-1">
                       {provider.activities.slice(0, 2).map((activity, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-xs">
+                        <Badge key={idx} variant="secondary" className="text-xs dark:bg-gray-700 dark:text-gray-200">
                           {activity}
                         </Badge>
                       ))}
                       {provider.activities.length > 2 && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs dark:border-gray-600 dark:text-gray-200">
                           +{provider.activities.length - 2}
                         </Badge>
                       )}
@@ -302,9 +318,9 @@ const ServiceProvidersPage = () => {
                   </div>
                 )}
 
-                {/* Bio */}
+                {/* Bio (optional) */}
                 {provider.bio && (
-                  <p className={`text-sm text-gray-600 line-clamp-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+                  <p className={`text-sm text-gray-600 dark:text-gray-400 line-clamp-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                     {provider.bio}
                   </p>
                 )}
@@ -312,15 +328,15 @@ const ServiceProvidersPage = () => {
                 {/* Price and Book Button */}
                 <div className={`flex items-center justify-between pt-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
                   <div className={`text-right ${language === 'ar' ? 'text-left' : 'text-right'}`}>
-                    <div className="text-2xl font-bold text-blue-600">
+                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                       {provider.hourly_rate} {provider.currency || 'SAR'}
                     </div>
-                    <div className="text-xs text-gray-500">{t.hourlyRate}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{t.hourlyRate}</div>
                   </div>
-                  
-                  <Button 
-                    onClick={() => navigate('/consultation')}
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center gap-2"
+
+                  <Button
+                    onClick={() => navigate(`/providers/${provider.id}`)} // Navigate to individual profile
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center gap-2 dark:from-blue-700 dark:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600"
                   >
                     <MessageSquare className="h-4 w-4" />
                     {t.bookConsultation}
@@ -332,16 +348,13 @@ const ServiceProvidersPage = () => {
         </div>
 
         {filteredAndSortedProviders.length === 0 && (
-          <div className="text-center py-12">
-            <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">
-              {language === 'ar' ? 'لا توجد نتائج' : 'No Results Found'}
+          <div className="text-center py-12 text-gray-600 dark:text-gray-400">
+            <Users className="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">
+              {t.noResults}
             </h3>
-            <p className="text-gray-500">
-              {language === 'ar' 
-                ? 'جرب تغيير مصطلح البحث أو المرشحات'
-                : 'Try changing your search term or filters'
-              }
+            <p>
+              {t.tryChangingFilters}
             </p>
           </div>
         )}
@@ -350,4 +363,4 @@ const ServiceProvidersPage = () => {
   );
 };
 
-export default ServiceProvidersPage;
+export default ServiceProviderListPage;
