@@ -105,6 +105,7 @@ const App = () => {
               <Route path="/payment-methods" element={<PaymentMethodsPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/advanced-features" element={<AdvancedFeaturesPage />} />
+              <Route path="/service-provider" element={<ServiceProviderPage />} />
             </Routes>
           </SidebarInset>
         </div>

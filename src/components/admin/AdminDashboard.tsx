@@ -11,7 +11,8 @@ import { LawsManagement } from './LawsManagement';
 import { UpdatesManagement } from './UpdatesManagement';
 import { DatabaseManagement } from './DatabaseManagement';
 import { Integrations } from './Integrations';
-import { Users, Settings, BarChart3, CreditCard, Gift, BookOpen, RefreshCw, Database, Plug } from 'lucide-react';
+import { ServiceProvidersManagement } from './ServiceProvidersManagement';
+import { Users, Settings, BarChart3, CreditCard, Gift, BookOpen, RefreshCw, Database, Plug, UserCheck } from 'lucide-react';
 
 interface AdminDashboardProps {
   language: 'ar' | 'en';
@@ -30,7 +31,8 @@ export const AdminDashboard = ({ language }: AdminDashboardProps) => {
       laws: 'إدارة القوانين',
       updates: 'إدارة التحديثات',
       database: 'إدارة قاعدة البيانات',
-      integrations: 'التكاملات'
+      integrations: 'التكاملات',
+      serviceProviders: 'مقدمي الخدمات'
     },
     en: {
       users: 'Users Management',
@@ -41,7 +43,8 @@ export const AdminDashboard = ({ language }: AdminDashboardProps) => {
       laws: 'Laws Management',
       updates: 'Updates Management',
       database: 'Database Management',
-      integrations: 'Integrations'
+      integrations: 'Integrations',
+      serviceProviders: 'Service Providers'
     }
   };
 
@@ -50,10 +53,14 @@ export const AdminDashboard = ({ language }: AdminDashboardProps) => {
   return (
     <div className="space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9">
+        <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10">
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             <span className="hidden sm:inline">{t.users}</span>
+          </TabsTrigger>
+          <TabsTrigger value="service-providers" className="flex items-center gap-2">
+            <UserCheck className="h-4 w-4" />
+            <span className="hidden sm:inline">{t.serviceProviders}</span>
           </TabsTrigger>
           <TabsTrigger value="system" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
@@ -91,6 +98,10 @@ export const AdminDashboard = ({ language }: AdminDashboardProps) => {
 
         <TabsContent value="users">
           <UsersManagement />
+        </TabsContent>
+
+        <TabsContent value="service-providers">
+          <ServiceProvidersManagement />
         </TabsContent>
 
         <TabsContent value="system">
