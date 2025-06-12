@@ -1,17 +1,21 @@
+
 import React, { useState, useEffect } from 'react';
 import { UserBalance } from '@/components/UserBalance';
 import { BackButton } from '@/components/BackButton';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, TrendingUp, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { DollarSign, TrendingUp, ArrowUpRight, ArrowDownLeft, Plus, Wallet, CreditCard } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 interface BalancePageProps {
   language?: 'ar' | 'en';
 }
 
 const BalancePage = ({ language: propLanguage }: BalancePageProps) => {
+  const navigate = useNavigate();
   const [language, setLanguage] = useState<'ar' | 'en'>(propLanguage || 'ar');
 
   useEffect(() => {
@@ -42,28 +46,57 @@ const BalancePage = ({ language: propLanguage }: BalancePageProps) => {
     }
   });
 
+  const { data: balance } = useQuery({
+    queryKey: ['user-balance'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return { balance: 0, currency: 'SAR' };
+
+      const { data, error } = await supabase.rpc('get_user_balance', { 
+        p_user_id: user.id 
+      });
+
+      if (error) {
+        console.error('Balance fetch error:', error);
+        return { balance: 0, currency: 'SAR' };
+      }
+      
+      return data?.[0] || { balance: 0, currency: 'SAR' };
+    }
+  });
+
   const texts = {
     ar: {
       currentBalance: 'الرصيد الحالي',
-      balanceDescription: 'عرض رصيدك الحالي ونشاطك المالي',
+      balanceDescription: 'إدارة رصيدك وحسابك المالي',
       totalDeposits: 'إجمالي الإيداعات',
       totalExpenses: 'إجمالي المصروفات',
       totalTransactions: 'عدد المعاملات',
       recentActivity: 'النشاط الأخير',
       recentDescription: 'آخر 5 معاملات مالية',
       financialTransaction: 'معاملة مالية',
-      currency: 'ريال'
+      currency: 'ريال',
+      addBalance: 'إضافة رصيد',
+      paymentMethods: 'طرق الدفع',
+      quickActions: 'الإجراءات السريعة',
+      viewHistory: 'عرض السجل الكامل',
+      managePayments: 'إدارة طرق الدفع'
     },
     en: {
       currentBalance: 'Current Balance',
-      balanceDescription: 'View your current balance and financial activity',
+      balanceDescription: 'Manage your balance and financial account',
       totalDeposits: 'Total Deposits',
       totalExpenses: 'Total Expenses',
       totalTransactions: 'Total Transactions',
       recentActivity: 'Recent Activity',
       recentDescription: 'Your last 5 financial transactions',
       financialTransaction: 'Financial Transaction',
-      currency: 'SAR'
+      currency: 'SAR',
+      addBalance: 'Add Balance',
+      paymentMethods: 'Payment Methods',
+      quickActions: 'Quick Actions',
+      viewHistory: 'View Full History',
+      managePayments: 'Manage Payment Methods'
     }
   };
 
@@ -80,98 +113,101 @@ const BalancePage = ({ language: propLanguage }: BalancePageProps) => {
           />
         </div>
 
-        <div className="max-w-4xl mx-auto space-y-6">
-          {/* Balance Overview */}
-          <Card className="border-blue-200 shadow-sm">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
-              <CardTitle className="flex items-center gap-3 text-blue-900">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <DollarSign className="h-4 w-4 text-white" />
+        <div className="max-w-6xl mx-auto space-y-6">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-blue-900 mb-2">{t.currentBalance}</h1>
+            <p className="text-blue-600">{t.balanceDescription}</p>
+          </div>
+
+          {/* Current Balance Display */}
+          <Card className="border-blue-200 shadow-lg bg-gradient-to-r from-blue-50 to-indigo-50">
+            <CardContent className="p-8 text-center">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
+                  <Wallet className="h-8 w-8 text-white" />
                 </div>
-                {t.currentBalance}
-              </CardTitle>
-              <CardDescription className="text-blue-600">
-                {t.balanceDescription}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-center mb-6">
-                <UserBalance />
               </div>
-              
+              <div className="text-5xl font-bold text-blue-700 mb-2">
+                {(balance?.balance || 0).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US')} {t.currency}
+              </div>
+              <p className="text-blue-600 text-lg">{t.balanceDescription}</p>
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card className="border-blue-200 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-blue-900">{t.quickActions}</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-                  <div className="flex items-center justify-center mb-2">
-                    <ArrowDownLeft className="h-5 w-5 text-green-600" />
-                  </div>
-                  <p className="text-sm text-green-600 font-medium">{t.totalDeposits}</p>
-                  <p className="text-2xl font-bold text-green-700">
-                    {recentTransactions?.filter(t => ['deposit', 'payment', 'voucher'].includes(t.type))
-                      .reduce((sum, t) => sum + t.amount, 0).toFixed(2) || '0.00'} 
-                    {' '}{t.currency}
-                  </p>
-                </div>
-                
-                <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
-                  <div className="flex items-center justify-center mb-2">
-                    <ArrowUpRight className="h-5 w-5 text-red-600" />
-                  </div>
-                  <p className="text-sm text-red-600 font-medium">{t.totalExpenses}</p>
-                  <p className="text-2xl font-bold text-red-700">
-                    {recentTransactions?.filter(t => ['withdrawal', 'usage'].includes(t.type))
-                      .reduce((sum, t) => sum + t.amount, 0).toFixed(2) || '0.00'} 
-                    {' '}{t.currency}
-                  </p>
-                </div>
-                
-                <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex items-center justify-center mb-2">
-                    <TrendingUp className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <p className="text-sm text-blue-600 font-medium">{t.totalTransactions}</p>
-                  <p className="text-2xl font-bold text-blue-700">
-                    {recentTransactions?.length || 0}
-                  </p>
-                </div>
+                <Button 
+                  onClick={() => navigate('/voucher')}
+                  className="flex items-center gap-2 h-12"
+                >
+                  <Plus className="h-4 w-4" />
+                  {t.addBalance}
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => navigate('/payment-methods')}
+                  className="flex items-center gap-2 h-12"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  {t.paymentMethods}
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => navigate('/history')}
+                  className="flex items-center gap-2 h-12"
+                >
+                  <TrendingUp className="h-4 w-4" />
+                  {t.viewHistory}
+                </Button>
               </div>
             </CardContent>
           </Card>
 
-          {/* Recent Activity */}
-          {recentTransactions && recentTransactions.length > 0 && (
-            <Card className="border-blue-200 shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-blue-900">{t.recentActivity}</CardTitle>
-                <CardDescription className="text-blue-600">
-                  {t.recentDescription}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {recentTransactions.slice(0, 5).map((transaction: any) => (
-                    <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {transaction.description || t.financialTransaction}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {new Date(transaction.created_at).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
-                        </p>
-                      </div>
-                      <div className={`font-semibold ${
-                        ['deposit', 'payment', 'voucher'].includes(transaction.type) 
-                          ? 'text-green-600' 
-                          : 'text-red-600'
-                      }`}>
-                        {['deposit', 'payment', 'voucher'].includes(transaction.type) ? '+' : '-'}
-                        {transaction.amount.toFixed(2)} {t.currency}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
+          {/* Statistics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="text-center p-6 bg-green-50 border-green-200">
+              <div className="flex items-center justify-center mb-4">
+                <ArrowDownLeft className="h-8 w-8 text-green-600" />
+              </div>
+              <p className="text-sm text-green-600 font-medium mb-2">{t.totalDeposits}</p>
+              <p className="text-3xl font-bold text-green-700">
+                {recentTransactions?.filter(t => ['deposit', 'payment', 'voucher'].includes(t.type))
+                  .reduce((sum, t) => sum + t.amount, 0).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US') || '0'} 
+                {' '}{t.currency}
+              </p>
             </Card>
-          )}
+            
+            <Card className="text-center p-6 bg-red-50 border-red-200">
+              <div className="flex items-center justify-center mb-4">
+                <ArrowUpRight className="h-8 w-8 text-red-600" />
+              </div>
+              <p className="text-sm text-red-600 font-medium mb-2">{t.totalExpenses}</p>
+              <p className="text-3xl font-bold text-red-700">
+                {recentTransactions?.filter(t => ['withdrawal', 'usage'].includes(t.type))
+                  .reduce((sum, t) => sum + t.amount, 0).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US') || '0'} 
+                {' '}{t.currency}
+              </p>
+            </Card>
+            
+            <Card className="text-center p-6 bg-blue-50 border-blue-200">
+              <div className="flex items-center justify-center mb-4">
+                <TrendingUp className="h-8 w-8 text-blue-600" />
+              </div>
+              <p className="text-sm text-blue-600 font-medium mb-2">{t.totalTransactions}</p>
+              <p className="text-3xl font-bold text-blue-700">
+                {recentTransactions?.length || 0}
+              </p>
+            </Card>
+          </div>
+
+          {/* User Balance Component */}
+          <UserBalance />
         </div>
       </div>
     </div>

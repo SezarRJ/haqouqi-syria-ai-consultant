@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useCapacitor } from '@/hooks/useCapacitor';
 import { User } from '@supabase/supabase-js';
-import { Scale, MessageSquare, BarChart3, Search, FileText, AlertTriangle, BookOpen, Users, ScanText } from 'lucide-react';
+import { Scale, MessageSquare, BarChart3, Search, FileText, AlertTriangle, BookOpen, Users, ScanText, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { Badge } from '@/components/ui/badge';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -43,6 +44,7 @@ const Index = () => {
       title: "المستشار القانوني الذكي",
       subtitle: "مركز الخدمات القانونية المتقدمة",
       servicesTitle: "خدماتنا القانونية",
+      notifications: "الإشعارات",
       consultation: {
         title: "الاستشارة القانونية مع الملفات",
         description: "احصل على استشارة قانونية مع إمكانية رفع المستندات"
@@ -80,6 +82,7 @@ const Index = () => {
       title: "Smart Legal Advisor",
       subtitle: "Advanced Legal Services Hub",
       servicesTitle: "Our Legal Services",
+      notifications: "Notifications",
       consultation: {
         title: "Legal Consultation with Files",
         description: "Get legal consultation with document upload capability"
@@ -194,19 +197,35 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      {/* Header with Sidebar Toggle */}
+      {/* Header with Sidebar Toggle and Notifications */}
       <div className="bg-white/90 backdrop-blur-sm border-b border-blue-200 sticky top-0 z-40">
-        <div className={`flex items-center gap-4 p-4 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
-          <SidebarTrigger />
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <Scale className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-blue-900">{t.title}</h1>
-              <p className="text-sm text-blue-600">{t.subtitle}</p>
+        <div className={`flex items-center justify-between gap-4 p-4 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+          <div className={`flex items-center gap-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+            <SidebarTrigger />
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <Scale className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-blue-900">{t.title}</h1>
+                <p className="text-sm text-blue-600">{t.subtitle}</p>
+              </div>
             </div>
           </div>
+          
+          {/* Notifications Icon */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/notifications')}
+            className="relative"
+          >
+            <Bell className="h-4 w-4" />
+            <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs bg-red-500 hover:bg-red-600">
+              3
+            </Badge>
+            <span className="sr-only">{t.notifications}</span>
+          </Button>
         </div>
       </div>
 

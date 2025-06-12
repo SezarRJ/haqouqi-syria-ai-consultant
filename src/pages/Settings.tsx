@@ -8,30 +8,18 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings as SettingsIcon, Bell, Shield, Palette, Globe, Save } from 'lucide-react';
+import { Settings as SettingsIcon, Bell, Palette, Globe, Save } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
-import { UserBalance } from '@/components/UserBalance';
 import { useToast } from '@/hooks/use-toast';
 
 const Settings = () => {
   const { toast } = useToast();
   const [settings, setSettings] = useState({
-    profile: {
-      displayName: 'محمد أحمد',
-      email: 'user@example.com',
-      phone: '+966501234567',
-      bio: 'محامي متخصص في القانون التجاري'
-    },
     notifications: {
       emailNotifications: true,
       pushNotifications: true,
       weeklyReport: false,
       legalUpdates: true
-    },
-    privacy: {
-      profileVisibility: 'public',
-      dataSharing: false,
-      analyticsTracking: true
     },
     appearance: {
       theme: 'light',
@@ -70,30 +58,12 @@ const Settings = () => {
           <BackButton />
         </div>
 
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="profile">
-              <span className="flex items-center gap-2">
-                <SettingsIcon className="h-4 w-4" />
-                الملف الشخصي
-              </span>
-            </TabsTrigger>
-            <TabsTrigger value="balance">
-              <span className="flex items-center gap-2">
-                <SettingsIcon className="h-4 w-4" />
-                الرصيد
-              </span>
-            </TabsTrigger>
+        <Tabs defaultValue="notifications" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="notifications">
               <span className="flex items-center gap-2">
                 <Bell className="h-4 w-4" />
                 الإشعارات
-              </span>
-            </TabsTrigger>
-            <TabsTrigger value="privacy">
-              <span className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                الخصوصية
               </span>
             </TabsTrigger>
             <TabsTrigger value="appearance">
@@ -103,63 +73,6 @@ const Settings = () => {
               </span>
             </TabsTrigger>
           </TabsList>
-
-          {/* Profile Settings */}
-          <TabsContent value="profile">
-            <Card>
-              <CardHeader>
-                <CardTitle>معلومات الملف الشخصي</CardTitle>
-                <CardDescription>إدارة معلوماتك الشخصية والمهنية</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="displayName">الاسم المعروض</Label>
-                    <Input
-                      id="displayName"
-                      value={settings.profile.displayName}
-                      onChange={(e) => updateSetting('profile', 'displayName', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">البريد الإلكتروني</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={settings.profile.email}
-                      onChange={(e) => updateSetting('profile', 'email', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">رقم الهاتف</Label>
-                    <Input
-                      id="phone"
-                      value={settings.profile.phone}
-                      onChange={(e) => updateSetting('profile', 'phone', e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="bio">نبذة تعريفية</Label>
-                  <Textarea
-                    id="bio"
-                    value={settings.profile.bio}
-                    onChange={(e) => updateSetting('profile', 'bio', e.target.value)}
-                    rows={3}
-                  />
-                </div>
-                <Button onClick={() => handleSave('الملف الشخصي')} className="flex items-center gap-2">
-                  <Save className="h-4 w-4" />
-                  حفظ التغييرات
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Balance Settings */}
-          <TabsContent value="balance">
-            <UserBalance />
-          </TabsContent>
 
           {/* Notification Settings */}
           <TabsContent value="notifications">
@@ -218,63 +131,6 @@ const Settings = () => {
                 </div>
                 
                 <Button onClick={() => handleSave('الإشعارات')} className="flex items-center gap-2">
-                  <Save className="h-4 w-4" />
-                  حفظ التغييرات
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Privacy Settings */}
-          <TabsContent value="privacy">
-            <Card>
-              <CardHeader>
-                <CardTitle>إعدادات الخصوصية والأمان</CardTitle>
-                <CardDescription>تحكم في خصوصية بياناتك وأمان حسابك</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <Label htmlFor="profileVisibility">رؤية الملف الشخصي</Label>
-                  <Select 
-                    value={settings.privacy.profileVisibility} 
-                    onValueChange={(value) => updateSetting('privacy', 'profileVisibility', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="public">عام - يمكن لأي شخص رؤيته</SelectItem>
-                      <SelectItem value="private">خاص - مخفي عن الآخرين</SelectItem>
-                      <SelectItem value="contacts">جهات الاتصال فقط</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="dataSharing">مشاركة البيانات</Label>
-                    <p className="text-sm text-gray-500">السماح بمشاركة البيانات مع الشركاء</p>
-                  </div>
-                  <Switch
-                    id="dataSharing"
-                    checked={settings.privacy.dataSharing}
-                    onCheckedChange={(checked) => updateSetting('privacy', 'dataSharing', checked)}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label htmlFor="analyticsTracking">تتبع التحليلات</Label>
-                    <p className="text-sm text-gray-500">المساعدة في تحسين الخدمة من خلال التحليلات</p>
-                  </div>
-                  <Switch
-                    id="analyticsTracking"
-                    checked={settings.privacy.analyticsTracking}
-                    onCheckedChange={(checked) => updateSetting('privacy', 'analyticsTracking', checked)}
-                  />
-                </div>
-                
-                <Button onClick={() => handleSave('الخصوصية')} className="flex items-center gap-2">
                   <Save className="h-4 w-4" />
                   حفظ التغييرات
                 </Button>

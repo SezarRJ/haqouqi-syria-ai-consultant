@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -59,11 +58,13 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       legalAdvisor: 'المستشار القانوني',
       smartSystem: 'نظام ذكي للاستشارات',
       mainMenu: 'القائمة الرئيسية',
-      aiFeatures: 'الذكاء الاصطناعي',
+      settings: 'الإعدادات',
       accountPayment: 'الحساب والدفع',
       home: 'الرئيسية',
       profile: 'الملف الشخصي',
-      settings: 'الإعدادات',
+      settingsMenu: 'إعدادات النظام',
+      advancedFeatures: 'الميزات المتقدمة',
+      privacy: 'الخصوصية',
       subscriptions: 'الاشتراكات',
       admin: 'الإدارة',
       balance: 'الرصيد',
@@ -72,19 +73,19 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       voucher: 'كوبون الشحن',
       history: 'السجل',
       hello: 'مرحباً،',
-      signOut: 'تسجيل الخروج',
-      aiTools: 'أدوات الذكاء الاصطناعي',
-      advancedFeatures: 'الميزات المتقدمة'
+      signOut: 'تسجيل الخروج'
     },
     en: {
       legalAdvisor: 'Legal Advisor',
       smartSystem: 'Smart Legal System',
       mainMenu: 'Main Menu',
-      aiFeatures: 'AI Features',
+      settings: 'Settings',
       accountPayment: 'Account & Payment',
       home: 'Home',
       profile: 'Profile',
-      settings: 'Settings',
+      settingsMenu: 'System Settings',
+      advancedFeatures: 'Advanced Features',
+      privacy: 'Privacy',
       subscriptions: 'Subscriptions',
       admin: 'Admin',
       balance: 'Balance',
@@ -93,9 +94,7 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       voucher: 'Voucher',
       history: 'History',
       hello: 'Hello,',
-      signOut: 'Sign Out',
-      aiTools: 'AI Tools',
-      advancedFeatures: 'Advanced Features'
+      signOut: 'Sign Out'
     }
   };
 
@@ -116,14 +115,6 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       title: t.notifications,
       icon: Bell,
       path: '/notifications'
-    }
-  ];
-
-  const aiFeatureItems = [
-    {
-      title: t.aiTools,
-      icon: Brain,
-      path: '/ai-tools'
     },
     {
       title: t.admin,
@@ -134,7 +125,7 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
 
   const settingsItems = [
     {
-      title: t.settings,
+      title: t.settingsMenu,
       icon: Settings,
       path: '/settings'
     },
@@ -142,6 +133,11 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       title: t.advancedFeatures,
       icon: Wrench,
       path: '/advanced-features'
+    },
+    {
+      title: t.privacy,
+      icon: Shield,
+      path: '/privacy'
     },
     {
       title: t.subscriptions,
@@ -212,30 +208,20 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className={`text-xs sm:text-sm ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-            {t.aiFeatures}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {aiFeatureItems.map((item) => (
-                <SidebarMenuItem key={item.path}>
+              
+              {user && (
+                <SidebarMenuItem>
                   <SidebarMenuButton 
-                    asChild 
-                    isActive={location.pathname === item.path}
+                    onClick={handleSignOut}
                     className="h-9 sm:h-10"
                   >
-                    <Link to={item.path} className={`flex items-center gap-2 sm:gap-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      <span className={`text-sm truncate ${language === 'ar' ? 'text-right' : 'text-left'}`}>{item.title}</span>
-                    </Link>
+                    <div className={`flex items-center gap-2 sm:gap-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                      <LogOut className="h-4 w-4 flex-shrink-0" />
+                      <span className={`text-sm truncate ${language === 'ar' ? 'text-right' : 'text-left'}`}>{t.signOut}</span>
+                    </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              ))}
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -297,15 +283,6 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
             <div className={`text-xs sm:text-sm text-gray-600 truncate ${language === 'ar' ? 'text-right' : 'text-left'}`}>
               {t.hello} {user.email?.split('@')[0]}
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleSignOut}
-              className={`w-full justify-start h-8 sm:h-9 text-xs sm:text-sm ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}
-            >
-              <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 flex-shrink-0" />
-              <span className="truncate">{t.signOut}</span>
-            </Button>
           </div>
         )}
         
