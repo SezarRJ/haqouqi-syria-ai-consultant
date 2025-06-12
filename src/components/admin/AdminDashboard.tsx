@@ -22,7 +22,7 @@ import {
   CreditCard, 
   Database, 
   Zap, 
-  Update,
+  RefreshCw,
   UserCheck,
   Brain
 } from 'lucide-react';
@@ -108,7 +108,7 @@ export const AdminDashboard = ({ language }: AdminDashboardProps) => {
             <span className="hidden sm:inline">{t.integrations}</span>
           </TabsTrigger>
           <TabsTrigger value="updates" className="flex items-center gap-2">
-            <Update className="h-4 w-4" />
+            <RefreshCw className="h-4 w-4" />
             <span className="hidden sm:inline">{t.updates}</span>
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center gap-2">
