@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -5,7 +6,8 @@ import { HomeHeader } from '@/components/home/HomeHeader';
 import { WelcomeSection } from '@/components/home/WelcomeSection';
 import { ServicesGrid } from '@/components/home/ServicesGrid';
 import { FeaturedProviders } from '@/components/home/FeaturedProviders';
-// No need for Button or useNavigate here directly anymore, as FeaturedProviders handles navigation
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/AppSidebar';
 
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -34,6 +36,11 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const handleLanguageChange = (newLanguage: 'ar' | 'en') => {
+    setLanguage(newLanguage);
+    localStorage.setItem('language', newLanguage);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
@@ -43,16 +50,19 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      <HomeHeader user={user} language={language} />
-
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <WelcomeSection user={user} language={language} />
-        <ServicesGrid language={language} />
-        {/* FeaturedProviders now internally handles navigation to the list or profile */}
-        <FeaturedProviders language={language} />
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <AppSidebar user={user} language={language} onLanguageChange={handleLanguageChange} />
+        <SidebarInset>
+          <HomeHeader user={user} language={language} />
+          <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <WelcomeSection user={user} language={language} />
+            <ServicesGrid language={language} />
+            <FeaturedProviders language={language} />
+          </div>
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
