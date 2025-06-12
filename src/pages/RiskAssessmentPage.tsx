@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, AlertTriangle, TrendingUp, Shield, Target, Users, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -136,7 +135,7 @@ const RiskAssessmentPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
-            <RiskAssessmentAlgorithm />
+            <RiskAssessmentAlgorithm language={language} />
           </CardContent>
         </Card>
       </div>
