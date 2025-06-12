@@ -1,52 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Star, DollarSign, FileText, Eye, Shield, Activity } from 'lucide-react';
+import { Users, FileText, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-interface ServiceProvider {
-  id: string;
-  user_id: string;
-  provider_type: 'lawyer' | 'judge';
-  first_name: string;
-  last_name: string;
-  specialties: string[];
-  activities: string[];
-  bio: string;
-  experience_years: number;
-  hourly_rate: number;
-  currency: string;
-  account_number: string;
-  bank_name: string;
-  is_verified: boolean;
-  is_active: boolean;
-  rating: number;
-  total_consultations: number;
-  created_at: string;
-}
-
-interface Consultation {
-  id: string;
-  client_id: string;
-  provider_id: string;
-  subject: string;
-  status: string;
-  total_amount: number;
-  platform_fee: number;
-  provider_amount: number;
-  payment_status: string;
-  created_at: string;
-  service_providers?: {
-    first_name: string;
-    last_name: string;
-    provider_type: string;
-  };
-}
+import { ServiceProvider, Consultation } from './service-providers/types';
+import { ProvidersTable } from './service-providers/ProvidersTable';
+import { ConsultationsTable } from './service-providers/ConsultationsTable';
+import { AnalyticsDashboard } from './service-providers/AnalyticsDashboard';
+import { mockProviders, mockConsultations } from './service-providers/mockData';
 
 export const ServiceProvidersManagement = () => {
   const { toast } = useToast();
@@ -67,49 +30,7 @@ export const ServiceProvidersManagement = () => {
     setLoading(true);
     try {
       // Mock data until database types are updated
-      const mockProviders: ServiceProvider[] = [
-        {
-          id: '1',
-          user_id: 'user1',
-          provider_type: 'lawyer',
-          first_name: 'Ahmed',
-          last_name: 'Hassan',
-          specialties: ['Commercial Law', 'Corporate Law'],
-          activities: ['Legal Consultation', 'Document Drafting'],
-          bio: 'Experienced corporate lawyer with 10+ years of practice.',
-          experience_years: 12,
-          hourly_rate: 300,
-          currency: 'SAR',
-          account_number: '1234567890',
-          bank_name: 'Al Rajhi Bank',
-          is_verified: true,
-          is_active: true,
-          rating: 4.8,
-          total_consultations: 45,
-          created_at: '2024-01-15T10:00:00Z'
-        },
-        {
-          id: '2',
-          user_id: 'user2',
-          provider_type: 'judge',
-          first_name: 'Fatima',
-          last_name: 'Al-Zahra',
-          specialties: ['Family Law', 'Civil Law'],
-          activities: ['Legal Consultation', 'Mediation'],
-          bio: 'Former family court judge with extensive mediation experience.',
-          experience_years: 15,
-          hourly_rate: 500,
-          currency: 'SAR',
-          account_number: '0987654321',
-          bank_name: 'SABB',
-          is_verified: false,
-          is_active: true,
-          rating: 4.9,
-          total_consultations: 23,
-          created_at: '2024-02-01T14:30:00Z'
-        }
-      ];
-
+      await new Promise(resolve => setTimeout(resolve, 500));
       setProviders(mockProviders);
     } catch (error) {
       console.error('Error fetching providers:', error);
@@ -127,43 +48,7 @@ export const ServiceProvidersManagement = () => {
     setLoading(true);
     try {
       // Mock data until database types are updated
-      const mockConsultations: Consultation[] = [
-        {
-          id: '1',
-          client_id: 'client1',
-          provider_id: '1',
-          subject: 'Contract Review',
-          status: 'completed',
-          total_amount: 300,
-          platform_fee: 45,
-          provider_amount: 255,
-          payment_status: 'paid',
-          created_at: '2024-03-01T09:00:00Z',
-          service_providers: {
-            first_name: 'Ahmed',
-            last_name: 'Hassan',
-            provider_type: 'lawyer'
-          }
-        },
-        {
-          id: '2',
-          client_id: 'client2',
-          provider_id: '2',
-          subject: 'Family Dispute Mediation',
-          status: 'in_progress',
-          total_amount: 500,
-          platform_fee: 75,
-          provider_amount: 425,
-          payment_status: 'paid',
-          created_at: '2024-03-05T11:30:00Z',
-          service_providers: {
-            first_name: 'Fatima',
-            last_name: 'Al-Zahra',
-            provider_type: 'judge'
-          }
-        }
-      ];
-
+      await new Promise(resolve => setTimeout(resolve, 500));
       setConsultations(mockConsultations);
     } catch (error) {
       console.error('Error fetching consultations:', error);
@@ -227,30 +112,6 @@ export const ServiceProvidersManagement = () => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pending' },
-      accepted: { color: 'bg-blue-100 text-blue-800', label: 'Accepted' },
-      in_progress: { color: 'bg-purple-100 text-purple-800', label: 'In Progress' },
-      completed: { color: 'bg-green-100 text-green-800', label: 'Completed' },
-      cancelled: { color: 'bg-red-100 text-red-800', label: 'Cancelled' },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    return <Badge className={config.color}>{config.label}</Badge>;
-  };
-
-  const getPaymentStatusBadge = (status: string) => {
-    const statusConfig = {
-      pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pending' },
-      paid: { color: 'bg-green-100 text-green-800', label: 'Paid' },
-      refunded: { color: 'bg-red-100 text-red-800', label: 'Refunded' },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    return <Badge className={config.color}>{config.label}</Badge>;
-  };
-
   return (
     <div className="space-y-6">
       <Card>
@@ -286,202 +147,28 @@ export const ServiceProvidersManagement = () => {
             </TabsList>
 
             <TabsContent value="providers" className="mt-6">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">Service Providers</h3>
-                  <Button onClick={fetchProviders} disabled={loading}>
-                    {loading ? 'Loading...' : 'Refresh'}
-                  </Button>
-                </div>
-
-                <div className="border rounded-lg">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Provider</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Experience</TableHead>
-                        <TableHead>Rate/Hour</TableHead>
-                        <TableHead>Rating</TableHead>
-                        <TableHead>Consultations</TableHead>
-                        <TableHead>Verified</TableHead>
-                        <TableHead>Active</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {providers.map((provider) => (
-                        <TableRow key={provider.id}>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">
-                                {provider.first_name} {provider.last_name}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {provider.specialties.slice(0, 2).join(', ')}
-                                {provider.specialties.length > 2 && '...'}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline">
-                              {provider.provider_type}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{provider.experience_years} years</TableCell>
-                          <TableCell>
-                            {provider.hourly_rate} {provider.currency}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                              <span>{provider.rating.toFixed(1)}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>{provider.total_consultations}</TableCell>
-                          <TableCell>
-                            <Switch
-                              checked={provider.is_verified}
-                              onCheckedChange={() => 
-                                toggleProviderVerification(provider.id, provider.is_verified)
-                              }
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Switch
-                              checked={provider.is_active}
-                              onCheckedChange={() => 
-                                toggleProviderStatus(provider.id, provider.is_active)
-                              }
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Button variant="outline" size="sm">
-                              <Eye className="h-4 w-4" />
-                              Details
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
+              <ProvidersTable
+                providers={providers}
+                loading={loading}
+                onToggleVerification={toggleProviderVerification}
+                onToggleStatus={toggleProviderStatus}
+                onRefresh={fetchProviders}
+              />
             </TabsContent>
 
             <TabsContent value="consultations" className="mt-6">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">Consultation Management</h3>
-                  <Button onClick={fetchConsultations} disabled={loading}>
-                    {loading ? 'Loading...' : 'Refresh'}
-                  </Button>
-                </div>
-
-                <div className="border rounded-lg">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Consultation</TableHead>
-                        <TableHead>Provider</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Platform Fee</TableHead>
-                        <TableHead>Payment</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {consultations.map((consultation) => (
-                        <TableRow key={consultation.id}>
-                          <TableCell>
-                            <div className="font-medium">{consultation.subject}</div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="text-sm">
-                              {consultation.service_providers?.first_name} {consultation.service_providers?.last_name}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {getStatusBadge(consultation.status)}
-                          </TableCell>
-                          <TableCell>{consultation.total_amount} SAR</TableCell>
-                          <TableCell>{consultation.platform_fee} SAR</TableCell>
-                          <TableCell>
-                            {getPaymentStatusBadge(consultation.payment_status)}
-                          </TableCell>
-                          <TableCell>
-                            {new Date(consultation.created_at).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            <Button variant="outline" size="sm">
-                              <Eye className="h-4 w-4" />
-                              View
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
+              <ConsultationsTable
+                consultations={consultations}
+                loading={loading}
+                onRefresh={fetchConsultations}
+              />
             </TabsContent>
 
             <TabsContent value="analytics" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <Users className="h-8 w-8 text-blue-600" />
-                      <div>
-                        <div className="text-2xl font-bold">{providers.length}</div>
-                        <div className="text-sm text-gray-600">Total Providers</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <Shield className="h-8 w-8 text-green-600" />
-                      <div>
-                        <div className="text-2xl font-bold">
-                          {providers.filter(p => p.is_verified).length}
-                        </div>
-                        <div className="text-sm text-gray-600">Verified Providers</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <Activity className="h-8 w-8 text-orange-600" />
-                      <div>
-                        <div className="text-2xl font-bold">
-                          {providers.filter(p => p.is_active).length}
-                        </div>
-                        <div className="text-sm text-gray-600">Active Providers</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-8 w-8 text-purple-600" />
-                      <div>
-                        <div className="text-2xl font-bold">{consultations.length}</div>
-                        <div className="text-sm text-gray-600">Total Consultations</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <AnalyticsDashboard
+                providers={providers}
+                consultations={consultations}
+              />
             </TabsContent>
           </Tabs>
         </CardContent>
