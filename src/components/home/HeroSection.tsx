@@ -1,7 +1,7 @@
 // src/components/home/HeroSection.tsx
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, ChevronLeft } from 'lucide-react'; // Import ChevronLeft too for RTL arrow
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface HeroSectionProps {
@@ -41,8 +41,9 @@ export const HeroSection = ({ language, user }: HeroSectionProps) => {
           <path fill="url(#gradient-hero)" d="M0,64L80,80C160,96,320,128,480,128C640,128,800,96,960,112C1120,128,1280,192,1360,224L1440,256L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"></path>
           <defs>
             <linearGradient id="gradient-hero" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style={{stopColor: language === 'ar' ? 'var(--tw-gradient-to)' : 'var(--tw-gradient-from)', stopOpacity:1}} /> {/* Reversed gradient direction for RTL */}
-              <stop offset="100%" style={{stopColor: language === 'ar' ? 'var(--tw-gradient-from)' : 'var(--tw-gradient-to)', stopOpacity:1}} /> {/* Reversed gradient direction for RTL */}
+              {/* Ensure gradient direction mirrors correctly based on language */}
+              <stop offset="0%" style={{stopColor: language === 'ar' ? 'var(--tw-gradient-to)' : 'var(--tw-gradient-from)', stopOpacity:1}} />
+              <stop offset="100%" style={{stopColor: language === 'ar' ? 'var(--tw-gradient-from)' : 'var(--tw-gradient-to)', stopOpacity:1}} />
             </linearGradient>
           </defs>
         </svg>
@@ -50,22 +51,23 @@ export const HeroSection = ({ language, user }: HeroSectionProps) => {
 
       <div className="container mx-auto px-4 relative z-10 text-center"> {/* Keep text-center for the main container */}
         {user ? (
-          <p className="text-xl md:text-2xl font-semibold text-blue-700 dark:text-blue-300 mb-4 animate-fade-in-down">
+          <p className="text-xl md:text-2xl font-semibold text-blue-700 dark:text-blue-300 mb-4 animate-fade-in-down text-center"> {/* Explicit text-center */}
             {currentText.welcomeMessage} {user.user_metadata?.full_name || user.email}!
           </p>
         ) : (
-          <p className="text-xl md:text-2xl font-semibold text-blue-700 dark:text-blue-300 mb-4 animate-fade-in-down">
+          <p className="text-xl md:text-2xl font-semibold text-blue-700 dark:text-blue-300 mb-4 animate-fade-in-down text-center"> {/* Explicit text-center */}
              {currentText.headline}
           </p>
         )}
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-up">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-up text-center"> {/* Explicit text-center */}
             {currentText.headline}
         </h1>
-        <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto mb-10 animate-fade-in-up delay-100">
+        <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto mb-10 animate-fade-in-up delay-100 text-center"> {/* Explicit text-center */}
           {currentText.subHeadline}
         </p>
 
+        {/* Buttons: Ensure flex-row-reverse for RTL */}
         <div className={`flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-up delay-200 ${language === 'ar' ? 'sm:flex-row-reverse' : ''}`}>
           <Button
             size="lg"
