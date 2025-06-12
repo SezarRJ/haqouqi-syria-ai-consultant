@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, User, Loader2, Chrome, Facebook } from 'lucide-react';
+import { Mail, User, Loader2, Chrome, Facebook, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/BackButton';
 
@@ -17,7 +17,9 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [language, setLanguage] = useState<'ar' | 'en'>('en');
+  const [authAttempts, setAuthAttempts] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -62,7 +64,12 @@ const Auth = () => {
       signInWithGoogle: 'Sign in with Google',
       signInWithFacebook: 'Sign in with Facebook',
       loginDescription: 'Enter your credentials to login',
-      signupDescription: 'Create an account to get started'
+      signupDescription: 'Create an account to get started',
+      rateLimitError: 'Too many attempts. Please wait before trying again.',
+      weakPassword: 'Password must be at least 8 characters long.',
+      invalidEmail: 'Please enter a valid email address.',
+      showPassword: 'Show password',
+      hidePassword: 'Hide password'
     },
     ar: {
       login: 'تسجيل الدخول',
@@ -81,14 +88,68 @@ const Auth = () => {
       signInWithGoogle: 'تسجيل الدخول باستخدام جوجل',
       signInWithFacebook: 'تسجيل الدخول باستخدام فيسبوك',
       loginDescription: 'أدخل بياناتك لتسجيل الدخول',
-      signupDescription: 'أنشئ حساباً للبدء'
+      signupDescription: 'أنشئ حساباً للبدء',
+      rateLimitError: 'محاولات كثيرة. الرجاء الانتظار قبل المحاولة مرة أخرى.',
+      weakPassword: 'يجب أن تكون كلمة المرور 8 أحرف على الأقل.',
+      invalidEmail: 'الرجاء إدخال بريد إلكتروني صحيح.',
+      showPassword: 'إظهار كلمة المرور',
+      hidePassword: 'إخفاء كلمة المرور'
     }
   };
 
   const t = texts[language];
 
+  // Rate limiting - max 5 attempts per 15 minutes
+  const checkRateLimit = () => {
+    const now = Date.now();
+    const lastAttempt = localStorage.getItem('lastAuthAttempt');
+    const attempts = parseInt(localStorage.getItem('authAttempts') || '0');
+    
+    if (lastAttempt && now - parseInt(lastAttempt) < 15 * 60 * 1000) {
+      if (attempts >= 5) {
+        return false;
+      }
+    } else {
+      localStorage.setItem('authAttempts', '0');
+    }
+    return true;
+  };
+
+  const incrementAttempts = () => {
+    const attempts = parseInt(localStorage.getItem('authAttempts') || '0') + 1;
+    localStorage.setItem('authAttempts', attempts.toString());
+    localStorage.setItem('lastAuthAttempt', Date.now().toString());
+    setAuthAttempts(attempts);
+  };
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password: string) => {
+    return password.length >= 8;
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!checkRateLimit()) {
+      toast({
+        title: t.rateLimitError,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      toast({
+        title: t.invalidEmail,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -97,12 +158,15 @@ const Auth = () => {
     });
 
     if (error) {
+      incrementAttempts();
       toast({
         title: t.loginError,
         description: error.message,
         variant: 'destructive',
       });
     } else {
+      localStorage.removeItem('authAttempts');
+      localStorage.removeItem('lastAuthAttempt');
       toast({
         title: t.loginSuccess,
         variant: 'default',
@@ -114,6 +178,30 @@ const Auth = () => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!checkRateLimit()) {
+      toast({
+        title: t.rateLimitError,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      toast({
+        title: t.invalidEmail,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      toast({
+        title: t.weakPassword,
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     if (password !== confirmPassword) {
       toast({
         title: t.passwordMismatch,
@@ -124,12 +212,17 @@ const Auth = () => {
 
     setLoading(true);
 
+    // CRITICAL: Always include emailRedirectTo for security
     const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`
+      }
     });
 
     if (error) {
+      incrementAttempts();
       toast({
         title: t.signupError,
         description: error.message,
@@ -145,6 +238,14 @@ const Auth = () => {
   };
 
   const handleOAuthLogin = async (provider: 'google' | 'facebook') => {
+    if (!checkRateLimit()) {
+      toast({
+        title: t.rateLimitError,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: provider,
@@ -154,6 +255,7 @@ const Auth = () => {
     });
 
     if (error) {
+      incrementAttempts();
       toast({
         title: `OAuth Login Failed for ${provider}`,
         description: error.message,
@@ -213,15 +315,28 @@ const Auth = () => {
                   <Label htmlFor="login-password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {t.password}
                   </Label>
-                  <Input
-                    id="login-password"
-                    type="password"
-                    placeholder={t.password}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="login-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder={t.password}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="w-full pr-10"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <Button 
                   type="submit" 
@@ -256,15 +371,32 @@ const Auth = () => {
                   <Label htmlFor="signup-password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {t.password}
                   </Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    placeholder={t.password}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="signup-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder={t.password}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="w-full pr-10"
+                      minLength={8}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {language === 'ar' ? 'يجب أن تكون 8 أحرف على الأقل' : 'Must be at least 8 characters'}
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -272,7 +404,7 @@ const Auth = () => {
                   </Label>
                   <Input
                     id="confirm-password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder={t.confirmPassword}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
