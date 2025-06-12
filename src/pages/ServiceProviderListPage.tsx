@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { ArrowLeft, Search, Star, UserCheck, Filter, Users, MessageSquare, Loader2 } from 'lucide-react'; // Added Loader2
+import { ArrowLeft, Search, Star, UserCheck, Filter, Users, MessageSquare, Loader2 } from 'lucide-react';
 
 interface ServiceProvider {
   id: string;
@@ -26,17 +27,16 @@ interface ServiceProvider {
   is_active: boolean;
 }
 
-const ServiceProviderListPage = () => { // Renamed component
+const ServiceProviderListPage = () => {
   const navigate = useNavigate();
   const [providers, setProviders] = useState<ServiceProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'lawyer' | 'judge'>('all');
   const [sortBy, setSortBy] = useState<'rating' | 'experience' | 'price_low' | 'price_high'>('rating');
-  const [language, setLanguage] = useState<'ar' | 'en'>('ar'); // Use state for language
+  const [language, setLanguage] = useState<'ar' | 'en'>('ar');
 
   useEffect(() => {
-    // Load language preference
     const savedLanguage = localStorage.getItem('language') as 'ar' | 'en';
     if (savedLanguage) {
       setLanguage(savedLanguage);
@@ -52,7 +52,7 @@ const ServiceProviderListPage = () => { // Renamed component
         .select('*')
         .eq('is_verified', true)
         .eq('is_active', true)
-        .order('rating', { ascending: false }); // Default sort
+        .order('rating', { ascending: false });
 
       if (error) throw error;
 
@@ -75,7 +75,7 @@ const ServiceProviderListPage = () => { // Renamed component
         provider.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         provider.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         provider.specialties.some(specialty => specialty.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        provider.activities.some(activity => activity.toLowerCase().includes(searchTerm.toLowerCase())); // Also search activities
+        provider.activities.some(activity => activity.toLowerCase().includes(searchTerm.toLowerCase()));
 
       const matchesType = filterType === 'all' || provider.provider_type === filterType;
 
@@ -110,7 +110,7 @@ const ServiceProviderListPage = () => { // Renamed component
       sortByPriceHigh: "السعر: من الأعلى للأقل",
       yearsExperience: "سنوات خبرة",
       consultations: "استشارة",
-      hourlyRate: "للساعة", // Changed from "الساعة" for better clarity
+      hourlyRate: "للساعة",
       bookConsultation: "احجز استشارة",
       verified: "موثق",
       specialties: "التخصصات",
@@ -120,8 +120,8 @@ const ServiceProviderListPage = () => { // Renamed component
       back: "العودة",
       noResults: "لا توجد نتائج",
       tryChangingFilters: "جرب تغيير مصطلح البحث أو المرشحات",
-      lawyerType: "محامي", // For displaying type, previously only filter text
-      judgeType: "قاضي", // For displaying type
+      lawyerType: "محامي",
+      judgeType: "قاضي",
     },
     en: {
       title: "Legal Service Providers",
@@ -234,7 +234,7 @@ const ServiceProviderListPage = () => { // Renamed component
             <Card
               key={provider.id}
               className="group transition-all duration-300 hover:shadow-xl hover:scale-105 border-2 border-blue-200 dark:border-gray-700 dark:bg-gray-800"
-              onClick={() => navigate(`/providers/${provider.id}`)} {/* Navigate to individual profile */}
+              onClick={() => navigate(`/providers/${provider.id}`)}
             >
               <CardHeader className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-700 dark:to-gray-900 pb-4">
                 <div className={`flex items-start justify-between ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -318,7 +318,7 @@ const ServiceProviderListPage = () => { // Renamed component
                   </div>
                 )}
 
-                {/* Bio (optional) */}
+                {/* Bio */}
                 {provider.bio && (
                   <p className={`text-sm text-gray-600 dark:text-gray-400 line-clamp-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                     {provider.bio}
@@ -335,7 +335,7 @@ const ServiceProviderListPage = () => { // Renamed component
                   </div>
 
                   <Button
-                    onClick={() => navigate(`/providers/${provider.id}`)} // Navigate to individual profile
+                    onClick={() => navigate(`/providers/${provider.id}`)}
                     className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center gap-2 dark:from-blue-700 dark:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600"
                   >
                     <MessageSquare className="h-4 w-4" />

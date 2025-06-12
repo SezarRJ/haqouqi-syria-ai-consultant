@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Star, UserCheck, ArrowRight, Loader2 } from 'lucide-react'; // Added Loader2
+import { Star, UserCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -19,13 +20,13 @@ interface FeaturedProvider {
   hourly_rate: number;
   rating: number;
   total_consultations: number;
-  experience_years: number; // Added this as it's used in rendering
+  experience_years: number;
 }
 
 export const FeaturedProviders = ({ language }: FeaturedProvidersProps) => {
   const navigate = useNavigate();
   const [featuredProviders, setFeaturedProviders] = useState<FeaturedProvider[]>([]);
-  const [loading, setLoading] = useState(true); // Added loading state
+  const [loading, setLoading] = useState(true);
 
   const texts = {
     ar: {
@@ -67,19 +68,17 @@ export const FeaturedProviders = ({ language }: FeaturedProvidersProps) => {
       total_consultations: 150,
       specialties: language === 'ar' ? ['القانون المدني', 'القانون التجاري'] : ['Civil Law', 'Commercial Law'],
       hourly_rate: 200,
-      currency: 'SAR',
       experience_years: 10
     },
     {
       id: 'sample-2',
       first_name: language === 'ar' ? 'فاطمة' : 'Fatima',
       last_name: language === 'ar' ? 'الأحمد' : 'Al-Ahmad',
-      provider_type: 'judge', // Changed to judge for variety
+      provider_type: 'judge',
       rating: 4.9,
       total_consultations: 200,
       specialties: language === 'ar' ? ['قانون الأسرة', 'الأحوال الشخصية'] : ['Family Law', 'Personal Status'],
       hourly_rate: 180,
-      currency: 'SAR',
       experience_years: 8
     },
     {
@@ -91,14 +90,13 @@ export const FeaturedProviders = ({ language }: FeaturedProvidersProps) => {
       total_consultations: 120,
       specialties: language === 'ar' ? ['القانون الجنائي', 'القانون الإداري'] : ['Criminal Law', 'Administrative Law'],
       hourly_rate: 250,
-      currency: 'SAR',
       experience_years: 12
     }
   ];
 
   useEffect(() => {
     fetchFeaturedProviders();
-  }, [language]); // Re-fetch if language changes to update sample data display
+  }, [language]);
 
   const fetchFeaturedProviders = async () => {
     setLoading(true);
@@ -113,13 +111,13 @@ export const FeaturedProviders = ({ language }: FeaturedProvidersProps) => {
 
       if (error) {
         console.error('Error fetching featured providers:', error);
-        setFeaturedProviders(sampleProviders); // Fallback to sample data on error
+        setFeaturedProviders(sampleProviders);
       } else {
-        setFeaturedProviders((data as FeaturedProvider[]) || sampleProviders); // Use fetched data or fallback
+        setFeaturedProviders((data as FeaturedProvider[]) || sampleProviders);
       }
     } catch (error) {
       console.error('Unexpected error fetching featured providers:', error);
-      setFeaturedProviders(sampleProviders); // Fallback on unexpected errors too
+      setFeaturedProviders(sampleProviders);
     } finally {
       setLoading(false);
     }
@@ -142,78 +140,80 @@ export const FeaturedProviders = ({ language }: FeaturedProvidersProps) => {
           <p>{t.noProviders}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          {featuredProviders.map((provider) => (
-            <Card
-              key={provider.id}
-              className="group cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 border-2 border-blue-200 dark:border-gray-700 dark:bg-gray-800"
-              onClick={() => navigate(`/providers/${provider.id}`)} // Navigate to individual profile
-            >
-              <CardHeader className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-700 dark:to-gray-900 pb-4">
-                <div className={`flex items-start gap-4 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
-                  <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md">
-                    <UserCheck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className={`text-lg text-gray-900 dark:text-gray-100 font-bold leading-tight ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-                      {provider.first_name} {provider.last_name}
-                    </CardTitle>
-                    <p className={`text-sm text-blue-600 dark:text-blue-400 capitalize ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-                      {provider.provider_type === 'lawyer' ? t.lawyerType : t.judgeType}
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardContent className="pt-4 pb-6">
-                <div className="space-y-3">
-                  <div className={`flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
-                    <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                    <span className="text-sm font-medium text-gray-800 dark:text-gray-100">{provider.rating?.toFixed(1) || '0.0'}</span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">({provider.total_consultations || 0} {t.consultation})</span>
-                  </div>
-
-                  {provider.specialties && provider.specialties.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      <p className={`text-sm font-semibold text-gray-800 dark:text-gray-100 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-                        {t.specialtiesText}:
-                      </p>
-                      {provider.specialties.slice(0, 2).map((specialty: string, idx: number) => (
-                        <Badge key={idx} variant="secondary" className="text-xs dark:bg-gray-700 dark:text-gray-200">
-                          {specialty}
-                        </Badge>
-                      ))}
-                      {provider.specialties.length > 2 && (
-                        <Badge variant="outline" className="text-xs dark:border-gray-600 dark:text-gray-200">
-                          +{provider.specialties.length - 2}
-                        </Badge>
-                      )}
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            {featuredProviders.map((provider) => (
+              <Card
+                key={provider.id}
+                className="group cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-105 border-2 border-blue-200 dark:border-gray-700 dark:bg-gray-800"
+                onClick={() => navigate(`/providers/${provider.id}`)}
+              >
+                <CardHeader className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-700 dark:to-gray-900 pb-4">
+                  <div className={`flex items-start gap-4 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                    <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md">
+                      <UserCheck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                     </div>
-                  )}
-
-                  <div className={`flex items-center justify-between ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
-                    <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                      {provider.hourly_rate} {provider.currency || 'SAR'}
-                    </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {provider.experience_years || 0} {t.yearsExperience}
-                    </span>
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className={`text-lg text-gray-900 dark:text-gray-100 font-bold leading-tight ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+                        {provider.first_name} {provider.last_name}
+                      </CardTitle>
+                      <p className={`text-sm text-blue-600 dark:text-blue-400 capitalize ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+                        {provider.provider_type === 'lawyer' ? t.lawyerType : t.judgeType}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardHeader>
 
-        <div className="text-center">
-          <Button
-            onClick={() => navigate('/providers')} // Navigate to the full list page
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 dark:from-blue-700 dark:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600"
-          >
-            {t.viewAllProviders}
-            <ArrowRight className={`h-4 w-4 ${language === 'ar' ? 'mr-2' : 'ml-2'}`} />
-          </Button>
-        </div>
+                <CardContent className="pt-4 pb-6">
+                  <div className="space-y-3">
+                    <div className={`flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                      <span className="text-sm font-medium text-gray-800 dark:text-gray-100">{provider.rating?.toFixed(1) || '0.0'}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">({provider.total_consultations || 0} {t.consultation})</span>
+                    </div>
+
+                    {provider.specialties && provider.specialties.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        <p className={`text-sm font-semibold text-gray-800 dark:text-gray-100 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+                          {t.specialtiesText}:
+                        </p>
+                        {provider.specialties.slice(0, 2).map((specialty: string, idx: number) => (
+                          <Badge key={idx} variant="secondary" className="text-xs dark:bg-gray-700 dark:text-gray-200">
+                            {specialty}
+                          </Badge>
+                        ))}
+                        {provider.specialties.length > 2 && (
+                          <Badge variant="outline" className="text-xs dark:border-gray-600 dark:text-gray-200">
+                            +{provider.specialties.length - 2}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    <div className={`flex items-center justify-between ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                      <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                        {provider.hourly_rate} SAR
+                      </span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {provider.experience_years || 0} {t.yearsExperience}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Button
+              onClick={() => navigate('/providers')}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 dark:from-blue-700 dark:to-indigo-700 dark:hover:from-blue-600 dark:hover:to-indigo-600"
+            >
+              {t.viewAllProviders}
+              <ArrowRight className={`h-4 w-4 ${language === 'ar' ? 'mr-2' : 'ml-2'}`} />
+            </Button>
+          </div>
+        </>
       )}
     </div>
   );
