@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -23,7 +24,6 @@ import {
   History, 
   DollarSign,
   Scale,
-  Brain,
   Home,
   Bell,
   Wrench
@@ -107,6 +107,11 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       path: '/'
     },
     {
+      title: t.profile,
+      icon: User,
+      path: '/profile'
+    },
+    {
       title: t.balance,
       icon: DollarSign,
       path: '/balance'
@@ -148,11 +153,6 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
 
   const accountItems = [
     {
-      title: t.profile,
-      icon: User,
-      path: '/profile'
-    },
-    {
       title: t.paymentMethods,
       icon: Wallet,
       path: '/payment-methods'
@@ -170,8 +170,8 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
   ];
 
   return (
-    <Sidebar side={language === 'ar' ? 'right' : 'left'} className="border-r border-blue-200">
-      <SidebarHeader className="p-3 sm:p-4">
+    <Sidebar side={language === 'ar' ? 'right' : 'left'} className="border-r border-blue-200 bg-white">
+      <SidebarHeader className="p-3 sm:p-4 bg-blue-50">
         <div className={`flex items-center gap-3 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
           <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
             <Scale className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
@@ -187,7 +187,7 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
+      <SidebarContent className="px-2 bg-white">
         <SidebarGroup>
           <SidebarGroupLabel className={`text-xs sm:text-sm ${language === 'ar' ? 'text-right' : 'text-left'}`}>
             {t.mainMenu}
@@ -277,7 +277,7 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
         )}
       </SidebarContent>
 
-      <SidebarFooter className="p-3 sm:p-4 space-y-3">
+      <SidebarFooter className="p-3 sm:p-4 space-y-3 bg-blue-50">
         {user && (
           <div className="space-y-2 sm:space-y-3">
             <div className={`text-xs sm:text-sm text-gray-600 truncate ${language === 'ar' ? 'text-right' : 'text-left'}`}>
