@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { User, Star, Briefcase, DollarSign, MessageSquare, Upload, Info, PlayCircle, CreditCard, CheckCircle } from 'lucide-react';
+import { User, Star, Briefcase, DollarSign, MessageSquare, Upload, Info, PlayCircle, CreditCard, CheckCircle, Loader2 } from 'lucide-react';
 import { BackButton } from '@/components/BackButton';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
@@ -65,9 +65,7 @@ const ServiceProviderProfilePage = () => {
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
-
-
-  const currentUser = supabase.auth.user(); // Get current authenticated user
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   const t = {
     ar: {
@@ -183,6 +181,13 @@ const ServiceProviderProfilePage = () => {
       setLanguage(savedLanguage);
     }
 
+    // Get current user
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUser(user);
+    };
+    getCurrentUser();
+
     const fetchProviderData = async () => {
       if (!id) return;
       setIsLoading(true);
@@ -252,12 +257,10 @@ const ServiceProviderProfilePage = () => {
       fetchInitialMessages();
     }
 
-
     return () => {
       supabase.removeChannel(channel);
     };
   }, [id, currentConsultationId, currentUser]);
-
 
   const handleSendMessage = async () => {
     if (!newChatMessage.trim() || !currentUser || !currentConsultationId) return;
@@ -420,7 +423,6 @@ const ServiceProviderProfilePage = () => {
           // For simplicity, let's assume it's now ready for chat/service.
           // In a real app, 'in_progress' might be set by provider or a webhook.
           setShowReviewPrompt(true); // For demo, immediately show review prompt after 'payment'
-
         }
       } else {
         toast({
@@ -471,7 +473,6 @@ const ServiceProviderProfilePage = () => {
       // Optionally, refresh provider data to show updated average rating
     }
   };
-
 
   if (isLoading) {
     return (
