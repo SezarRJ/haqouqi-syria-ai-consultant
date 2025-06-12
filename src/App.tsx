@@ -13,6 +13,7 @@ import Privacy from "./pages/Privacy";
 import Pricing from "./pages/Pricing";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import Services from "./pages/Services";
 import PaymentMethodsPage from "./pages/PaymentMethods";
 import TransactionHistory from "./pages/TransactionHistory";
 import VoucherPage from "./pages/VoucherPage";
@@ -51,6 +52,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/services" element={<Services />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/privacy" element={<Privacy />} />

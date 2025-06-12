@@ -49,20 +49,20 @@ export const HeroSection = ({ language, user }: HeroSectionProps) => {
       <div className="relative z-10 container mx-auto px-4 py-16 md:py-24">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
-          <div className={`space-y-8 ${language === 'ar' ? 'lg:text-right' : 'lg:text-left'} text-center lg:text-left`}>
+          <div className={`space-y-8 ${language === 'ar' ? 'lg:text-right text-center' : 'lg:text-left text-center'}`}>
             {user && (
               <div className="inline-flex items-center px-4 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-full border border-blue-200 dark:border-blue-800">
-                <span className="text-blue-700 dark:text-blue-300 font-medium">
+                <span className="text-blue-700 dark:text-blue-300 font-medium text-sm">
                   {currentText.welcomeMessage} {user.user_metadata?.full_name || user.email}!
                 </span>
               </div>
             )}
 
-            <div className="space-y-4">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight">
+            <div className="space-y-6">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-white leading-tight">
                 {currentText.headline}
               </h1>
-              <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl">
+              <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                 {currentText.subHeadline}
               </p>
             </div>
@@ -70,33 +70,35 @@ export const HeroSection = ({ language, user }: HeroSectionProps) => {
             {/* Feature Pills */}
             <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
               <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
-                <Shield className="h-4 w-4 text-green-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{currentText.feature3}</span>
+                <Shield className="h-4 w-4 text-green-500 flex-shrink-0" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{currentText.feature3}</span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
-                <Users className="h-4 w-4 text-blue-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{currentText.feature1}</span>
+                <Users className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{currentText.feature1}</span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
-                <Clock className="h-4 w-4 text-orange-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{currentText.feature2}</span>
+                <Clock className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{currentText.feature2}</span>
               </div>
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 px-8 py-3 rounded-xl"
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 px-8 py-3 rounded-xl text-base font-semibold"
                 onClick={() => navigate('/providers')}
               >
-                {currentText.ctaPrimary}
-                <ChevronRight className={`h-5 w-5 ${language === 'ar' ? 'mr-2' : 'ml-2'}`} />
+                <span className="flex items-center justify-center gap-2">
+                  {currentText.ctaPrimary}
+                  <ChevronRight className={`h-5 w-5 ${language === 'ar' ? 'rotate-180' : ''}`} />
+                </span>
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="border-2 border-blue-200 hover:border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-300 dark:hover:bg-blue-900/20 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 px-8 py-3 rounded-xl"
+                className="w-full sm:w-auto border-2 border-blue-200 hover:border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-300 dark:hover:bg-blue-900/20 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 px-8 py-3 rounded-xl text-base font-semibold"
                 onClick={() => navigate('/services')}
               >
                 {currentText.ctaSecondary}
@@ -104,7 +106,7 @@ export const HeroSection = ({ language, user }: HeroSectionProps) => {
             </div>
 
             {/* Trust Badge */}
-            <div className="flex items-center justify-center lg:justify-start gap-2 pt-4">
+            <div className="flex items-center justify-center lg:justify-start gap-3 pt-4">
               <div className="flex -space-x-2">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center text-white text-xs font-bold">
@@ -126,18 +128,18 @@ export const HeroSection = ({ language, user }: HeroSectionProps) => {
               {/* Content */}
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Shield className="h-6 w-6 text-white" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">استشارة قانونية فورية</h3>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-base">استشارة قانونية فورية</h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400">متاح 24/7</p>
                   </div>
                 </div>
                 
                 <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     </div>
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-300">محامي متاح الآن</span>
