@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -29,8 +28,9 @@ import CollaborationPage from '@/pages/CollaborationPage';
 import NotificationsPage from '@/pages/NotificationsPage';
 import Privacy from '@/pages/Privacy';
 import Auth from '@/pages/Auth';
-import ServiceProviderPage from '@/pages/ServiceProviderPage';
-import ServiceProvidersPage from '@/pages/ServiceProvidersPage';
+// Import the new specific pages for service providers
+import ServiceProviderListPage from '@/pages/ServiceProviderListPage'; // Renamed from ServiceProvidersPage
+import ServiceProviderProfilePage from '@/pages/ServiceProviderProfilePage'; // New individual profile page
 
 const App = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -54,6 +54,16 @@ const App = () => {
     const savedLanguage = localStorage.getItem('language') as 'ar' | 'en';
     if (savedLanguage) {
       setLanguage(savedLanguage);
+      // Ensure HTML dir and lang attributes are set on initial load
+      document.documentElement.dir = savedLanguage === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.lang = savedLanguage;
+    } else {
+      // Set a default language if none found, and apply to HTML
+      const defaultLang = 'en'; // Or 'ar' depending on your primary audience
+      setLanguage(defaultLang);
+      localStorage.setItem('language', defaultLang);
+      document.documentElement.dir = defaultLang === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.lang = defaultLang;
     }
 
     return () => subscription.unsubscribe();
@@ -68,7 +78,7 @@ const App = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
       </div>
     );
@@ -78,9 +88,9 @@ const App = () => {
     <Router>
       <SidebarProvider>
         <div className="min-h-screen flex w-full" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-          <AppSidebar 
-            user={user} 
-            language={language} 
+          <AppSidebar
+            user={user}
+            language={language}
             onLanguageChange={handleLanguageChange}
           />
           <SidebarInset className="flex-1">
@@ -107,8 +117,13 @@ const App = () => {
               <Route path="/payment-methods" element={<PaymentMethodsPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/advanced-features" element={<AdvancedFeaturesPage />} />
-              <Route path="/service-provider" element={<ServiceProviderPage />} />
-              <Route path="/service-providers" element={<ServiceProvidersPage />} />
+
+              {/* Service Provider Routes */}
+              {/* Note: /service-provider seems redundant with /providers/:id, consider if it's still needed */}
+              {/* <Route path="/service-provider" element={<ServiceProviderPage />} /> */}
+              <Route path="/providers" element={<ServiceProviderListPage />} /> {/* List of all providers */}
+              <Route path="/providers/:id" element={<ServiceProviderProfilePage />} /> {/* Specific provider profile */}
+
             </Routes>
           </SidebarInset>
         </div>
