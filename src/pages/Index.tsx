@@ -27,12 +27,12 @@ const Index = () => {
     });
 
     const savedLanguage = localStorage.getItem('language') as 'ar' | 'en';
-    if (savedLanguage) {
+    if (savedLanguage && (savedLanguage === 'ar' || savedLanguage === 'en')) {
       setLanguage(savedLanguage);
       document.documentElement.dir = savedLanguage === 'ar' ? 'rtl' : 'ltr';
       document.documentElement.lang = savedLanguage;
     } else {
-      const defaultLang = 'en';
+      const defaultLang: 'ar' | 'en' = 'en';
       setLanguage(defaultLang);
       localStorage.setItem('language', defaultLang);
       document.documentElement.dir = defaultLang === 'ar' ? 'rtl' : 'ltr';
