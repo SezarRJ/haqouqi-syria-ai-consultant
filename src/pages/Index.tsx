@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useCapacitor } from '@/hooks/useCapacitor';
 import { User } from '@supabase/supabase-js';
-import { Scale, MessageSquare, BarChart3, Search, FileText, AlertTriangle, BookOpen, Users, ScanText, Bell, LogIn, ArrowRight } from 'lucide-react';
+import { Scale, MessageSquare, BarChart3, Search, FileText, AlertTriangle, BookOpen, Users, ScanText, Bell, LogIn, ArrowRight, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -48,25 +48,56 @@ const Index = () => {
       welcomeBack: "مرحباً بعودتك",
       getStarted: "ابدأ الآن",
       signIn: "تسجيل الدخول",
+      features: "المزايا",
       consultation: {
         title: "الاستشارة القانونية مع الملفات",
-        description: "احصل على استشارة قانونية متخصصة مع إمكانية رفع المستندات والملفات"
+        description: "احصل على استشارة قانونية متخصصة مع إمكانية رفع المستندات والملفات",
+        features: [
+          "رفع وتحليل المستندات القانونية",
+          "استشارات فورية مع خبراء قانونيين",
+          "دعم متعدد التنسيقات (PDF, Word, صور)",
+          "حفظ تاريخ الاستشارات"
+        ]
       },
       caseAnalysis: {
-        title: "تحليل القضايا والاستراتيجية",
-        description: "تحليل ذكي للقضايا والحصول على توصيات استراتيجية متقدمة"
+        title: "محرك تحليل القضايا والاستراتيجية",
+        description: "تحليل متقدم للقضايا مع مطابقة السوابق القانونية",
+        features: [
+          "تحليل متقدم للقضايا مع مطابقة السوابق القانونية",
+          "توصيات استراتيجية بناءً على تعقيد القضية",
+          "تسجيل الثقة وتقييم المخاطر",
+          "تكامل مع القانون السوري ومبادئ الفقه"
+        ]
       },
       legalSearch: {
-        title: "البحث القانوني الذكي",
-        description: "البحث في القوانين السورية باستخدام اللغة الطبيعية"
+        title: "محرك البحث القانوني الذكي",
+        description: "البحث الدلالي عبر قاعدة بيانات الوثائق القانونية",
+        features: [
+          "البحث الدلالي عبر قاعدة بيانات الوثائق القانونية",
+          "فلترة حسب نوع الوثيقة (قوانين، فقه، فتاوى، سوابق)",
+          "تسجيل الصلة ونتائج مميزة",
+          "دعم الاستعلامات العربية والإنجليزية"
+        ]
       },
       documentDrafting: {
-        title: "صياغة الوثائق القانونية",
-        description: "إنشاء مسودات العقود والإشعارات القانونية بدقة عالية"
+        title: "وحدة صياغة الوثائق القانونية",
+        description: "إنشاء الوثائق باستخدام القوالب",
+        features: [
+          "إنشاء الوثائق باستخدام القوالب",
+          "استبدال الحقول الديناميكية بمساعدة الذكاء الاصطناعي",
+          "دعم أنواع متعددة من الوثائق",
+          "وظائف التحميل والحفظ"
+        ]
       },
       riskAssessment: {
-        title: "تقييم المخاطر ومعدل النجاح",
-        description: "تقييم شامل للمخاطر المحتملة ومعدل نجاح القضية"
+        title: "خوارزمية تقييم المخاطر",
+        description: "تحليل مخاطر معقد متعدد العوامل",
+        features: [
+          "تحليل مخاطر معقد متعدد العوامل",
+          "معاملات مخاطر قابلة للتخصيص",
+          "توصيات استراتيجية التخفيف",
+          "لوحة تحكم بصرية لتسجيل المخاطر"
+        ]
       },
       explanations: {
         title: "الشروحات القانونية المبسطة",
@@ -77,8 +108,14 @@ const Index = () => {
         description: "مساحة آمنة للمحامين والقضاة للتعاون والمناقشة المهنية"
       },
       ocrService: {
-        title: "خدمة استخراج النصوص",
-        description: "تحويل الصور والمستندات إلى نصوص قابلة للتحرير بدقة عالية"
+        title: "تكامل خدمة OCR",
+        description: "معالجة الوثائق متعددة التنسيقات",
+        features: [
+          "معالجة الوثائق متعددة التنسيقات (PDF, JPG, PNG)",
+          "استخراج النص مع تسجيل الثقة",
+          "إمكانيات المعالجة المجمعة",
+          "دعم التعرف على النص العربي"
+        ]
       }
     },
     en: {
@@ -89,25 +126,56 @@ const Index = () => {
       welcomeBack: "Welcome Back",
       getStarted: "Get Started",
       signIn: "Sign In",
+      features: "Features",
       consultation: {
         title: "Legal Consultation with Files",
-        description: "Get specialized legal consultation with document upload capability"
+        description: "Get specialized legal consultation with document upload capability",
+        features: [
+          "Upload and analyze legal documents",
+          "Instant consultations with legal experts",
+          "Multi-format support (PDF, Word, Images)",
+          "Save consultation history"
+        ]
       },
       caseAnalysis: {
-        title: "AI Case Analysis & Strategy",
-        description: "Intelligent case analysis and advanced strategic recommendations"
+        title: "AI Case Analysis & Strategy Engine",
+        description: "Advanced case analysis with legal precedent matching",
+        features: [
+          "Advanced case analysis with legal precedent matching",
+          "Strategic recommendations based on case complexity",
+          "Confidence scoring and risk assessment",
+          "Integration with Syrian law and Fiqh principles"
+        ]
       },
       legalSearch: {
-        title: "Intelligent Legal Search",
-        description: "Search Syrian laws using natural language processing"
+        title: "Intelligent Legal Search Backend",
+        description: "Semantic search across legal documents database",
+        features: [
+          "Semantic search across legal documents database",
+          "Filter by document type (laws, fiqh, fatwas, precedents)",
+          "Relevance scoring and highlighted results",
+          "Support for Arabic and English queries"
+        ]
       },
       documentDrafting: {
-        title: "Legal Document Drafting",
-        description: "Generate precise draft contracts and legal notices"
+        title: "Legal Document Drafting Module",
+        description: "Template-based document generation",
+        features: [
+          "Template-based document generation",
+          "Dynamic field replacement with AI assistance",
+          "Support for multiple document types",
+          "Download and save functionality"
+        ]
       },
       riskAssessment: {
-        title: "Risk Assessment & Success Scoring",
-        description: "Comprehensive evaluation of potential risks and case success rate"
+        title: "Risk Assessment Algorithm",
+        description: "Complex multi-factor risk analysis",
+        features: [
+          "Complex multi-factor risk analysis",
+          "Customizable risk parameters",
+          "Mitigation strategy recommendations",
+          "Visual risk scoring dashboard"
+        ]
       },
       explanations: {
         title: "Simplified Legal Explanations",
@@ -118,8 +186,14 @@ const Index = () => {
         description: "Secure space for lawyers and judges to collaborate professionally"
       },
       ocrService: {
-        title: "OCR Text Extraction Service",
-        description: "Convert images and documents to editable text with high accuracy"
+        title: "OCR Service Integration",
+        description: "Multi-format document processing",
+        features: [
+          "Multi-format document processing (PDF, JPG, PNG)",
+          "Text extraction with confidence scoring",
+          "Batch processing capabilities",
+          "Arabic text recognition support"
+        ]
       }
     }
   };
@@ -130,6 +204,7 @@ const Index = () => {
     {
       title: t.consultation.title,
       description: t.consultation.description,
+      features: t.consultation.features,
       icon: MessageSquare,
       path: '/consultation',
       color: 'from-blue-600 to-blue-700',
@@ -141,16 +216,19 @@ const Index = () => {
     {
       title: t.caseAnalysis.title,
       description: t.caseAnalysis.description,
+      features: t.caseAnalysis.features,
       icon: BarChart3,
       path: '/case-analysis',
       color: 'from-indigo-600 to-indigo-700',
       bgColor: 'from-indigo-50 to-indigo-100',
       borderColor: 'border-indigo-200',
-      iconBg: 'bg-indigo-100'
+      iconBg: 'bg-indigo-100',
+      featured: true
     },
     {
       title: t.legalSearch.title,
       description: t.legalSearch.description,
+      features: t.legalSearch.features,
       icon: Search,
       path: '/legal-search',
       color: 'from-purple-600 to-purple-700',
@@ -161,6 +239,7 @@ const Index = () => {
     {
       title: t.documentDrafting.title,
       description: t.documentDrafting.description,
+      features: t.documentDrafting.features,
       icon: FileText,
       path: '/document-drafting',
       color: 'from-green-600 to-green-700',
@@ -171,6 +250,7 @@ const Index = () => {
     {
       title: t.riskAssessment.title,
       description: t.riskAssessment.description,
+      features: t.riskAssessment.features,
       icon: AlertTriangle,
       path: '/risk-assessment',
       color: 'from-orange-600 to-orange-700',
@@ -202,6 +282,7 @@ const Index = () => {
     {
       title: t.ocrService.title,
       description: t.ocrService.description,
+      features: t.ocrService.features,
       icon: ScanText,
       path: '/ocr-service',
       color: 'from-violet-600 to-violet-700',
@@ -294,7 +375,7 @@ const Index = () => {
                 }}
               >
                 {service.featured && (
-                  <div className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+                  <div className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs px-2 py-1 rounded-full font-medium z-10">
                     {language === 'ar' ? 'مميز' : 'Featured'}
                   </div>
                 )}
@@ -318,6 +399,22 @@ const Index = () => {
                   <CardDescription className={`text-gray-600 leading-relaxed mb-4 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
                     {service.description}
                   </CardDescription>
+
+                  {service.features && (
+                    <div className="mb-4">
+                      <h4 className={`text-sm font-semibold text-gray-800 mb-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+                        {t.features}:
+                      </h4>
+                      <ul className="space-y-1">
+                        {service.features.map((feature, idx) => (
+                          <li key={idx} className={`flex items-start gap-2 text-xs text-gray-600 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                            <CheckCircle className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
+                            <span className={language === 'ar' ? 'text-right' : 'text-left'}>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   
                   <div className={`flex items-center gap-2 text-blue-600 font-medium text-sm group-hover:text-blue-700 transition-colors ${language === 'ar' ? 'flex-row-reverse justify-start' : 'flex-row justify-end'}`}>
                     <span>{language === 'ar' ? 'ابدأ الآن' : 'Get Started'}</span>
