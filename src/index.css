@@ -1,91 +1,119 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* --- FONT IMPORT --- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;700&display=swap');
+/* Inter for LTR (English) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* Noto Sans Arabic for RTL (Arabic) */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap');
 
+
+/* --- Base Layer: CSS Variables for Color Palette & Radius --- */
 @layer base {
   :root {
-    /* FORMAL COLOR PALETTE */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 221 83% 35%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 220 13% 91%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 220 13% 96%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 220 13% 91%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 13% 88%;
-    --input: 220 13% 88%;
-    --ring: 221 83% 45%;
-    --radius: 0.5rem;
+    /* --- Light Mode Colors (HSL values) --- */
+    --background: 0 0% 100%;       /* White */
+    --foreground: 240 10% 3.9%;    /* Near Black */
+    --card: 0 0% 100%;             /* White */
+    --card-foreground: 240 10% 3.9%; /* Near Black */
+    --popover: 0 0% 100%;          /* White */
+    --popover-foreground: 240 10% 3.9%; /* Near Black */
+
+    /* Primary Accent: Strong Blue/Indigo */
+    --primary: 221 83% 35%;        /* A good primary blue */
+    --primary-foreground: 0 0% 98%; /* Off-white for contrast */
+
+    /* Secondary/Muted Tones: Grays */
+    --secondary: 220 13% 91%;      /* Light Gray */
+    --secondary-foreground: 240 5.9% 10%; /* Dark Gray */
+    --muted: 220 13% 96%;          /* Lighter Gray */
+    --muted-foreground: 240 3.8% 46.1%; /* Medium Gray */
+    --accent: 220 13% 91%;         /* Light Gray (similar to secondary) */
+    --accent-foreground: 240 5.9% 10%; /* Dark Gray */
+
+    /* Destructive Action Color: Red */
+    --destructive: 0 84.2% 60.2%;  /* Red */
+    --destructive-foreground: 0 0% 98%; /* Off-white */
+
+    /* Borders, Inputs, Rings */
+    --border: 220 13% 88%;         /* Light Gray Border */
+    --input: 220 13% 88%;          /* Light Gray Input Border */
+    --ring: 221 83% 45%;           /* Ring color (slightly darker primary) */
+
+    --radius: 0.5rem; /* Default border radius */
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    /* --- Dark Mode Colors (HSL values) --- */
+    --background: 240 10% 3.9%;    /* Dark Gray/Near Black */
+    --foreground: 0 0% 98%;        /* Off-white */
+    --card: 240 10% 3.9%;          /* Dark Gray/Near Black */
+    --card-foreground: 0 0% 98%;   /* Off-white */
+    --popover: 240 10% 3.9%;       /* Dark Gray/Near Black */
+    --popover-foreground: 0 0% 98%; /* Off-white */
+
+    /* Primary Accent: Adjusted for Dark Mode */
+    --primary: 0 0% 98%;           /* Off-white (for text/icons on dark bg) */
+    --primary-foreground: 240 5.9% 10%; /* Dark Gray */
+
+    /* Secondary/Muted Tones: Darker Grays */
+    --secondary: 240 3.7% 15.9%;   /* Medium Dark Gray */
+    --secondary-foreground: 0 0% 98%; /* Off-white */
+    --muted: 240 3.7% 15.9%;       /* Medium Dark Gray */
+    --muted-foreground: 240 5% 64.9%; /* Lighter Gray */
+    --accent: 240 3.7% 15.9%;      /* Medium Dark Gray */
+    --accent-foreground: 0 0% 98%; /* Off-white */
+
+    /* Destructive Action Color: Darker Red */
+    --destructive: 0 62.8% 30.6%;  /* Darker Red */
+    --destructive-foreground: 0 0% 98%; /* Off-white */
+
+    /* Borders, Inputs, Rings */
+    --border: 240 3.7% 15.9%;      /* Medium Dark Gray Border */
+    --input: 240 3.7% 15.9%;       /* Medium Dark Gray Input Border */
+    --ring: 240 4.9% 83.9%;        /* Lighter Gray Ring */
   }
 }
 
+/* --- Base Layer: Global Styles & Core RTL Handling --- */
 @layer base {
   * {
     @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    @apply bg-background text-foreground antialiased; /* Added antialiased for smoother fonts */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     min-height: 100vh;
   }
 
-  /* Enhanced RTL Support */
+  /* Apply Arabic font specifically when direction is RTL */
   [dir="rtl"] {
     font-family: 'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   }
 
-  [dir="rtl"] * {
+  /* Universal text alignment override for RTL (often problematic, prefer Tailwind's explicit text-*) */
+  /* This is commented out. It's generally better to rely on Tailwind's text-right/left and flex utilities */
+  /* [dir="rtl"] * {
     text-align: right;
-  }
+  } */
 
-  [dir="rtl"] input, [dir="rtl"] textarea {
+  /* Explicit text direction for form elements in RTL */
+  [dir="rtl"] input,
+  [dir="rtl"] textarea {
     text-align: right;
     direction: rtl;
   }
 
-  [dir="rtl"] .text-left {
-    text-align: right !important;
+  /* Flexbox and Alignment Overrides for RTL */
+  /* These are important for automatic mirroring of layouts */
+  [dir="rtl"] .flex-row {
+    flex-direction: row-reverse;
   }
 
-  [dir="rtl"] .text-right {
-    text-align: left !important;
+  [dir="rtl"] .flex-row-reverse {
+    flex-direction: row; /* Revert back to LTR-like for explicit flex-row-reverse in RTL */
   }
 
   [dir="rtl"] .justify-start {
@@ -103,22 +131,40 @@
   [dir="rtl"] .items-end {
     align-items: flex-start !important;
   }
+
+  /* Text Alignment Fixes for RTL */
+  /* These ensure specific Tailwind text classes behave as expected in RTL */
+  [dir="rtl"] .text-left {
+    text-align: right !important; /* Forces text-left to be right-aligned in RTL */
+  }
+
+  [dir="rtl"] .text-right {
+    text-align: left !important; /* Forces text-right to be left-aligned in RTL */
+  }
+
+  /* Tailwind's built-in space-x-reverse utility */
+  [dir="rtl"] .space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+    margin-right: calc(1.5rem * var(--tw-space-x-reverse)) !important; /* Example for 1.5rem */
+    margin-left: 0 !important;
+  }
 }
 
+/* --- Components Layer: Specific UI Element Styles --- */
 @layer components {
-  /* Enhanced RTL Chat Messages */
+  /* Chat Messages Styling */
   .chat-message-user {
     @apply bg-primary text-primary-foreground rounded-xl p-3 max-w-[85%] shadow-sm break-words;
   }
 
   [dir="rtl"] .chat-message-user {
-    @apply mr-auto ml-0;
-    border-radius: 1rem 1rem 0.25rem 1rem;
+    @apply mr-auto ml-0; /* Pushes to right in RTL (user's side) */
+    border-radius: 1rem 1rem 0.25rem 1rem; /* Specific border radius for user bubble in RTL */
   }
 
   [dir="ltr"] .chat-message-user {
-    @apply ml-auto mr-0;
-    border-radius: 1rem 1rem 1rem 0.25rem;
+    @apply ml-auto mr-0; /* Pushes to right in LTR (user's side) */
+    border-radius: 1rem 1rem 1rem 0.25rem; /* Specific border radius for user bubble in LTR */
   }
 
   .chat-message-bot {
@@ -126,16 +172,16 @@
   }
 
   [dir="rtl"] .chat-message-bot {
-    @apply ml-auto mr-0;
-    border-radius: 1rem 1rem 1rem 0.25rem;
+    @apply ml-auto mr-0; /* Pushes to left in RTL (bot's side) */
+    border-radius: 1rem 1rem 1rem 0.25rem; /* Specific border radius for bot bubble in RTL */
   }
 
   [dir="ltr"] .chat-message-bot {
-    @apply mr-auto ml-0;
-    border-radius: 1rem 1rem 0.25rem 1rem;
+    @apply mr-auto ml-0; /* Pushes to left in LTR (bot's side) */
+    border-radius: 1rem 1rem 0.25rem 1rem; /* Specific border radius for bot bubble in LTR */
   }
 
-  /* Enhanced Mobile View with RTL */
+  /* Mobile Header Enhancements */
   .mobile-header {
     @apply px-2 py-2 sm:px-4 sm:py-3;
   }
@@ -147,7 +193,7 @@
   .mobile-subtitle {
     @apply hidden sm:block text-xs;
   }
-  
+
   .mobile-content-padding {
     @apply p-2 sm:p-4 md:p-6;
   }
@@ -156,65 +202,18 @@
     @apply text-sm leading-relaxed;
   }
 
-  /* RTL Specific Utilities */
-  .rtl-text-right {
-    text-align: right !important;
-  }
-
-  .rtl-text-left {
-    text-align: left !important;
-  }
-
-  [dir="rtl"] .space-x-reverse > * + * {
-    margin-right: var(--tw-space-x-reverse) !important;
-    margin-left: calc(1 * var(--tw-space-x-reverse, 0)) !important;
-  }
-
-  /* Enhanced Form Controls for RTL */
-  [dir="rtl"] select, [dir="rtl"] input[type="text"], [dir="rtl"] input[type="email"], [dir="rtl"] input[type="password"] {
-    text-align: right;
-    direction: rtl;
-  }
-
-  [dir="rtl"] button {
-    direction: rtl;
-  }
-
-  /* Enhanced Flex Direction for RTL */
-  [dir="rtl"] .flex-row {
-    flex-direction: row-reverse;
-  }
-
-  [dir="rtl"] .flex-row-reverse {
-    flex-direction: row;
-  }
-
-  /* Enhanced Grid for RTL */
-  [dir="rtl"] .grid {
-    direction: rtl;
-  }
-
-  /* Enhanced Navigation for RTL */
-  [dir="rtl"] .justify-between {
-    direction: rtl;
-  }
-
-  /* Dropdown and Popover RTL Support */
-  [dir="rtl"] [data-radix-popper-content-wrapper] {
-    direction: rtl;
-  }
-
-  [dir="rtl"] [data-radix-select-content] {
-    direction: rtl;
-  }
-
+  /* Custom Styles for Radix UI components under RTL */
+  [dir="rtl"] [data-radix-popper-content-wrapper],
+  [dir="rtl"] [data-radix-select-content],
   [dir="rtl"] [data-radix-dropdown-menu-content] {
-    direction: rtl;
+    direction: rtl; /* Ensure dropdowns/popovers inherit RTL direction */
+    text-align: right; /* Ensure text inside is right-aligned */
   }
 }
 
-/* Arabic Typography Enhancements */
+/* --- Utilities Layer: Custom Utilities & Animations --- */
 @layer utilities {
+  /* Font Utilities */
   .arabic-text {
     font-family: 'Noto Sans Arabic', system-ui, sans-serif;
     line-height: 1.8;
@@ -225,14 +224,26 @@
     font-family: 'Inter', system-ui, sans-serif;
   }
 
-  /* Enhanced Mobile Touch Targets */
+  /* Enhanced Mobile Touch Targets (Accessibility) */
   .mobile-touch {
     min-height: 44px;
     min-width: 44px;
   }
 
-  /* Improved Focus States for RTL */
-  [dir="rtl"] .focus\:ring {
-    direction: rtl;
+  /* Custom Animations for Hero Section (used in HeroSection.tsx) */
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in-down {
+    animation: fadeInDown 0.6s ease-out forwards;
+  }
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
   }
 }
