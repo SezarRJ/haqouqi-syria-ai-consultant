@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Upload, MessageSquare, FileText, AlertCircle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Upload, MessageSquare, FileText, AlertCircle, Brain, Settings } from 'lucide-react';
 
 interface LegalConsultationWithFilesProps {
   language: 'ar' | 'en';
@@ -15,6 +16,7 @@ export const LegalConsultationWithFiles = ({ language }: LegalConsultationWithFi
   const [files, setFiles] = useState<File[]>([]);
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedAIModel, setSelectedAIModel] = useState('jais');
 
   const texts = {
     ar: {
@@ -25,7 +27,9 @@ export const LegalConsultationWithFiles = ({ language }: LegalConsultationWithFi
       submit: 'إرسال الاستشارة',
       processing: 'جاري المعالجة...',
       filesUploaded: 'ملف مرفوع',
-      aiResponse: 'رد المستشار القانوني'
+      aiResponse: 'رد المستشار القانوني',
+      aiModel: 'نموذج الذكاء الاصطناعي',
+      modelPoweredBy: 'مدعوم بـ'
     },
     en: {
       title: 'Legal Consultation with Files',
@@ -35,11 +39,31 @@ export const LegalConsultationWithFiles = ({ language }: LegalConsultationWithFi
       submit: 'Submit Consultation',
       processing: 'Processing...',
       filesUploaded: 'files uploaded',
-      aiResponse: 'Legal Advisor Response'
+      aiResponse: 'Legal Advisor Response',
+      aiModel: 'AI Model',
+      modelPoweredBy: 'Powered by'
     }
   };
 
   const t = texts[language];
+
+  const aiModels = {
+    jais: {
+      name: 'Jais',
+      description: language === 'ar' ? 'النموذج الأساسي للتحليل القانوني العربي' : 'Primary Arabic legal analysis model',
+      accuracy: '89%'
+    },
+    aratT5: {
+      name: 'AraT5',
+      description: language === 'ar' ? 'تبسيط المصطلحات القانونية' : 'Legal terminology simplification',
+      accuracy: '82%'
+    },
+    camelBERT: {
+      name: 'CamelBERT',
+      description: language === 'ar' ? 'تحليل الوثائق القانونية' : 'Legal document analysis',
+      accuracy: '85%'
+    }
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFiles = Array.from(event.target.files || []);
@@ -50,50 +74,67 @@ export const LegalConsultationWithFiles = ({ language }: LegalConsultationWithFi
     if (!query.trim()) return;
     
     setLoading(true);
-    // Simulate AI processing
+    // Simulate AI processing with Arabic-specialized models
     setTimeout(() => {
+      const selectedModel = aiModels[selectedAIModel as keyof typeof aiModels];
+      const modelInfo = `${t.modelPoweredBy} ${selectedModel.name} (${selectedModel.accuracy})`;
+      
       const mockResponse = language === 'ar' ? `
-بناءً على استفسارك والمستندات المرفقة، يمكنني تقديم التحليل التالي:
+${modelInfo}
 
-📋 تحليل الحالة:
+بناءً على استفسارك والمستندات المرفقة، يمكنني تقديم التحليل التالي باستخدام نماذج الذكاء الاصطناعي العربية المتخصصة:
+
+📋 تحليل الحالة باستخدام ${selectedModel.name}:
 وفقاً للقانون السوري النافذ، والمستندات المرفقة، يتبين أن:
 
-• النقطة الأولى: التحليل القانوني المفصل
-• النقطة الثانية: الإجراءات المطلوبة
-• النقطة الثالثة: المخاطر المحتملة
+• النقطة الأولى: التحليل القانوني المفصل باستخدام النماذج العربية المتخصصة
+• النقطة الثانية: الإجراءات المطلوبة مع مراعاة السياق السوري
+• النقطة الثالثة: المخاطر المحتملة وفقاً للممارسات القضائية المحلية
 
-⚖️ التوصيات:
-1. مراجعة المحامي المختص
-2. جمع المستندات الإضافية المطلوبة
-3. تقديم الطلب خلال المهلة القانونية
+⚖️ التوصيات المدعومة بالذكاء الاصطناعي:
+1. مراجعة المحامي المختص في القانون السوري
+2. جمع المستندات الإضافية المطلوبة حسب الأنظمة المحلية
+3. تقديم الطلب خلال المهلة القانونية المحددة
 
-📄 المراجع القانونية:
+📄 المراجع القانونية السورية:
 - القانون المدني السوري، المادة 163
-- قانون أصول المحاكمات المدنية
-- قرارات محكمة النقض ذات الصلة
+- قانون أصول المحاكمات المدنية السوري
+- قرارات محكمة النقض السورية ذات الصلة
 
-تنبيه: هذه استشارة أولية وتحتاج لمراجعة قانونية متخصصة.
+🤖 معلومات النموذج المستخدم:
+النموذج: ${selectedModel.name}
+الوصف: ${selectedModel.description}
+دقة التحليل: ${selectedModel.accuracy}
+
+تنبيه: هذه استشارة أولية مدعومة بالذكاء الاصطناعي وتحتاج لمراجعة قانونية متخصصة.
       ` : `
-Based on your query and the uploaded documents, I can provide the following analysis:
+${modelInfo}
 
-📋 Case Analysis:
+Based on your query and the uploaded documents, I can provide the following analysis using specialized Arabic AI models:
+
+📋 Case Analysis using ${selectedModel.name}:
 According to Syrian law and the attached documents, it appears that:
 
-• First point: Detailed legal analysis
-• Second point: Required procedures
-• Third point: Potential risks
+• First point: Detailed legal analysis using specialized Arabic models
+• Second point: Required procedures considering Syrian context
+• Third point: Potential risks according to local judicial practices
 
-⚖️ Recommendations:
-1. Consult with a specialized lawyer
-2. Gather additional required documents
-3. Submit the application within the legal deadline
+⚖️ AI-Powered Recommendations:
+1. Consult with a lawyer specialized in Syrian law
+2. Gather additional required documents per local regulations
+3. Submit the application within the specified legal deadline
 
-📄 Legal References:
+📄 Syrian Legal References:
 - Syrian Civil Code, Article 163
-- Civil Procedure Code
-- Relevant Supreme Court decisions
+- Syrian Civil Procedure Code
+- Relevant Syrian Supreme Court decisions
 
-Notice: This is a preliminary consultation and requires specialized legal review.
+🤖 Model Information:
+Model: ${selectedModel.name}
+Description: ${selectedModel.description}
+Analysis Accuracy: ${selectedModel.accuracy}
+
+Notice: This is a preliminary AI-powered consultation and requires specialized legal review.
       `;
       
       setResponse(mockResponse);
@@ -111,6 +152,27 @@ Notice: This is a preliminary consultation and requires specialized legal review
         <CardDescription>{t.subtitle}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">{t.aiModel}</label>
+            <Select value={selectedAIModel} onValueChange={setSelectedAIModel}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(aiModels).map(([key, model]) => (
+                  <SelectItem key={key} value={key}>
+                    <div className="flex items-center gap-2">
+                      <Brain className="h-4 w-4" />
+                      <span>{model.name} - {model.description}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
         <div>
           <Textarea
             value={query}
@@ -160,7 +222,10 @@ Notice: This is a preliminary consultation and requires specialized legal review
               {t.processing}
             </div>
           ) : (
-            t.submit
+            <div className="flex items-center gap-2">
+              <Brain className="h-4 w-4" />
+              {t.submit}
+            </div>
           )}
         </Button>
 

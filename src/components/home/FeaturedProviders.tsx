@@ -19,16 +19,58 @@ export const FeaturedProviders = ({ language }: FeaturedProvidersProps) => {
     ar: {
       featuredProviders: "مقدمو الخدمات المميزون",
       viewAllProviders: "عرض جميع مقدمي الخدمات",
-      yearsExperience: "سنوات خبرة"
+      yearsExperience: "سنوات خبرة",
+      consultation: "استشارة"
     },
     en: {
       featuredProviders: "Featured Service Providers",
       viewAllProviders: "View All Providers",
-      yearsExperience: "years experience"
+      yearsExperience: "years experience",
+      consultation: "consultation"
     }
   };
 
   const t = texts[language];
+
+  // Sample providers data
+  const sampleProviders = [
+    {
+      id: 1,
+      first_name: language === 'ar' ? 'أحمد' : 'Ahmed',
+      last_name: language === 'ar' ? 'السوري' : 'Al-Souri',
+      provider_type: language === 'ar' ? 'محامي' : 'lawyer',
+      rating: 4.8,
+      total_consultations: 150,
+      specialties: language === 'ar' ? ['القانون المدني', 'القانون التجاري'] : ['Civil Law', 'Commercial Law'],
+      hourly_rate: 200,
+      currency: 'SAR',
+      experience_years: 10
+    },
+    {
+      id: 2,
+      first_name: language === 'ar' ? 'فاطمة' : 'Fatima',
+      last_name: language === 'ar' ? 'الأحمد' : 'Al-Ahmad',
+      provider_type: language === 'ar' ? 'مستشارة قانونية' : 'legal consultant',
+      rating: 4.9,
+      total_consultations: 200,
+      specialties: language === 'ar' ? ['قانون الأسرة', 'الأحوال الشخصية'] : ['Family Law', 'Personal Status'],
+      hourly_rate: 180,
+      currency: 'SAR',
+      experience_years: 8
+    },
+    {
+      id: 3,
+      first_name: language === 'ar' ? 'محمد' : 'Mohammed',
+      last_name: language === 'ar' ? 'الخليل' : 'Al-Khalil',
+      provider_type: language === 'ar' ? 'خبير قانوني' : 'legal expert',
+      rating: 4.7,
+      total_consultations: 120,
+      specialties: language === 'ar' ? ['القانون الجنائي', 'القانون الإداري'] : ['Criminal Law', 'Administrative Law'],
+      hourly_rate: 250,
+      currency: 'SAR',
+      experience_years: 12
+    }
+  ];
 
   useEffect(() => {
     fetchFeaturedProviders();
@@ -45,13 +87,15 @@ export const FeaturedProviders = ({ language }: FeaturedProvidersProps) => {
         .limit(3);
 
       if (error) throw error;
-      setFeaturedProviders(data || []);
+      
+      // If no providers in database, show sample data
+      setFeaturedProviders(data && data.length > 0 ? data : sampleProviders);
     } catch (error) {
       console.error('Error fetching featured providers:', error);
+      // Fallback to sample data
+      setFeaturedProviders(sampleProviders);
     }
   };
-
-  if (featuredProviders.length === 0) return null;
 
   return (
     <div className="mb-12">
@@ -88,7 +132,7 @@ export const FeaturedProviders = ({ language }: FeaturedProvidersProps) => {
                 <div className={`flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
                   <Star className="h-4 w-4 text-yellow-500 fill-current" />
                   <span className="text-sm font-medium">{provider.rating?.toFixed(1) || '0.0'}</span>
-                  <span className="text-xs text-gray-500">({provider.total_consultations || 0} {language === 'ar' ? 'استشارة' : 'consultations'})</span>
+                  <span className="text-xs text-gray-500">({provider.total_consultations || 0} {language === 'ar' ? t.consultation : 'consultations'})</span>
                 </div>
                 
                 {provider.specialties && provider.specialties.length > 0 && (

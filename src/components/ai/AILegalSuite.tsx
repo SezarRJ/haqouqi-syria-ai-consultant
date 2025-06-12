@@ -7,7 +7,8 @@ import { IntelligentLegalSearch } from './IntelligentLegalSearch';
 import { DocumentDraftingModule } from './DocumentDraftingModule';
 import { RiskAssessmentAlgorithm } from './RiskAssessmentAlgorithm';
 import { OCRServiceIntegration } from './OCRServiceIntegration';
-import { Brain, Search, FileEdit, AlertTriangle, Upload } from 'lucide-react';
+import { ArabicAIModelsConfig } from './ArabicAIModelsConfig';
+import { Brain, Search, FileEdit, AlertTriangle, Upload, Settings } from 'lucide-react';
 
 interface AILegalSuiteProps {
   language: 'ar' | 'en';
@@ -22,7 +23,8 @@ export const AILegalSuite: React.FC<AILegalSuiteProps> = ({ language }) => {
       legalSearch: "البحث القانوني",
       documentDrafting: "صياغة الوثائق",
       riskAssessment: "تقييم المخاطر",
-      ocrService: "استخراج النصوص"
+      ocrService: "استخراج النصوص",
+      aiConfig: "إعدادات الذكاء الاصطناعي"
     },
     en: {
       title: "AI Legal Suite",
@@ -31,7 +33,8 @@ export const AILegalSuite: React.FC<AILegalSuiteProps> = ({ language }) => {
       legalSearch: "Legal Search",
       documentDrafting: "Document Drafting",
       riskAssessment: "Risk Assessment",
-      ocrService: "OCR Service"
+      ocrService: "OCR Service",
+      aiConfig: "AI Configuration"
     }
   };
 
@@ -47,7 +50,7 @@ export const AILegalSuite: React.FC<AILegalSuiteProps> = ({ language }) => {
       </Card>
 
       <Tabs defaultValue="case-analysis" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="case-analysis" className="flex items-center gap-2">
             <Brain className="h-4 w-4" />
             <span className="hidden sm:inline">{t.caseAnalysis}</span>
@@ -67,6 +70,10 @@ export const AILegalSuite: React.FC<AILegalSuiteProps> = ({ language }) => {
           <TabsTrigger value="ocr-service" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
             <span className="hidden sm:inline">{t.ocrService}</span>
+          </TabsTrigger>
+          <TabsTrigger value="ai-config" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            <span className="hidden sm:inline">{t.aiConfig}</span>
           </TabsTrigger>
         </TabsList>
 
@@ -88,6 +95,10 @@ export const AILegalSuite: React.FC<AILegalSuiteProps> = ({ language }) => {
 
         <TabsContent value="ocr-service">
           <OCRServiceIntegration language={language} />
+        </TabsContent>
+
+        <TabsContent value="ai-config">
+          <ArabicAIModelsConfig language={language} />
         </TabsContent>
       </Tabs>
     </div>
