@@ -33,7 +33,7 @@ const Index = () => {
       document.documentElement.dir = validLanguage === 'ar' ? 'rtl' : 'ltr';
       document.documentElement.lang = validLanguage;
     } else {
-      const defaultLang: 'ar' | 'en' = 'en';
+      const defaultLang = 'en' as const;
       setLanguage(defaultLang);
       localStorage.setItem('language', defaultLang);
       document.documentElement.dir = defaultLang === 'ar' ? 'rtl' : 'ltr';
