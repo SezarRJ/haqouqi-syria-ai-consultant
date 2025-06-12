@@ -13,8 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Lock, User, Loader2 } from 'lucide-react';
-import { FaGoogle, FaFacebook } from 'react-icons/fa'; // Import Google and Facebook icons
+import { Mail, Lock, User, Loader2, Chrome, Facebook } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/BackButton';
 
@@ -277,7 +276,7 @@ const Auth = () => {
               onClick={() => handleOAuthLogin('google')}
               disabled={loading}
             >
-              <FaGoogle className="mr-2 h-4 w-4" />
+              <Chrome className="mr-2 h-4 w-4" />
               {t.signInWithGoogle}
             </Button>
             <Button
@@ -286,7 +285,7 @@ const Auth = () => {
               onClick={() => handleOAuthLogin('facebook')}
               disabled={loading}
             >
-              <FaFacebook className="mr-2 h-4 w-4" />
+              <Facebook className="mr-2 h-4 w-4" />
               {t.signInWithFacebook}
             </Button>
           </div>
