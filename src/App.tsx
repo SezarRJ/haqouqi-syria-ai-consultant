@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -29,6 +30,7 @@ import NotificationsPage from '@/pages/NotificationsPage';
 import Privacy from '@/pages/Privacy';
 import Auth from '@/pages/Auth';
 import ServiceProviderPage from '@/pages/ServiceProviderPage';
+import ServiceProvidersPage from '@/pages/ServiceProvidersPage';
 
 const App = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -106,6 +108,7 @@ const App = () => {
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/advanced-features" element={<AdvancedFeaturesPage />} />
               <Route path="/service-provider" element={<ServiceProviderPage />} />
+              <Route path="/service-providers" element={<ServiceProvidersPage />} />
             </Routes>
           </SidebarInset>
         </div>
