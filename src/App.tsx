@@ -45,7 +45,7 @@ const App = () => {
   }, []);
 
   const toggleLanguage = () => {
-    const newLanguage = language === 'en' ? 'ar' : 'en'; // Fixed comparison logic
+    const newLanguage = language === 'en' ? 'ar' : 'en';
     setLanguage(newLanguage);
     localStorage.setItem('language', newLanguage);
   };

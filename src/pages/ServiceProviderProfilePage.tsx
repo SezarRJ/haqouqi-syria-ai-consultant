@@ -705,9 +705,7 @@ const ServiceProviderProfilePage = () => {
                   <h3 className="text-md font-semibold text-gray-900 dark:text-gray-100 mb-2">
                     {language === 'ar' ? 'الملفات المرفقة' : 'Attached Files'}
                   </h3>
-                  {/* Placeholder for displaying attached files */}
                   <div className="bg-gray-50 dark:bg-gray-900 dark:border-gray-700 border rounded-md p-4 h-32 overflow-y-auto text-gray-500 dark:text-gray-400">
-                    {/* Fetch and map files from consultation_files table here */}
                     <p>{language === 'ar' ? 'لا توجد ملفات مرفقة بعد.' : 'No files attached yet.'}</p>
                   </div>
                 </div>
