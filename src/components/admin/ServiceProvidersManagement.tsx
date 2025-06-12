@@ -4,12 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, FileText, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 import { ServiceProvider, Consultation } from './service-providers/types';
 import { ProvidersTable } from './service-providers/ProvidersTable';
 import { ConsultationsTable } from './service-providers/ConsultationsTable';
 import { AnalyticsDashboard } from './service-providers/AnalyticsDashboard';
-import { mockProviders, mockConsultations } from './service-providers/mockData';
 
 export const ServiceProvidersManagement = () => {
   const { toast } = useToast();
@@ -29,9 +29,14 @@ export const ServiceProvidersManagement = () => {
   const fetchProviders = async () => {
     setLoading(true);
     try {
-      // Mock data until database types are updated
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setProviders(mockProviders);
+      const { data, error } = await supabase
+        .from('service_providers')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setProviders(data || []);
     } catch (error) {
       console.error('Error fetching providers:', error);
       toast({
@@ -47,9 +52,21 @@ export const ServiceProvidersManagement = () => {
   const fetchConsultations = async () => {
     setLoading(true);
     try {
-      // Mock data until database types are updated
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setConsultations(mockConsultations);
+      const { data, error } = await supabase
+        .from('paid_consultations')
+        .select(`
+          *,
+          service_providers:provider_id (
+            first_name,
+            last_name,
+            provider_type
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setConsultations(data || []);
     } catch (error) {
       console.error('Error fetching consultations:', error);
       toast({
@@ -64,7 +81,13 @@ export const ServiceProvidersManagement = () => {
 
   const toggleProviderVerification = async (providerId: string, currentStatus: boolean) => {
     try {
-      // Mock update until database is available
+      const { error } = await supabase
+        .from('service_providers')
+        .update({ is_verified: !currentStatus })
+        .eq('id', providerId);
+
+      if (error) throw error;
+
       setProviders(prev => 
         prev.map(p => 
           p.id === providerId 
@@ -89,7 +112,13 @@ export const ServiceProvidersManagement = () => {
 
   const toggleProviderStatus = async (providerId: string, currentStatus: boolean) => {
     try {
-      // Mock update until database is available
+      const { error } = await supabase
+        .from('service_providers')
+        .update({ is_active: !currentStatus })
+        .eq('id', providerId);
+
+      if (error) throw error;
+
       setProviders(prev => 
         prev.map(p => 
           p.id === providerId 

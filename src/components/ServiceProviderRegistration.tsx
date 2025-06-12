@@ -6,115 +6,59 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { UserCheck, Upload, X, Plus } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-
-interface ServiceProviderFormData {
-  provider_type: 'lawyer' | 'judge' | '';
-  first_name: string;
-  last_name: string;
-  specialties: string[];
-  activities: string[];
-  bio: string;
-  experience_years: number;
-  hourly_rate: number;
-  account_number: string;
-  bank_name: string;
-}
+import { supabase } from '@/integrations/supabase/client';
+import { Scale, User, MapPin, CreditCard, FileText, CheckCircle } from 'lucide-react';
 
 export const ServiceProviderRegistration = () => {
   const { toast } = useToast();
-  const [formData, setFormData] = useState<ServiceProviderFormData>({
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
     provider_type: '',
     first_name: '',
     last_name: '',
-    specialties: [],
-    activities: [],
+    specialties: [] as string[],
+    activities: [] as string[],
     bio: '',
     experience_years: 0,
     hourly_rate: 0,
     account_number: '',
-    bank_name: '',
+    bank_name: ''
   });
-  const [newSpecialty, setNewSpecialty] = useState('');
-  const [newActivity, setNewActivity] = useState('');
-  const [certificates, setCertificates] = useState<File[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const specialtyOptions = [
-    'Commercial Law',
-    'Criminal Law',
-    'Family Law',
-    'Corporate Law',
-    'Real Estate Law',
-    'Labor Law',
-    'Tax Law',
-    'Constitutional Law',
-    'Administrative Law',
-    'Civil Law'
+    'Commercial Law', 'Corporate Law', 'Family Law', 'Criminal Law',
+    'Real Estate Law', 'Labor Law', 'Civil Law', 'Islamic Law',
+    'International Law', 'Intellectual Property'
   ];
 
   const activityOptions = [
-    'Legal Consultation',
-    'Document Drafting',
-    'Contract Review',
-    'Court Representation',
-    'Legal Research',
-    'Mediation',
-    'Arbitration',
-    'Compliance Review'
+    'Legal Consultation', 'Document Drafting', 'Contract Review',
+    'Legal Research', 'Mediation', 'Arbitration', 'Court Representation'
   ];
 
-  const handleInputChange = (field: keyof ServiceProviderFormData, value: any) => {
+  const bankOptions = [
+    'Al Rajhi Bank', 'SABB', 'National Commercial Bank', 'Riyad Bank',
+    'Arab National Bank', 'Banque Saudi Fransi', 'SAMBA', 'Alinma Bank'
+  ];
+
+  const handleSpecialtyChange = (specialty: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      specialties: checked 
+        ? [...prev.specialties, specialty]
+        : prev.specialties.filter(s => s !== specialty)
     }));
   };
 
-  const addSpecialty = (specialty: string) => {
-    if (specialty && !formData.specialties.includes(specialty)) {
-      setFormData(prev => ({
-        ...prev,
-        specialties: [...prev.specialties, specialty]
-      }));
-      setNewSpecialty('');
-    }
-  };
-
-  const removeSpecialty = (specialty: string) => {
+  const handleActivityChange = (activity: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      specialties: prev.specialties.filter(s => s !== specialty)
+      activities: checked 
+        ? [...prev.activities, activity]
+        : prev.activities.filter(a => a !== activity)
     }));
-  };
-
-  const addActivity = (activity: string) => {
-    if (activity && !formData.activities.includes(activity)) {
-      setFormData(prev => ({
-        ...prev,
-        activities: [...prev.activities, activity]
-      }));
-      setNewActivity('');
-    }
-  };
-
-  const removeActivity = (activity: string) => {
-    setFormData(prev => ({
-      ...prev,
-      activities: prev.activities.filter(a => a !== activity)
-    }));
-  };
-
-  const handleCertificateUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setCertificates(prev => [...prev, ...Array.from(e.target.files!)]);
-    }
-  };
-
-  const removeCertificate = (index: number) => {
-    setCertificates(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -122,16 +66,29 @@ export const ServiceProviderRegistration = () => {
     setIsSubmitting(true);
 
     try {
-      // Temporarily using mock submission until database types are updated
-      console.log('Service provider application data:', formData);
-      console.log('Certificates to upload:', certificates.map(cert => cert.name));
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: 'Authentication Required',
+          description: 'Please sign in to register as a service provider',
+          variant: 'destructive'
+        });
+        return;
+      }
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase
+        .from('service_providers')
+        .insert([{
+          user_id: user.id,
+          ...formData
+        }]);
+
+      if (error) throw error;
 
       toast({
-        title: 'Success',
-        description: 'Service provider application submitted successfully. It will be reviewed by our admin team.',
+        title: 'Registration Successful',
+        description: 'Your application has been submitted for review. You will be notified once approved.',
       });
 
       // Reset form
@@ -145,16 +102,15 @@ export const ServiceProviderRegistration = () => {
         experience_years: 0,
         hourly_rate: 0,
         account_number: '',
-        bank_name: '',
+        bank_name: ''
       });
-      setCertificates([]);
 
     } catch (error) {
-      console.error('Error submitting application:', error);
+      console.error('Error submitting registration:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to submit service provider application',
-        variant: 'destructive',
+        title: 'Registration Failed',
+        description: 'There was an error submitting your application. Please try again.',
+        variant: 'destructive'
       });
     } finally {
       setIsSubmitting(false);
@@ -162,244 +118,211 @@ export const ServiceProviderRegistration = () => {
   };
 
   return (
-    <Card className="max-w-4xl mx-auto">
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-            <UserCheck className="h-5 w-5 text-blue-600" />
-          </div>
-          <div>
-            <CardTitle>Service Provider Registration</CardTitle>
-            <CardDescription>
-              Apply to become a verified service provider and offer paid consultations
-            </CardDescription>
-          </div>
+    <div className="max-w-4xl mx-auto p-6 space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-4">
+        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+          <Scale className="h-8 w-8 text-blue-600" />
         </div>
-      </CardHeader>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Service Provider Registration</h1>
+          <p className="text-gray-600 mt-2">
+            Join our platform as a legal professional and start providing consultation services
+          </p>
+        </div>
+      </div>
 
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="provider_type">Provider Type</Label>
-              <Select
-                value={formData.provider_type}
-                onValueChange={(value) => handleInputChange('provider_type', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select provider type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="lawyer">Lawyer</SelectItem>
-                  <SelectItem value="judge">Judge</SelectItem>
-                </SelectContent>
-              </Select>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Basic Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Basic Information
+            </CardTitle>
+            <CardDescription>Tell us about yourself and your professional background</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="provider_type">Professional Type *</Label>
+                <Select value={formData.provider_type} onValueChange={(value) => setFormData(prev => ({...prev, provider_type: value}))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your profession" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="lawyer">Lawyer</SelectItem>
+                    <SelectItem value="judge">Judge</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="experience_years">Years of Experience *</Label>
+                <Input
+                  id="experience_years"
+                  type="number"
+                  min="0"
+                  value={formData.experience_years}
+                  onChange={(e) => setFormData(prev => ({...prev, experience_years: parseInt(e.target.value) || 0}))}
+                  required
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="experience_years">Experience (Years)</Label>
-              <Input
-                id="experience_years"
-                type="number"
-                min="0"
-                value={formData.experience_years}
-                onChange={(e) => handleInputChange('experience_years', parseInt(e.target.value) || 0)}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="first_name">First Name *</Label>
+                <Input
+                  id="first_name"
+                  value={formData.first_name}
+                  onChange={(e) => setFormData(prev => ({...prev, first_name: e.target.value}))}
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="last_name">Last Name *</Label>
+                <Input
+                  id="last_name"
+                  value={formData.last_name}
+                  onChange={(e) => setFormData(prev => ({...prev, last_name: e.target.value}))}
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="bio">Professional Biography</Label>
+              <Textarea
+                id="bio"
+                placeholder="Describe your professional background, experience, and expertise..."
+                value={formData.bio}
+                onChange={(e) => setFormData(prev => ({...prev, bio: e.target.value}))}
+                className="min-h-[120px]"
               />
             </div>
+          </CardContent>
+        </Card>
 
-            <div className="space-y-2">
-              <Label htmlFor="first_name">First Name</Label>
-              <Input
-                id="first_name"
-                value={formData.first_name}
-                onChange={(e) => handleInputChange('first_name', e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="last_name">Last Name</Label>
-              <Input
-                id="last_name"
-                value={formData.last_name}
-                onChange={(e) => handleInputChange('last_name', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          {/* Bio */}
-          <div className="space-y-2">
-            <Label htmlFor="bio">Professional Bio</Label>
-            <Textarea
-              id="bio"
-              value={formData.bio}
-              onChange={(e) => handleInputChange('bio', e.target.value)}
-              placeholder="Describe your professional background and expertise..."
-              rows={4}
-            />
-          </div>
-
-          {/* Specialties */}
-          <div className="space-y-2">
-            <Label>Legal Specialties</Label>
-            <div className="flex gap-2 mb-2">
-              <Select value={newSpecialty} onValueChange={setNewSpecialty}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Select specialty" />
-                </SelectTrigger>
-                <SelectContent>
-                  {specialtyOptions.map(specialty => (
-                    <SelectItem key={specialty} value={specialty}>
-                      {specialty}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => addSpecialty(newSpecialty)}
-                disabled={!newSpecialty}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {formData.specialties.map(specialty => (
-                <Badge key={specialty} variant="secondary" className="flex items-center gap-1">
-                  {specialty}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => removeSpecialty(specialty)}
-                  />
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          {/* Activities */}
-          <div className="space-y-2">
-            <Label>Service Activities</Label>
-            <div className="flex gap-2 mb-2">
-              <Select value={newActivity} onValueChange={setNewActivity}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Select activity" />
-                </SelectTrigger>
-                <SelectContent>
-                  {activityOptions.map(activity => (
-                    <SelectItem key={activity} value={activity}>
-                      {activity}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => addActivity(newActivity)}
-                disabled={!newActivity}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {formData.activities.map(activity => (
-                <Badge key={activity} variant="secondary" className="flex items-center gap-1">
-                  {activity}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => removeActivity(activity)}
-                  />
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          {/* Pricing */}
-          <div className="space-y-2">
-            <Label htmlFor="hourly_rate">Hourly Rate (SAR)</Label>
-            <Input
-              id="hourly_rate"
-              type="number"
-              min="0"
-              step="0.01"
-              value={formData.hourly_rate}
-              onChange={(e) => handleInputChange('hourly_rate', parseFloat(e.target.value) || 0)}
-              required
-            />
-          </div>
-
-          {/* Banking Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="bank_name">Bank Name</Label>
-              <Input
-                id="bank_name"
-                value={formData.bank_name}
-                onChange={(e) => handleInputChange('bank_name', e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="account_number">Account Number</Label>
-              <Input
-                id="account_number"
-                value={formData.account_number}
-                onChange={(e) => handleInputChange('account_number', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          {/* Certificates Upload */}
-          <div className="space-y-2">
-            <Label>Professional Certificates</Label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-              <input
-                type="file"
-                multiple
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={handleCertificateUpload}
-                className="hidden"
-                id="certificates"
-              />
-              <label htmlFor="certificates" className="cursor-pointer">
-                <div className="text-center">
-                  <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">
-                    Click to upload certificates (PDF, JPG, PNG)
-                  </p>
-                </div>
-              </label>
-            </div>
-            
-            {certificates.length > 0 && (
-              <div className="space-y-2">
-                {certificates.map((cert, index) => (
-                  <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                    <span className="text-sm">{cert.name}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeCertificate(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+        {/* Specialties & Services */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Specialties & Services
+            </CardTitle>
+            <CardDescription>Select your areas of expertise and services you provide</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <Label className="text-sm font-medium">Legal Specialties</Label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                {specialtyOptions.map((specialty) => (
+                  <div key={specialty} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={specialty}
+                      checked={formData.specialties.includes(specialty)}
+                      onCheckedChange={(checked) => handleSpecialtyChange(specialty, checked as boolean)}
+                    />
+                    <Label htmlFor={specialty} className="text-sm">{specialty}</Label>
                   </div>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Submitting Application...' : 'Submit Application'}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+            <div>
+              <Label className="text-sm font-medium">Services Offered</Label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                {activityOptions.map((activity) => (
+                  <div key={activity} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={activity}
+                      checked={formData.activities.includes(activity)}
+                      onCheckedChange={(checked) => handleActivityChange(activity, checked as boolean)}
+                    />
+                    <Label htmlFor={activity} className="text-sm">{activity}</Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Pricing & Payment */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5" />
+              Pricing & Payment Information
+            </CardTitle>
+            <CardDescription>Set your rates and provide payment details</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="hourly_rate">Hourly Rate (SAR) *</Label>
+              <Input
+                id="hourly_rate"
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.hourly_rate}
+                onChange={(e) => setFormData(prev => ({...prev, hourly_rate: parseFloat(e.target.value) || 0}))}
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="bank_name">Bank Name *</Label>
+                <Select value={formData.bank_name} onValueChange={(value) => setFormData(prev => ({...prev, bank_name: value}))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your bank" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bankOptions.map((bank) => (
+                      <SelectItem key={bank} value={bank}>{bank}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="account_number">Account Number *</Label>
+                <Input
+                  id="account_number"
+                  value={formData.account_number}
+                  onChange={(e) => setFormData(prev => ({...prev, account_number: e.target.value}))}
+                  required
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Submit */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-center space-y-4 text-center">
+              <div className="space-y-4 w-full">
+                <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span>Your application will be reviewed within 2-3 business days</span>
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  className="w-full md:w-auto"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Application'}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </form>
+    </div>
   );
 };

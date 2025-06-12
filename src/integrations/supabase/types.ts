@@ -36,6 +36,51 @@ export type Database = {
         }
         Relationships: []
       }
+      consultation_reviews: {
+        Row: {
+          client_id: string | null
+          consultation_id: string | null
+          created_at: string | null
+          id: string
+          provider_id: string | null
+          rating: number | null
+          review_text: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          consultation_id?: string | null
+          created_at?: string | null
+          id?: string
+          provider_id?: string | null
+          rating?: number | null
+          review_text?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          consultation_id?: string | null
+          created_at?: string | null
+          id?: string
+          provider_id?: string | null
+          rating?: number | null
+          review_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultation_reviews_consultation_id_fkey"
+            columns: ["consultation_id"]
+            isOneToOne: false
+            referencedRelation: "paid_consultations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consultation_reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consultations: {
         Row: {
           ai_response: string | null
@@ -284,6 +329,74 @@ export type Database = {
           },
         ]
       }
+      paid_consultations: {
+        Row: {
+          client_id: string | null
+          consultation_type: string | null
+          created_at: string | null
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          payment_status: string | null
+          platform_fee: number
+          platform_fee_percentage: number | null
+          provider_amount: number
+          provider_id: string | null
+          rate: number
+          scheduled_at: string | null
+          status: string | null
+          subject: string
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          consultation_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          payment_status?: string | null
+          platform_fee: number
+          platform_fee_percentage?: number | null
+          provider_amount: number
+          provider_id?: string | null
+          rate: number
+          scheduled_at?: string | null
+          status?: string | null
+          subject: string
+          total_amount: number
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          consultation_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          payment_status?: string | null
+          platform_fee?: number
+          platform_fee_percentage?: number | null
+          provider_amount?: number
+          provider_id?: string | null
+          rate?: number
+          scheduled_at?: string | null
+          status?: string | null
+          subject?: string
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paid_consultations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_methods: {
         Row: {
           created_at: string
@@ -388,6 +501,113 @@ export type Database = {
           role?: string | null
           status?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      provider_certificates: {
+        Row: {
+          certificate_name: string
+          certificate_url: string
+          created_at: string | null
+          expiry_date: string | null
+          id: string
+          issue_date: string | null
+          issued_by: string | null
+          provider_id: string | null
+        }
+        Insert: {
+          certificate_name: string
+          certificate_url: string
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          issue_date?: string | null
+          issued_by?: string | null
+          provider_id?: string | null
+        }
+        Update: {
+          certificate_name?: string
+          certificate_url?: string
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          issue_date?: string | null
+          issued_by?: string | null
+          provider_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_certificates_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_providers: {
+        Row: {
+          account_number: string
+          activities: string[] | null
+          bank_name: string
+          bio: string | null
+          created_at: string | null
+          currency: string | null
+          experience_years: number | null
+          first_name: string
+          hourly_rate: number
+          id: string
+          is_active: boolean | null
+          is_verified: boolean | null
+          last_name: string
+          provider_type: string
+          rating: number | null
+          specialties: string[] | null
+          total_consultations: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          account_number: string
+          activities?: string[] | null
+          bank_name: string
+          bio?: string | null
+          created_at?: string | null
+          currency?: string | null
+          experience_years?: number | null
+          first_name: string
+          hourly_rate: number
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          last_name: string
+          provider_type: string
+          rating?: number | null
+          specialties?: string[] | null
+          total_consultations?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          account_number?: string
+          activities?: string[] | null
+          bank_name?: string
+          bio?: string | null
+          created_at?: string | null
+          currency?: string | null
+          experience_years?: number | null
+          first_name?: string
+          hourly_rate?: number
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          last_name?: string
+          provider_type?: string
+          rating?: number | null
+          specialties?: string[] | null
+          total_consultations?: number | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
