@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -36,7 +35,13 @@ export const ServiceProvidersManagement = () => {
 
       if (error) throw error;
 
-      setProviders(data || []);
+      // Type cast the data to match our ServiceProvider interface
+      const typedProviders = (data || []).map(provider => ({
+        ...provider,
+        provider_type: provider.provider_type as 'lawyer' | 'judge'
+      })) as ServiceProvider[];
+
+      setProviders(typedProviders);
     } catch (error) {
       console.error('Error fetching providers:', error);
       toast({
@@ -66,7 +71,16 @@ export const ServiceProvidersManagement = () => {
 
       if (error) throw error;
 
-      setConsultations(data || []);
+      // Type cast the data to match our Consultation interface
+      const typedConsultations = (data || []).map(consultation => ({
+        ...consultation,
+        service_providers: consultation.service_providers ? {
+          ...consultation.service_providers,
+          provider_type: consultation.service_providers.provider_type as string
+        } : undefined
+      })) as Consultation[];
+
+      setConsultations(typedConsultations);
     } catch (error) {
       console.error('Error fetching consultations:', error);
       toast({
