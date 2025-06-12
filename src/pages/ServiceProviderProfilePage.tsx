@@ -721,7 +721,7 @@ const ServiceProviderProfilePage = () => {
 
         {/* Payment Modal/Section - shown after consultation request is sent and approved (conceptually) */}
         {consultationRequestSent && !isPaymentProcessing && (
-          <Dialog open={true} onOpenChange={() => { /* prevent closing until paid in real scenario */}}>
+          <Dialog open={true} onOpenChange={() => {}}>
             <DialogContent className="sm:max-w-[425px] dark:bg-gray-800 dark:text-gray-100">
               <DialogHeader>
                 <DialogTitle>{t.paymentMethodTitle}</DialogTitle>
@@ -747,9 +747,6 @@ const ServiceProviderProfilePage = () => {
                   </Button>
                 </div>
               </div>
-              <DialogFooter>
-                {/* <Button variant="outline" onClick={() => {/* Close dialog or navigate */} }>{t.cancel}</Button> */}
-              </DialogFooter>
             </DialogContent>
           </Dialog>
         )}
