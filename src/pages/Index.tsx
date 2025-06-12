@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -51,32 +52,29 @@ const Index = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <Loader2 className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 dark:border-blue-400 border-t-transparent"></Loader2>
-        <span className="sr-only">Loading...</span>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="animate-spin h-12 w-12 text-blue-600 dark:text-blue-400" />
+          <span className="text-lg font-medium text-gray-600 dark:text-gray-300">جاري التحميل...</span>
+        </div>
       </div>
     );
   }
 
-  // Define sidebar width (adjust this value to match your actual sidebar width)
-  const sidebarWidthClass = 'w-64'; // Example: w-64 for a 16rem sidebar
-
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 text-gray-900 dark:text-gray-100" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-        {/* AppSidebar: Needs to be fixed to left/right based on language */}
+    <SidebarProvider side={language === 'ar' ? 'right' : 'left'}>
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700" dir={language === 'ar' ? 'rtl' : 'ltr'}>
         <AppSidebar user={user} language={language} onLanguageChange={handleLanguageChange} />
-
-        {/* SidebarInset: Needs dynamic margin to push content beside sidebar */}
-        <SidebarInset
-          className={`flex-1 transition-all duration-300 ease-in-out
-            ${language === 'ar' ? 'mr-64' : 'ml-64'} /* Apply margin based on sidebar width */
-            `}
-        >
-          <HomeHeader user={user} language={language} />
-          <HeroSection user={user} language={language} />
-          <div className="container mx-auto px-4 py-8 max-w-7xl">
-            <ServicesGrid language={language} />
-            <FeaturedProviders language={language} />
+        
+        <SidebarInset className="flex-1 min-w-0">
+          <div className="flex flex-col min-h-screen">
+            <HomeHeader user={user} language={language} />
+            <main className="flex-1">
+              <HeroSection user={user} language={language} />
+              <div className="container mx-auto px-4 py-8 max-w-7xl space-y-12">
+                <ServicesGrid language={language} />
+                <FeaturedProviders language={language} />
+              </div>
+            </main>
           </div>
         </SidebarInset>
       </div>
