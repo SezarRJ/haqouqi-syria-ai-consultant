@@ -26,15 +26,8 @@ import {
   Scale,
   Brain,
   Home,
-  MessageSquare,
-  AlertTriangle,
-  FileText,
-  Search,
-  ScanText,
-  BarChart3,
-  BookOpen,
-  Users,
-  Bell
+  Bell,
+  Wrench
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -66,19 +59,9 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       legalAdvisor: 'المستشار القانوني',
       smartSystem: 'نظام ذكي للاستشارات',
       mainMenu: 'القائمة الرئيسية',
-      legalServices: 'الخدمات القانونية',
       aiFeatures: 'الذكاء الاصطناعي',
       accountPayment: 'الحساب والدفع',
       home: 'الرئيسية',
-      consultation: 'الاستشارة',
-      riskAssessment: 'تقييم المخاطر',
-      documentDrafting: 'صياغة الوثائق',
-      legalSearch: 'البحث القانوني',
-      ocrService: 'خدمة OCR',
-      caseAnalysis: 'تحليل القضايا',
-      explanations: 'الشروحات',
-      collaboration: 'التعاون',
-      aiTools: 'أدوات الذكاء الاصطناعي',
       profile: 'الملف الشخصي',
       settings: 'الإعدادات',
       subscriptions: 'الاشتراكات',
@@ -89,25 +72,17 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       voucher: 'كوبون الشحن',
       history: 'السجل',
       hello: 'مرحباً،',
-      signOut: 'تسجيل الخروج'
+      signOut: 'تسجيل الخروج',
+      aiTools: 'أدوات الذكاء الاصطناعي',
+      advancedFeatures: 'الميزات المتقدمة'
     },
     en: {
       legalAdvisor: 'Legal Advisor',
       smartSystem: 'Smart Legal System',
       mainMenu: 'Main Menu',
-      legalServices: 'Legal Services',
       aiFeatures: 'AI Features',
       accountPayment: 'Account & Payment',
       home: 'Home',
-      consultation: 'Consultation',
-      riskAssessment: 'Risk Assessment',
-      documentDrafting: 'Document Drafting',
-      legalSearch: 'Legal Search',
-      ocrService: 'OCR Service',
-      caseAnalysis: 'Case Analysis',
-      explanations: 'Explanations',
-      collaboration: 'Collaboration',
-      aiTools: 'AI Tools',
       profile: 'Profile',
       settings: 'Settings',
       subscriptions: 'Subscriptions',
@@ -118,7 +93,9 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       voucher: 'Voucher',
       history: 'History',
       hello: 'Hello,',
-      signOut: 'Sign Out'
+      signOut: 'Sign Out',
+      aiTools: 'AI Tools',
+      advancedFeatures: 'Advanced Features'
     }
   };
 
@@ -131,11 +108,6 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       path: '/'
     },
     {
-      title: t.profile,
-      icon: User,
-      path: '/profile'
-    },
-    {
       title: t.balance,
       icon: DollarSign,
       path: '/balance'
@@ -144,59 +116,6 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
       title: t.notifications,
       icon: Bell,
       path: '/notifications'
-    },
-    {
-      title: t.settings,
-      icon: Settings,
-      path: '/settings'
-    },
-    {
-      title: t.subscriptions,
-      icon: CreditCard,
-      path: '/pricing'
-    }
-  ];
-
-  const legalServiceItems = [
-    {
-      title: t.consultation,
-      icon: MessageSquare,
-      path: '/consultation'
-    },
-    {
-      title: t.riskAssessment,
-      icon: AlertTriangle,
-      path: '/risk-assessment'
-    },
-    {
-      title: t.documentDrafting,
-      icon: FileText,
-      path: '/document-drafting'
-    },
-    {
-      title: t.legalSearch,
-      icon: Search,
-      path: '/legal-search'
-    },
-    {
-      title: t.ocrService,
-      icon: ScanText,
-      path: '/ocr-service'
-    },
-    {
-      title: t.caseAnalysis,
-      icon: BarChart3,
-      path: '/case-analysis'
-    },
-    {
-      title: t.explanations,
-      icon: BookOpen,
-      path: '/explanations'
-    },
-    {
-      title: t.collaboration,
-      icon: Users,
-      path: '/collaboration'
     }
   ];
 
@@ -213,7 +132,30 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
     }
   ];
 
+  const settingsItems = [
+    {
+      title: t.settings,
+      icon: Settings,
+      path: '/settings'
+    },
+    {
+      title: t.advancedFeatures,
+      icon: Wrench,
+      path: '/advanced-features'
+    },
+    {
+      title: t.subscriptions,
+      icon: CreditCard,
+      path: '/pricing'
+    }
+  ];
+
   const accountItems = [
+    {
+      title: t.profile,
+      icon: User,
+      path: '/profile'
+    },
     {
       title: t.paymentMethods,
       icon: Wallet,
@@ -276,11 +218,11 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
 
         <SidebarGroup>
           <SidebarGroupLabel className={`text-xs sm:text-sm ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-            {t.legalServices}
+            {t.aiFeatures}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {legalServiceItems.map((item) => (
+              {aiFeatureItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton 
                     asChild 
@@ -300,11 +242,11 @@ export const AppSidebar = ({ user, language, onLanguageChange }: AppSidebarProps
 
         <SidebarGroup>
           <SidebarGroupLabel className={`text-xs sm:text-sm ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-            {t.aiFeatures}
+            {t.settings}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {aiFeatureItems.map((item) => (
+              {settingsItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton 
                     asChild 

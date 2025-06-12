@@ -11,6 +11,7 @@ import Index from '@/pages/Index';
 import Admin from '@/pages/Admin';
 import Profile from '@/pages/Profile';
 import SettingsPage from '@/pages/Settings';
+import AdvancedFeaturesPage from '@/pages/AdvancedFeaturesPage';
 import Pricing from '@/pages/Pricing';
 import BalancePage from '@/pages/BalancePage';
 import VoucherPage from '@/pages/VoucherPage';
