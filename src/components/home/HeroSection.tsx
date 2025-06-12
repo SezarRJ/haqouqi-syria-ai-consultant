@@ -41,14 +41,12 @@ export const HeroSection = ({ language, user }: HeroSectionProps) => {
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700">
-      {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-indigo-600/5"></div>
       <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full opacity-20 blur-3xl transform translate-x-32 -translate-y-16"></div>
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-indigo-100 to-blue-100 rounded-full opacity-20 blur-3xl transform -translate-x-16 translate-y-16"></div>
 
       <div className="relative z-10 container mx-auto px-4 py-16 md:py-24">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left Content */}
           <div className={`space-y-8 ${language === 'ar' ? 'lg:text-right text-center' : 'lg:text-left text-center'}`}>
             {user && (
               <div className="inline-flex items-center px-4 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-full border border-blue-200 dark:border-blue-800">
@@ -67,7 +65,6 @@ export const HeroSection = ({ language, user }: HeroSectionProps) => {
               </p>
             </div>
 
-            {/* Feature Pills */}
             <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
               <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
                 <Shield className="h-4 w-4 text-green-500 flex-shrink-0" />
@@ -83,14 +80,13 @@ export const HeroSection = ({ language, user }: HeroSectionProps) => {
               </div>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
+            <div className={`flex flex-col sm:flex-row gap-4 items-center ${language === 'ar' ? 'sm:flex-row-reverse' : ''} ${language === 'ar' ? 'justify-center lg:justify-start' : 'justify-center lg:justify-start'}`}>
               <Button
                 size="lg"
                 className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 px-8 py-3 rounded-xl text-base font-semibold"
                 onClick={() => navigate('/providers')}
               >
-                <span className="flex items-center justify-center gap-2">
+                <span className={`flex items-center justify-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
                   {currentText.ctaPrimary}
                   <ChevronRight className={`h-5 w-5 ${language === 'ar' ? 'rotate-180' : ''}`} />
                 </span>
@@ -105,9 +101,8 @@ export const HeroSection = ({ language, user }: HeroSectionProps) => {
               </Button>
             </div>
 
-            {/* Trust Badge */}
-            <div className="flex items-center justify-center lg:justify-start gap-3 pt-4">
-              <div className="flex -space-x-2">
+            <div className={`flex items-center gap-3 pt-4 ${language === 'ar' ? 'justify-center lg:justify-start' : 'justify-center lg:justify-start'}`}>
+              <div className={`flex ${language === 'ar' ? 'flex-row-reverse' : ''} -space-x-2`}>
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center text-white text-xs font-bold">
                     {i}
@@ -118,22 +113,23 @@ export const HeroSection = ({ language, user }: HeroSectionProps) => {
             </div>
           </div>
 
-          {/* Right Visual */}
           <div className="relative">
             <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
-              {/* Decorative Elements */}
               <div className="absolute -top-4 -right-4 w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-2xl rotate-12 opacity-80"></div>
               <div className="absolute -bottom-4 -left-4 w-12 h-12 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-xl rotate-45 opacity-60"></div>
               
-              {/* Content */}
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Shield className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-base">استشارة قانونية فورية</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">متاح 24/7</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-base">
+                      {language === 'ar' ? 'استشارة قانونية فورية' : 'Instant Legal Consultation'}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {language === 'ar' ? 'متاح 24/7' : 'Available 24/7'}
+                    </p>
                   </div>
                 </div>
                 
@@ -142,24 +138,32 @@ export const HeroSection = ({ language, user }: HeroSectionProps) => {
                     <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center flex-shrink-0">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     </div>
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">محامي متاح الآن</span>
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                      {language === 'ar' ? 'محامي متاح الآن' : 'Lawyer Available Now'}
+                    </span>
                   </div>
                   <div className="space-y-2">
                     <div className="h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
                       <div className="h-full w-4/5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">معدل الاستجابة: 95%</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {language === 'ar' ? 'معدل الاستجابة: 95%' : 'Response Rate: 95%'}
+                    </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
                     <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">24/7</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">متاح دائماً</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      {language === 'ar' ? 'متاح دائماً' : 'Always Available'}
+                    </div>
                   </div>
                   <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-xl">
                     <div className="text-2xl font-bold text-green-600 dark:text-green-400">1000+</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">قضية منجزة</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      {language === 'ar' ? 'قضية منجزة' : 'Cases Completed'}
+                    </div>
                   </div>
                 </div>
               </div>
