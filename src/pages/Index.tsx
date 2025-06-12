@@ -26,11 +26,12 @@ const Index = () => {
       setIsLoading(false);
     });
 
-    const savedLanguage = localStorage.getItem('language') as 'ar' | 'en';
+    const savedLanguage = localStorage.getItem('language');
     if (savedLanguage && (savedLanguage === 'ar' || savedLanguage === 'en')) {
-      setLanguage(savedLanguage);
-      document.documentElement.dir = savedLanguage === 'ar' ? 'rtl' : 'ltr';
-      document.documentElement.lang = savedLanguage;
+      const validLanguage = savedLanguage as 'ar' | 'en';
+      setLanguage(validLanguage);
+      document.documentElement.dir = validLanguage === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.lang = validLanguage;
     } else {
       const defaultLang: 'ar' | 'en' = 'en';
       setLanguage(defaultLang);
